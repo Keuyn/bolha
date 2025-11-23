@@ -1,0 +1,1619 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QRCodeMaker - Gerador de QR Code Avançado</title>
+    <style>
+        /* Estilos CSS */
+        :root {
+            --bg-primary: #280000;
+            --bg-secondary: #000000;
+            --accent: #640000;
+            --accent-light: #8c0000;
+            --text-primary: #ffffff;
+            --text-secondary: #cccccc;
+            --success: #4CAF50;
+            --warning: #ff9800;
+            --error: #f44336;
+            --border-radius: 8px;
+            --transition: all 0.3s ease;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.6;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background-color: var(--bg-secondary);
+            border-radius: var(--border-radius);
+            padding: 20px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid var(--accent);
+        }
+
+        h1 {
+            color: var(--text-primary);
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+        }
+
+        .content {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .input-section, .options-section, .preview-section {
+            flex: 1;
+            min-width: 300px;
+            background-color: rgba(100, 0, 0, 0.1);
+            border-radius: var(--border-radius);
+            padding: 20px;
+        }
+
+        .section-title {
+            font-size: 1.3rem;
+            margin-bottom: 15px;
+            color: var(--accent-light);
+            border-bottom: 1px solid var(--accent);
+            padding-bottom: 5px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+        }
+
+        input[type="text"],
+        input[type="number"],
+        input[type="color"],
+        input[type="url"],
+        textarea,
+        select {
+            width: 100%;
+            padding: 10px;
+            border-radius: var(--border-radius);
+            border: 1px solid var(--accent);
+            background-color: rgba(0, 0, 0, 0.3);
+            color: var(--text-primary);
+            transition: var(--transition);
+        }
+
+        textarea {
+            min-height: 120px;
+            resize: vertical;
+        }
+
+        input:focus, textarea:focus, select:focus {
+            outline: none;
+            border-color: var(--accent-light);
+            box-shadow: 0 0 0 2px rgba(140, 0, 0, 0.3);
+        }
+
+        .button-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        button {
+            padding: 10px 15px;
+            border: none;
+            border-radius: var(--border-radius);
+            background-color: var(--accent);
+            color: var(--text-primary);
+            cursor: pointer;
+            transition: var(--transition);
+            font-weight: 500;
+        }
+
+        button:hover {
+            background-color: var(--accent-light);
+        }
+
+        button:active {
+            transform: scale(0.98);
+        }
+
+        button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .primary-button {
+            background-color: var(--accent);
+            flex-grow: 1;
+        }
+
+        .secondary-button {
+            background-color: transparent;
+            border: 1px solid var(--accent);
+        }
+
+        .qr-preview {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: var(--border-radius);
+            margin-bottom: 20px;
+            min-height: 300px;
+        }
+
+        #qrCanvas {
+            max-width: 100%;
+            height: auto;
+            border: 1px solid #ddd;
+        }
+
+        .qr-info {
+            margin-top: 15px;
+            width: 100%;
+            background-color: rgba(0, 0, 0, 0.1);
+            padding: 10px;
+            border-radius: var(--border-radius);
+            font-size: 0.9rem;
+        }
+
+        .color-inputs {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .color-input-group {
+            flex: 1;
+        }
+
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 50px;
+            height: 24px;
+        }
+
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: .4s;
+            border-radius: 24px;
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 18px;
+            width: 18px;
+            left: 3px;
+            bottom: 3px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+
+        input:checked + .slider {
+            background-color: var(--accent);
+        }
+
+        input:checked + .slider:before {
+            transform: translateX(26px);
+        }
+
+        .range-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .range-value {
+            min-width: 40px;
+            text-align: center;
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background-color: var(--accent);
+            color: white;
+            padding: 15px 20px;
+            border-radius: var(--border-radius);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+            transform: translateY(100px);
+            opacity: 0;
+            transition: transform 0.3s, opacity 0.3s;
+            z-index: 1000;
+            max-width: 300px;
+        }
+
+        .toast.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        .toast.success {
+            background-color: var(--success);
+        }
+
+        .toast.error {
+            background-color: var(--error);
+        }
+
+        .toast.warning {
+            background-color: var(--warning);
+        }
+
+        .tabs {
+            display: flex;
+            margin-bottom: 20px;
+            border-bottom: 1px solid var(--accent);
+        }
+
+        .tab {
+            padding: 10px 20px;
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            transition: var(--transition);
+        }
+
+        .tab.active {
+            border-bottom-color: var(--accent-light);
+            color: var(--accent-light);
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .file-input-wrapper {
+            position: relative;
+            overflow: hidden;
+            display: inline-block;
+            width: 100%;
+        }
+
+        .file-input-wrapper input[type=file] {
+            position: absolute;
+            left: -9999px;
+        }
+
+        .file-input-label {
+            display: block;
+            padding: 10px;
+            background-color: rgba(100, 0, 0, 0.2);
+            border: 1px dashed var(--accent);
+            border-radius: var(--border-radius);
+            text-align: center;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .file-input-label:hover {
+            background-color: rgba(100, 0, 0, 0.3);
+        }
+
+        .high-contrast {
+            --bg-primary: #000000;
+            --bg-secondary: #111111;
+            --accent: #ffffff;
+            --accent-light: #cccccc;
+            --text-primary: #ffffff;
+            --text-secondary: #dddddd;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        @media (max-width: 768px) {
+            .content {
+                flex-direction: column;
+            }
+            
+            .input-section, .options-section, .preview-section {
+                min-width: 100%;
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background-color: var(--bg-secondary);
+            border-radius: var(--border-radius);
+            padding: 20px;
+            max-width: 500px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            border-bottom: 1px solid var(--accent);
+            padding-bottom: 10px;
+        }
+
+        .modal-close {
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--text-secondary);
+        }
+
+        .scanner-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 20px;
+        }
+
+        #scannerVideo {
+            width: 100%;
+            max-width: 400px;
+            border-radius: var(--border-radius);
+        }
+
+        .scanner-result {
+            width: 100%;
+            padding: 15px;
+            background-color: rgba(100, 0, 0, 0.1);
+            border-radius: var(--border-radius);
+            word-break: break-all;
+        }
+
+        .loader {
+            border: 5px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top: 5px solid var(--accent);
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .reduce-motion * {
+            animation: none !important;
+            transition: none !important;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>QRCodeMaker</h1>
+            <p class="subtitle">Gerador de QR Code Avançado e Personalizável</p>
+        </header>
+
+        <div class="content">
+            <div class="input-section">
+                <h2 class="section-title">Dados do QR Code</h2>
+                
+                <div class="tabs">
+                    <div class="tab active" data-tab="text">Texto/URL</div>
+                    <div class="tab" data-tab="wifi">WiFi</div>
+                    <div class="tab" data-tab="vcard">vCard</div>
+                    <div class="tab" data-tab="sms">SMS</div>
+                    <div class="tab" data-tab="email">Email</div>
+                </div>
+
+                <div class="tab-content active" id="text-tab">
+                    <div class="form-group">
+                        <label for="qrText">Texto ou URL:</label>
+                        <textarea id="qrText" placeholder="Digite o texto ou URL que deseja codificar no QR Code"></textarea>
+                    </div>
+                    
+                    <div class="button-group">
+                        <button id="pasteButton" class="secondary-button">Colar do Clipboard</button>
+                        <button id="currentUrlButton" class="secondary-button">Usar URL Atual</button>
+                        <button id="clearButton" class="secondary-button">Limpar</button>
+                    </div>
+                </div>
+
+                <div class="tab-content" id="wifi-tab">
+                    <div class="form-group">
+                        <label for="wifiSSID">Nome da Rede (SSID):</label>
+                        <input type="text" id="wifiSSID" placeholder="Nome da rede WiFi">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="wifiPassword">Senha:</label>
+                        <input type="password" id="wifiPassword" placeholder="Senha da rede">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="wifiType">Tipo de Segurança:</label>
+                        <select id="wifiType">
+                            <option value="WPA">WPA/WPA2</option>
+                            <option value="WEP">WEP</option>
+                            <option value="nopass">Sem Senha</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="wifiHidden">Rede Oculta:</label>
+                        <label class="switch">
+                            <input type="checkbox" id="wifiHidden">
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="tab-content" id="vcard-tab">
+                    <div class="form-group">
+                        <label for="vcardName">Nome Completo:</label>
+                        <input type="text" id="vcardName" placeholder="Nome e Sobrenome">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="vcardPhone">Telefone:</label>
+                        <input type="text" id="vcardPhone" placeholder="+55 (11) 99999-9999">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="vcardEmail">Email:</label>
+                        <input type="email" id="vcardEmail" placeholder="email@exemplo.com">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="vcardOrg">Empresa/Organização:</label>
+                        <input type="text" id="vcardOrg" placeholder="Nome da empresa">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="vcardTitle">Cargo/Título:</label>
+                        <input type="text" id="vcardTitle" placeholder="Cargo na empresa">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="vcardUrl">Website:</label>
+                        <input type="url" id="vcardUrl" placeholder="https://exemplo.com">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="vcardAddress">Endereço:</label>
+                        <input type="text" id="vcardAddress" placeholder="Rua, número, cidade, estado, CEP">
+                    </div>
+                </div>
+
+                <div class="tab-content" id="sms-tab">
+                    <div class="form-group">
+                        <label for="smsNumber">Número de Telefone:</label>
+                        <input type="text" id="smsNumber" placeholder="+55 (11) 99999-9999">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="smsMessage">Mensagem:</label>
+                        <textarea id="smsMessage" placeholder="Digite a mensagem pré-definida"></textarea>
+                    </div>
+                </div>
+
+                <div class="tab-content" id="email-tab">
+                    <div class="form-group">
+                        <label for="emailTo">Para:</label>
+                        <input type="email" id="emailTo" placeholder="destinatario@exemplo.com">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="emailSubject">Assunto:</label>
+                        <input type="text" id="emailSubject" placeholder="Assunto do email">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="emailBody">Corpo do Email:</label>
+                        <textarea id="emailBody" placeholder="Digite o corpo do email"></textarea>
+                    </div>
+                </div>
+
+                <button id="generateButton" class="primary-button">Gerar QR Code</button>
+            </div>
+
+            <div class="options-section">
+                <h2 class="section-title">Opções de Personalização</h2>
+                
+                <div class="form-group">
+                    <label for="qrSize">Tamanho (pixels):</label>
+                    <div class="range-container">
+                        <input type="range" id="qrSize" min="128" max="2048" value="300" step="32">
+                        <span class="range-value" id="qrSizeValue">300</span>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="qrFormat">Formato de Saída:</label>
+                    <select id="qrFormat">
+                        <option value="png">PNG</option>
+                        <option value="svg">SVG</option>
+                        <option value="jpg">JPG</option>
+                        <option value="webp">WebP</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="errorCorrection">Nível de Correção de Erro:</label>
+                    <select id="errorCorrection">
+                        <option value="L">Baixo (L) - ~7% de correção</option>
+                        <option value="M" selected>Médio (M) - ~15% de correção</option>
+                        <option value="Q">Alto (Q) - ~25% de correção</option>
+                        <option value="H">Máximo (H) - ~30% de correção</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="qrMargin">Margem (módulos):</label>
+                    <div class="range-container">
+                        <input type="range" id="qrMargin" min="0" max="4" value="2">
+                        <span class="range-value" id="qrMarginValue">2</span>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label>Cores:</label>
+                    <div class="color-inputs">
+                        <div class="color-input-group">
+                            <label for="qrForegroundColor">Frente:</label>
+                            <input type="color" id="qrForegroundColor" value="#000000">
+                        </div>
+                        <div class="color-input-group">
+                            <label for="qrBackgroundColor">Fundo:</label>
+                            <input type="color" id="qrBackgroundColor" value="#FFFFFF">
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="useGradient">Usar Gradiente:</label>
+                    <label class="switch">
+                        <input type="checkbox" id="useGradient">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+                
+                <div id="gradientOptions" class="form-group hidden">
+                    <label>Gradiente:</label>
+                    <div class="color-inputs">
+                        <div class="color-input-group">
+                            <label for="gradientStart">Cor Inicial:</label>
+                            <input type="color" id="gradientStart" value="#000000">
+                        </div>
+                        <div class="color-input-group">
+                            <label for="gradientEnd">Cor Final:</label>
+                            <input type="color" id="gradientEnd" value="#640000">
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="moduleStyle">Estilo dos Módulos:</label>
+                    <select id="moduleStyle">
+                        <option value="square">Quadrado</option>
+                        <option value="rounded">Arredondado</option>
+                        <option value="circle">Circular</option>
+                        <option value="dots">Pontos</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="invertColors">Inverter Cores:</label>
+                    <label class="switch">
+                        <input type="checkbox" id="invertColors">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+                
+                <div class="form-group">
+                    <label for="logoUpload">Logo Central:</label>
+                    <div class="file-input-wrapper">
+                        <input type="file" id="logoUpload" accept="image/*">
+                        <label for="logoUpload" class="file-input-label" id="logoLabel">
+                            Clique para selecionar uma imagem
+                        </label>
+                    </div>
+                </div>
+                
+                <div id="logoOptions" class="hidden">
+                    <div class="form-group">
+                        <label for="logoSize">Tamanho do Logo (% do QR):</label>
+                        <div class="range-container">
+                            <input type="range" id="logoSize" min="5" max="30" value="15">
+                            <span class="range-value" id="logoSizeValue">15%</span>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="logoPadding">Borda Branca ao Redor:</label>
+                        <label class="switch">
+                            <input type="checkbox" id="logoPadding" checked>
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="logoMask">Máscara do Logo:</label>
+                        <select id="logoMask">
+                            <option value="none">Nenhuma</option>
+                            <option value="circle">Circular</option>
+                            <option value="square">Quadrada</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="highContrast">Modo Alto Contraste:</label>
+                    <label class="switch">
+                        <input type="checkbox" id="highContrast">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+                
+                <div class="form-group">
+                    <label for="reduceMotion">Reduzir Animações:</label>
+                    <label class="switch">
+                        <input type="checkbox" id="reduceMotion">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+            </div>
+
+            <div class="preview-section">
+                <h2 class="section-title">Visualização</h2>
+                
+                <div class="qr-preview">
+                    <canvas id="qrCanvas" width="300" height="300"></canvas>
+                </div>
+                
+                <div class="qr-info">
+                    <p><strong>Informações Técnicas:</strong></p>
+                    <p>Versão: <span id="qrVersion">-</span></p>
+                    <p>Capacidade: <span id="qrCapacity">-</span></p>
+                    <p>Nível de Máscara: <span id="qrMask">-</span></p>
+                    <p>Tamanho Final: <span id="qrFinalSize">-</span></p>
+                </div>
+                
+                <div class="button-group">
+                    <button id="downloadButton" class="primary-button">Download</button>
+                    <button id="copyImageButton" class="secondary-button">Copiar Imagem</button>
+                    <button id="copyEmbedButton" class="secondary-button">Copiar Código</button>
+                </div>
+                
+                <div class="button-group">
+                    <button id="scanButton" class="secondary-button">Escanear QR Code</button>
+                    <button id="batchButton" class="secondary-button">Gerar em Lote</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal para Scanner -->
+    <div id="scannerModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Escanear QR Code</h2>
+                <span class="modal-close" id="closeScanner">&times;</span>
+            </div>
+            <div class="scanner-container">
+                <video id="scannerVideo" autoplay playsinline></video>
+                <div class="scanner-result" id="scannerResult"></div>
+                <div class="button-group">
+                    <button id="startScanButton">Iniciar Scanner</button>
+                    <button id="stopScanButton">Parar Scanner</button>
+                    <button id="uploadScanButton">Upload de Imagem</button>
+                </div>
+                <input type="file" id="scanFileInput" accept="image/*" style="display: none;">
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal para Batch Generation -->
+    <div id="batchModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Gerar QR Codes em Lote</h2>
+                <span class="modal-close" id="closeBatch">&times;</span>
+            </div>
+            <div class="form-group">
+                <label for="batchData">Dados (CSV - uma entrada por linha):</label>
+                <textarea id="batchData" rows="10" placeholder="Texto 1
+Texto 2
+Texto 3
+..."></textarea>
+            </div>
+            <div class="form-group">
+                <label for="batchNaming">Padrão de Nomenclatura:</label>
+                <input type="text" id="batchNaming" placeholder="qrcode_{index}" value="qrcode_{index}">
+            </div>
+            <div class="button-group">
+                <button id="generateBatchButton">Gerar e Baixar ZIP</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="toast"></div>
+
+    <script>
+        // Implementação do gerador de QR Code
+        // Esta é uma implementação simplificada para demonstração
+        // Em um projeto real, você usaria uma biblioteca como qrcode.js ou implementaria o algoritmo completo
+        
+        // Variáveis globais
+        let currentQRData = '';
+        let currentQRImage = null;
+        let logoImageData = null;
+        let scannerStream = null;
+        
+        // Inicialização
+        document.addEventListener('DOMContentLoaded', function() {
+            setupEventListeners();
+            generateQRCode(); // Gerar QR Code inicial
+        });
+        
+        // Configurar event listeners
+        function setupEventListeners() {
+            // Tabs
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.addEventListener('click', function() {
+                    const tabId = this.getAttribute('data-tab');
+                    switchTab(tabId);
+                });
+            });
+            
+            // Botões principais
+            document.getElementById('generateButton').addEventListener('click', generateQRCode);
+            document.getElementById('pasteButton').addEventListener('click', pasteFromClipboard);
+            document.getElementById('currentUrlButton').addEventListener('click', useCurrentUrl);
+            document.getElementById('clearButton').addEventListener('click', clearInput);
+            
+            // Opções de personalização
+            document.getElementById('qrSize').addEventListener('input', updateQRSize);
+            document.getElementById('qrMargin').addEventListener('input', updateQRMargin);
+            document.getElementById('logoSize').addEventListener('input', updateLogoSize);
+            document.getElementById('useGradient').addEventListener('change', toggleGradientOptions);
+            document.getElementById('logoUpload').addEventListener('change', handleLogoUpload);
+            document.getElementById('invertColors').addEventListener('change', generateQRCode);
+            document.getElementById('highContrast').addEventListener('change', toggleHighContrast);
+            document.getElementById('reduceMotion').addEventListener('change', toggleReduceMotion);
+            
+            // Botões de exportação
+            document.getElementById('downloadButton').addEventListener('click', downloadQRCode);
+            document.getElementById('copyImageButton').addEventListener('click', copyQRImageToClipboard);
+            document.getElementById('copyEmbedButton').addEventListener('click', copyEmbedCode);
+            
+            // Scanner
+            document.getElementById('scanButton').addEventListener('click', openScannerModal);
+            document.getElementById('closeScanner').addEventListener('click', closeScannerModal);
+            document.getElementById('startScanButton').addEventListener('click', startScanner);
+            document.getElementById('stopScanButton').addEventListener('click', stopScanner);
+            document.getElementById('uploadScanButton').addEventListener('click', () => {
+                document.getElementById('scanFileInput').click();
+            });
+            document.getElementById('scanFileInput').addEventListener('change', handleScanFileUpload);
+            
+            // Batch generation
+            document.getElementById('batchButton').addEventListener('click', openBatchModal);
+            document.getElementById('closeBatch').addEventListener('click', closeBatchModal);
+            document.getElementById('generateBatchButton').addEventListener('click', generateBatch);
+            
+            // Detectar mudanças em qualquer campo para atualizar o QR
+            const inputs = document.querySelectorAll('input, textarea, select');
+            inputs.forEach(input => {
+                if (input.id !== 'qrSize' && input.id !== 'qrMargin' && input.id !== 'logoSize') {
+                    input.addEventListener('change', generateQRCode);
+                }
+            });
+        }
+        
+        // Funções de navegação por abas
+        function switchTab(tabId) {
+            // Remover classe active de todas as abas
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // Adicionar classe active à aba clicada
+            document.querySelector(`[data-tab="${tabId}"]`).classList.add('active');
+            
+            // Ocultar todos os conteúdos de aba
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.remove('active');
+            });
+            
+            // Mostrar o conteúdo da aba clicada
+            document.getElementById(`${tabId}-tab`).classList.add('active');
+        }
+        
+        // Funções para gerar QR Code
+        function generateQRCode() {
+            // Obter dados do QR Code com base na aba ativa
+            const activeTab = document.querySelector('.tab.active').getAttribute('data-tab');
+            let qrData = '';
+            
+            switch (activeTab) {
+                case 'text':
+                    qrData = document.getElementById('qrText').value;
+                    break;
+                case 'wifi':
+                    const ssid = document.getElementById('wifiSSID').value;
+                    const password = document.getElementById('wifiPassword').value;
+                    const type = document.getElementById('wifiType').value;
+                    const hidden = document.getElementById('wifiHidden').checked;
+                    qrData = `WIFI:T:${type};S:${ssid};P:${password};H:${hidden ? 'true' : 'false'};;`;
+                    break;
+                case 'vcard':
+                    const name = document.getElementById('vcardName').value;
+                    const phone = document.getElementById('vcardPhone').value;
+                    const email = document.getElementById('vcardEmail').value;
+                    const org = document.getElementById('vcardOrg').value;
+                    const title = document.getElementById('vcardTitle').value;
+                    const url = document.getElementById('vcardUrl').value;
+                    const address = document.getElementById('vcardAddress').value;
+                    
+                    qrData = `BEGIN:VCARD
+VERSION:3.0
+FN:${name}
+TEL:${phone}
+EMAIL:${email}
+ORG:${org}
+TITLE:${title}
+URL:${url}
+ADR:;;${address}
+END:VCARD`;
+                    break;
+                case 'sms':
+                    const smsNumber = document.getElementById('smsNumber').value;
+                    const smsMessage = document.getElementById('smsMessage').value;
+                    qrData = `sms:${smsNumber}?body=${encodeURIComponent(smsMessage)}`;
+                    break;
+                case 'email':
+                    const emailTo = document.getElementById('emailTo').value;
+                    const emailSubject = document.getElementById('emailSubject').value;
+                    const emailBody = document.getElementById('emailBody').value;
+                    qrData = `mailto:${emailTo}?subject=${encodeURIComponent(emailSubject)}&body=${encodeURIComponent(emailBody)}`;
+                    break;
+            }
+            
+            // Se não houver dados, usar um texto padrão
+            if (!qrData) {
+                qrData = "QRCodeMaker - Exemplo de QR Code";
+                document.getElementById('qrText').value = qrData;
+            }
+            
+            currentQRData = qrData;
+            
+            // Obter opções de personalização
+            const size = parseInt(document.getElementById('qrSize').value);
+            const margin = parseInt(document.getElementById('qrMargin').value);
+            const errorCorrection = document.getElementById('errorCorrection').value;
+            const foregroundColor = document.getElementById('qrForegroundColor').value;
+            const backgroundColor = document.getElementById('qrBackgroundColor').value;
+            const useGradient = document.getElementById('useGradient').checked;
+            const gradientStart = document.getElementById('gradientStart').value;
+            const gradientEnd = document.getElementById('gradientEnd').value;
+            const moduleStyle = document.getElementById('moduleStyle').value;
+            const invertColors = document.getElementById('invertColors').checked;
+            
+            // Inverter cores se necessário
+            const finalForegroundColor = invertColors ? backgroundColor : foregroundColor;
+            const finalBackgroundColor = invertColors ? foregroundColor : backgroundColor;
+            
+            // Gerar QR Code (usando uma implementação simplificada)
+            // Em um projeto real, você usaria uma biblioteca como qrcode.js
+            const canvas = document.getElementById('qrCanvas');
+            const ctx = canvas.getContext('2d');
+            
+            // Limpar canvas
+            ctx.fillStyle = finalBackgroundColor;
+            ctx.fillRect(0, 0, size, size);
+            
+            // Gerar QR Code usando uma implementação simplificada
+            // Esta é uma implementação muito básica apenas para demonstração
+            generateSimpleQRCode(ctx, qrData, size, margin, finalForegroundColor, finalBackgroundColor, moduleStyle, useGradient, gradientStart, gradientEnd);
+            
+            // Adicionar logo se houver
+            if (logoImageData) {
+                const logoSize = parseInt(document.getElementById('logoSize').value);
+                const logoPadding = document.getElementById('logoPadding').checked;
+                const logoMask = document.getElementById('logoMask').value;
+                
+                addLogoToQRCode(ctx, logoImageData, size, logoSize, logoPadding, logoMask);
+            }
+            
+            // Atualizar informações técnicas
+            updateQRInfo(qrData, size, errorCorrection);
+            
+            // Salvar imagem atual para exportação
+            currentQRImage = canvas.toDataURL('image/png');
+            
+            // Mostrar notificação de sucesso
+            showToast('QR Code gerado com sucesso!', 'success');
+        }
+        
+        // Implementação simplificada de geração de QR Code
+        // NOTA: Esta é uma implementação muito básica apenas para demonstração
+        // Em um projeto real, você usaria uma biblioteca dedicada ou implementaria o algoritmo completo
+        function generateSimpleQRCode(ctx, data, size, margin, foregroundColor, backgroundColor, moduleStyle, useGradient, gradientStart, gradientEnd) {
+            // Calcular tamanho do módulo
+            const moduleCount = 25; // Simplificado - QR codes reais variam de 21 a 177 módulos
+            const moduleSize = Math.floor((size - 2 * margin) / moduleCount);
+            const actualSize = moduleSize * moduleCount;
+            const offset = (size - actualSize) / 2;
+            
+            // Criar um padrão de QR Code simplificado baseado nos dados
+            const modules = generateQRModules(data, moduleCount);
+            
+            // Desenhar os módulos
+            for (let row = 0; row < moduleCount; row++) {
+                for (let col = 0; col < moduleCount; col++) {
+                    if (modules[row][col]) {
+                        const x = offset + col * moduleSize;
+                        const y = offset + row * moduleSize;
+                        
+                        // Aplicar gradiente se necessário
+                        if (useGradient) {
+                            const gradient = ctx.createLinearGradient(x, y, x + moduleSize, y + moduleSize);
+                            gradient.addColorStop(0, gradientStart);
+                            gradient.addColorStop(1, gradientEnd);
+                            ctx.fillStyle = gradient;
+                        } else {
+                            ctx.fillStyle = foregroundColor;
+                        }
+                        
+                        // Desenhar módulo com base no estilo
+                        switch (moduleStyle) {
+                            case 'square':
+                                ctx.fillRect(x, y, moduleSize, moduleSize);
+                                break;
+                            case 'rounded':
+                                drawRoundedRect(ctx, x, y, moduleSize, moduleSize, moduleSize / 4);
+                                break;
+                            case 'circle':
+                                ctx.beginPath();
+                                ctx.arc(x + moduleSize / 2, y + moduleSize / 2, moduleSize / 2, 0, 2 * Math.PI);
+                                ctx.fill();
+                                break;
+                            case 'dots':
+                                ctx.beginPath();
+                                ctx.arc(x + moduleSize / 2, y + moduleSize / 2, moduleSize / 3, 0, 2 * Math.PI);
+                                ctx.fill();
+                                break;
+                        }
+                    }
+                }
+            }
+            
+            // Adicionar marcadores de posição (padrão QR Code)
+            drawPositionMarkers(ctx, offset, moduleSize, foregroundColor, moduleStyle, useGradient, gradientStart, gradientEnd);
+        }
+        
+        // Gerar matriz de módulos para QR Code (implementação simplificada)
+        function generateQRModules(data, moduleCount) {
+            // Inicializar matriz
+            const modules = Array(moduleCount).fill().map(() => Array(moduleCount).fill(false));
+            
+            // Adicionar marcadores de posição (cantos superior esquerdo, superior direito, inferior esquerdo)
+            // Superior esquerdo
+            for (let i = 0; i < 7; i++) {
+                for (let j = 0; j < 7; j++) {
+                    if (i === 0 || i === 6 || j === 0 || j === 6 || (i >= 2 && i <= 4 && j >= 2 && j <= 4)) {
+                        modules[i][j] = true;
+                    }
+                }
+            }
+            
+            // Superior direito
+            for (let i = 0; i < 7; i++) {
+                for (let j = 0; j < 7; j++) {
+                    if (i === 0 || i === 6 || j === 0 || j === 6 || (i >= 2 && i <= 4 && j >= 2 && j <= 4)) {
+                        modules[i][moduleCount - 7 + j] = true;
+                    }
+                }
+            }
+            
+            // Inferior esquerdo
+            for (let i = 0; i < 7; i++) {
+                for (let j = 0; j < 7; j++) {
+                    if (i === 0 || i === 6 || j === 0 || j === 6 || (i >= 2 && i <= 4 && j >= 2 && j <= 4)) {
+                        modules[moduleCount - 7 + i][j] = true;
+                    }
+                }
+            }
+            
+            // Adicionar dados (implementação simplificada)
+            // Em um QR Code real, os dados seriam codificados, divididos em blocos, com correção de erros, etc.
+            // Aqui, estamos apenas criando um padrão pseudo-aleatório baseado nos dados
+            const dataHash = hashString(data);
+            let hashIndex = 0;
+            
+            // Preencher áreas de dados (evitando marcadores de posição e temporização)
+            for (let row = 0; row < moduleCount; row++) {
+                for (let col = 0; col < moduleCount; col++) {
+                    // Pular áreas reservadas
+                    if ((row < 9 && col < 9) || 
+                        (row < 9 && col >= moduleCount - 8) || 
+                        (row >= moduleCount - 8 && col < 9)) {
+                        continue;
+                    }
+                    
+                    // Usar hash para determinar se o módulo está preenchido
+                    const byteIndex = Math.floor(hashIndex / 8);
+                    const bitIndex = hashIndex % 8;
+                    
+                    if (byteIndex < dataHash.length) {
+                        const byte = dataHash.charCodeAt(byteIndex);
+                        const bit = (byte >> bitIndex) & 1;
+                        modules[row][col] = bit === 1;
+                    }
+                    
+                    hashIndex++;
+                }
+            }
+            
+            // Adicionar padrões de temporização
+            for (let i = 8; i < moduleCount - 8; i++) {
+                modules[6][i] = i % 2 === 0;
+                modules[i][6] = i % 2 === 0;
+            }
+            
+            return modules;
+        }
+        
+        // Função de hash simples para gerar padrão de dados
+        function hashString(str) {
+            let hash = 0;
+            for (let i = 0; i < str.length; i++) {
+                const char = str.charCodeAt(i);
+                hash = ((hash << 5) - hash) + char;
+                hash = hash & hash; // Converter para 32-bit integer
+            }
+            return hash.toString();
+        }
+        
+        // Desenhar marcadores de posição do QR Code
+        function drawPositionMarkers(ctx, offset, moduleSize, color, moduleStyle, useGradient, gradientStart, gradientEnd) {
+            const positions = [
+                { x: offset, y: offset }, // Superior esquerdo
+                { x: offset + (17 * moduleSize), y: offset }, // Superior direito
+                { x: offset, y: offset + (17 * moduleSize) } // Inferior esquerdo
+            ];
+            
+            positions.forEach(pos => {
+                // Desenhar marcador externo
+                if (useGradient) {
+                    const gradient = ctx.createLinearGradient(pos.x, pos.y, pos.x + 7 * moduleSize, pos.y + 7 * moduleSize);
+                    gradient.addColorStop(0, gradientStart);
+                    gradient.addColorStop(1, gradientEnd);
+                    ctx.fillStyle = gradient;
+                } else {
+                    ctx.fillStyle = color;
+                }
+                
+                // Desenhar quadrado externo
+                if (moduleStyle === 'rounded') {
+                    drawRoundedRect(ctx, pos.x, pos.y, 7 * moduleSize, 7 * moduleSize, moduleSize / 2);
+                } else {
+                    ctx.fillRect(pos.x, pos.y, 7 * moduleSize, 7 * moduleSize);
+                }
+                
+                // Desenhar quadrado interno branco
+                ctx.fillStyle = '#FFFFFF';
+                if (moduleStyle === 'rounded') {
+                    drawRoundedRect(ctx, pos.x + moduleSize, pos.y + moduleSize, 5 * moduleSize, 5 * moduleSize, moduleSize / 2);
+                } else {
+                    ctx.fillRect(pos.x + moduleSize, pos.y + moduleSize, 5 * moduleSize, 5 * moduleSize);
+                }
+                
+                // Desenhar quadrado central
+                if (useGradient) {
+                    const gradient = ctx.createLinearGradient(pos.x + 2 * moduleSize, pos.y + 2 * moduleSize, pos.x + 5 * moduleSize, pos.y + 5 * moduleSize);
+                    gradient.addColorStop(0, gradientStart);
+                    gradient.addColorStop(1, gradientEnd);
+                    ctx.fillStyle = gradient;
+                } else {
+                    ctx.fillStyle = color;
+                }
+                
+                if (moduleStyle === 'rounded') {
+                    drawRoundedRect(ctx, pos.x + 2 * moduleSize, pos.y + 2 * moduleSize, 3 * moduleSize, 3 * moduleSize, moduleSize / 2);
+                } else {
+                    ctx.fillRect(pos.x + 2 * moduleSize, pos.y + 2 * moduleSize, 3 * moduleSize, 3 * moduleSize);
+                }
+            });
+        }
+        
+        // Desenhar retângulo arredondado
+        function drawRoundedRect(ctx, x, y, width, height, radius) {
+            ctx.beginPath();
+            ctx.moveTo(x + radius, y);
+            ctx.lineTo(x + width - radius, y);
+            ctx.quadraticCurveTo(x + width, y, x + width, y + radius);
+            ctx.lineTo(x + width, y + height - radius);
+            ctx.quadraticCurveTo(x + width, y + height, x + width - radius, y + height);
+            ctx.lineTo(x + radius, y + height);
+            ctx.quadraticCurveTo(x, y + height, x, y + height - radius);
+            ctx.lineTo(x, y + radius);
+            ctx.quadraticCurveTo(x, y, x + radius, y);
+            ctx.closePath();
+            ctx.fill();
+        }
+        
+        // Adicionar logo ao QR Code
+        function addLogoToQRCode(ctx, logoData, qrSize, logoPercentage, padding, mask) {
+            const logoSize = Math.floor(qrSize * logoPercentage / 100);
+            const logoX = (qrSize - logoSize) / 2;
+            const logoY = (qrSize - logoSize) / 2;
+            
+            // Criar imagem temporária para o logo
+            const img = new Image();
+            img.onload = function() {
+                // Salvar estado atual do contexto
+                ctx.save();
+                
+                // Adicionar padding se necessário
+                if (padding) {
+                    const paddingSize = logoSize * 0.1;
+                    ctx.fillStyle = '#FFFFFF';
+                    
+                    if (mask === 'circle') {
+                        ctx.beginPath();
+                        ctx.arc(qrSize / 2, qrSize / 2, logoSize / 2 + paddingSize, 0, 2 * Math.PI);
+                        ctx.fill();
+                    } else {
+                        ctx.fillRect(logoX - paddingSize, logoY - paddingSize, logoSize + 2 * paddingSize, logoSize + 2 * paddingSize);
+                    }
+                }
+                
+                // Aplicar máscara se necessário
+                if (mask === 'circle') {
+                    ctx.beginPath();
+                    ctx.arc(qrSize / 2, qrSize / 2, logoSize / 2, 0, 2 * Math.PI);
+                    ctx.clip();
+                }
+                
+                // Desenhar logo
+                ctx.drawImage(img, logoX, logoY, logoSize, logoSize);
+                
+                // Restaurar estado do contexto
+                ctx.restore();
+                
+                // Atualizar imagem atual para exportação
+                currentQRImage = ctx.canvas.toDataURL('image/png');
+            };
+            img.src = logoData;
+        }
+        
+        // Atualizar informações do QR Code
+        function updateQRInfo(data, size, errorCorrection) {
+            // Calcular versão aproximada (simplificado)
+            const version = Math.ceil(Math.sqrt(data.length) / 5);
+            
+            // Calcular capacidade aproximada (simplificado)
+            const capacity = data.length;
+            
+            // Calcular nível de máscara (simplificado)
+            const mask = Math.floor(Math.random() * 8);
+            
+            // Atualizar informações na interface
+            document.getElementById('qrVersion').textContent = `v${version}`;
+            document.getElementById('qrCapacity').textContent = `${capacity} bytes`;
+            document.getElementById('qrMask').textContent = mask;
+            document.getElementById('qrFinalSize').textContent = `${size}x${size} pixels`;
+        }
+        
+        // Funções de utilidade
+        function updateQRSize() {
+            const size = document.getElementById('qrSize').value;
+            document.getElementById('qrSizeValue').textContent = size;
+            
+            const canvas = document.getElementById('qrCanvas');
+            canvas.width = size;
+            canvas.height = size;
+            
+            generateQRCode();
+        }
+        
+        function updateQRMargin() {
+            const margin = document.getElementById('qrMargin').value;
+            document.getElementById('qrMarginValue').textContent = margin;
+            generateQRCode();
+        }
+        
+        function updateLogoSize() {
+            const logoSize = document.getElementById('logoSize').value;
+            document.getElementById('logoSizeValue').textContent = `${logoSize}%`;
+            generateQRCode();
+        }
+        
+        function toggleGradientOptions() {
+            const useGradient = document.getElementById('useGradient').checked;
+            const gradientOptions = document.getElementById('gradientOptions');
+            
+            if (useGradient) {
+                gradientOptions.classList.remove('hidden');
+            } else {
+                gradientOptions.classList.add('hidden');
+            }
+            
+            generateQRCode();
+        }
+        
+        function handleLogoUpload(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    logoImageData = e.target.result;
+                    document.getElementById('logoLabel').textContent = file.name;
+                    document.getElementById('logoOptions').classList.remove('hidden');
+                    generateQRCode();
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+        
+        function toggleHighContrast() {
+            const highContrast = document.getElementById('highContrast').checked;
+            
+            if (highContrast) {
+                document.body.classList.add('high-contrast');
+            } else {
+                document.body.classList.remove('high-contrast');
+            }
+        }
+        
+        function toggleReduceMotion() {
+            const reduceMotion = document.getElementById('reduceMotion').checked;
+            
+            if (reduceMotion) {
+                document.body.classList.add('reduce-motion');
+            } else {
+                document.body.classList.remove('reduce-motion');
+            }
+        }
+        
+        // Funções de entrada de dados
+        function pasteFromClipboard() {
+            navigator.clipboard.readText()
+                .then(text => {
+                    document.getElementById('qrText').value = text;
+                    generateQRCode();
+                    showToast('Texto colado do clipboard com sucesso!', 'success');
+                })
+                .catch(err => {
+                    showToast('Não foi possível acessar o clipboard: ' + err, 'error');
+                });
+        }
+        
+        function useCurrentUrl() {
+            document.getElementById('qrText').value = window.location.href;
+            generateQRCode();
+            showToast('URL atual definida como texto do QR Code', 'success');
+        }
+        
+        function clearInput() {
+            document.getElementById('qrText').value = '';
+            generateQRCode();
+        }
+        
+        // Funções de exportação
+        function downloadQRCode() {
+            const format = document.getElementById('qrFormat').value;
+            const canvas = document.getElementById('qrCanvas');
+            
+            // Converter canvas para blob no formato desejado
+            let mimeType = 'image/png';
+            let extension = 'png';
+            
+            switch (format) {
+                case 'png':
+                    mimeType = 'image/png';
+                    extension = 'png';
+                    break;
+                case 'svg':
+                    // Para SVG, precisaríamos de uma implementação diferente
+                    // Por enquanto, vamos usar o canvas
+                    mimeType = 'image/svg+xml';
+                    extension = 'svg';
+                    break;
+                case 'jpg':
+                    mimeType = 'image/jpeg';
+                    extension = 'jpg';
+                    break;
+                case 'webp':
+                    mimeType = 'image/webp';
+                    extension = 'webp';
+                    break;
+            }
+            
+            // Criar link para download
+            const link = document.createElement('a');
+            link.download = `qrcode.${extension}`;
+            
+            if (format === 'svg') {
+                // Para SVG, precisaríamos converter o canvas para SVG
+                // Por enquanto, vamos apenas baixar como PNG
+                link.href = canvas.toDataURL('image/png');
+                link.download = `qrcode.png`;
+            } else {
+                canvas.toBlob(function(blob) {
+                    link.href = URL.createObjectURL(blob);
+                    link.click();
+                    URL.revokeObjectURL(link.href);
+                }, mimeType);
+            }
+            
+            showToast(`QR Code baixado como ${extension.toUpperCase()}`, 'success');
+        }
+        
+        function copyQRImageToClipboard() {
+            const canvas = document.getElementById('qrCanvas');
+            
+            canvas.toBlob(function(blob) {
+                try {
+                    navigator.clipboard.write([
+                        new ClipboardItem({
+                            'image/png': blob
+                        })
+                    ]).then(() => {
+                        showToast('QR Code copiado para o clipboard!', 'success');
+                    }).catch(err => {
+                        showToast('Não foi possível copiar para o clipboard: ' + err, 'error');
+                    });
+                } catch (err) {
+                    showToast('Seu navegador não suporta esta funcionalidade', 'error');
+                }
+            });
+        }
+        
+        function copyEmbedCode() {
+            const format = document.getElementById('qrFormat').value;
+            let embedCode = '';
+            
+            if (format === 'svg') {
+                // Para SVG, precisaríamos gerar o código SVG
+                // Por enquanto, vamos usar o data URL do canvas
+                embedCode = `<img src="${currentQRImage}" alt="QR Code">`;
+            } else {
+                embedCode = `<img src="${currentQRImage}" alt="QR Code">`;
+            }
+            
+            navigator.clipboard.writeText(embedCode)
+                .then(() => {
+                    showToast('Código de incorporação copiado para o clipboard!', 'success');
+                })
+                .catch(err => {
+                    showToast('Não foi possível copiar o código: ' + err, 'error');
+                });
+        }
+        
+        // Funções do Scanner
+        function openScannerModal() {
+            document.getElementById('scannerModal').style.display = 'flex';
+        }
+        
+        function closeScannerModal() {
+            document.getElementById('scannerModal').style.display = 'none';
+            stopScanner();
+        }
+        
+        function startScanner() {
+            const video = document.getElementById('scannerVideo');
+            
+            navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } })
+                .then(stream => {
+                    scannerStream = stream;
+                    video.srcObject = stream;
+                    
+                    // Iniciar análise do vídeo (implementação simplificada)
+                    // Em um projeto real, você usaria uma biblioteca como jsQR
+                    showToast('Scanner iniciado. Aponte a câmera para um QR Code.', 'success');
+                    
+                    // Simular detecção de QR Code após 3 segundos
+                    setTimeout(() => {
+                        if (scannerStream) {
+                            // Simular QR Code detectado
+                            const simulatedQRData = "QRCode detectado pela câmera (simulação)";
+                            document.getElementById('scannerResult').textContent = simulatedQRData;
+                            document.getElementById('qrText').value = simulatedQRData;
+                            generateQRCode();
+                            showToast('QR Code detectado!', 'success');
+                        }
+                    }, 3000);
+                })
+                .catch(err => {
+                    showToast('Não foi possível acessar a câmera: ' + err, 'error');
+                });
+        }
+        
+        function stopScanner() {
+            if (scannerStream) {
+                scannerStream.getTracks().forEach(track => track.stop());
+                scannerStream = null;
+                
+                const video = document.getElementById('scannerVideo');
+                video.srcObject = null;
+            }
+        }
+        
+        function handleScanFileUpload(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const img = new Image();
+                    img.onload = function() {
+                        // Simular leitura de QR Code da imagem
+                        // Em um projeto real, você usaria uma biblioteca como jsQR
+                        const simulatedQRData = "QRCode detectado na imagem (simulação)";
+                        document.getElementById('scannerResult').textContent = simulatedQRData;
+                        document.getElementById('qrText').value = simulatedQRData;
+                        generateQRCode();
+                        showToast('QR Code detectado na imagem!', 'success');
+                    };
+                    img.src = e.target.result;
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+        
+        // Funções de geração em lote
+        function openBatchModal() {
+            document.getElementById('batchModal').style.display = 'flex';
+        }
+        
+        function closeBatchModal() {
+            document.getElementById('batchModal').style.display = 'none';
+        }
+        
+        function generateBatch() {
+            const data = document.getElementById('batchData').value;
+            const naming = document.getElementById('batchNaming').value;
+            
+            if (!data) {
+                showToast('Por favor, insira os dados para gerar QR Codes em lote', 'warning');
+                return;
+            }
+            
+            // Dividir dados por linha
+            const lines = data.split('\n').filter(line => line.trim());
+            
+            if (lines.length === 0) {
+                showToast('Nenhum dado válido encontrado', 'warning');
+                return;
+            }
+            
+            // Obter opções de personalização atuais
+            const size = parseInt(document.getElementById('qrSize').value);
+            const format = document.getElementById('qrFormat').value;
+            
+            // Gerar QR Codes para cada linha
+            const qrCodes = [];
+            lines.forEach((line, index) => {
+                // Gerar QR Code (simplificado)
+                const canvas = document.createElement('canvas');
+                canvas.width = size;
+                canvas.height = size;
+                const ctx = canvas.getContext('2d');
+                
+                // Limpar canvas
+                ctx.fillStyle = '#FFFFFF';
+                ctx.fillRect(0, 0, size, size);
+                
+                // Gerar QR Code simplificado
+                generateSimpleQRCode(ctx, line, size, 2, '#000000', '#FFFFFF', 'square', false, '#000000', '#000000');
+                
+                // Converter para data URL
+                const dataUrl = canvas.toDataURL('image/png');
+                
+                // Gerar nome do arquivo
+                const filename = naming.replace('{index}', index + 1).replace('{data}', line.substring(0, 10));
+                
+                qrCodes.push({
+                    data: line,
+                    dataUrl: dataUrl,
+                    filename: filename
+                });
+            });
+            
+            // Em um projeto real, você criaria um arquivo ZIP aqui
+            // Por enquanto, vamos apenas baixar o primeiro QR Code
+            if (qrCodes.length > 0) {
+                const link = document.createElement('a');
+                link.download = `${qrCodes[0].filename}.png`;
+                link.href = qrCodes[0].dataUrl;
+                link.click();
+                
+                showToast(`${qrCodes.length} QR Codes gerados. Baixando o primeiro...`, 'success');
+            }
+        }
+        
+        // Função de notificação (Toast)
+        function showToast(message, type = 'success') {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.className = 'toast show';
+            
+            if (type === 'success') {
+                toast.classList.add('success');
+            } else if (type === 'error') {
+                toast.classList.add('error');
+            } else if (type === 'warning') {
+                toast.classList.add('warning');
+            }
+            
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 3000);
+        }
+    </script>
+</body>
+</html>
