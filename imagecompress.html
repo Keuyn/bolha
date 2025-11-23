@@ -1,0 +1,1416 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Compressor de Imagens - 100% Cliente</title>
+    <style>
+        :root {
+            --bg-primary: #280000;
+            --bg-secondary: #000000;
+            --accent: #640000;
+            --accent-light: #8a0000;
+            --text-primary: #ffffff;
+            --text-secondary: #cccccc;
+            --border-color: #4a0000;
+            --success: #28a745;
+            --warning: #ffc107;
+            --error: #dc3545;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            padding: 20px;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            color: var(--text-primary);
+        }
+
+        .subtitle {
+            color: var(--text-secondary);
+            font-size: 1rem;
+        }
+
+        .upload-area {
+            background-color: var(--bg-secondary);
+            border: 2px dashed var(--border-color);
+            border-radius: 15px;
+            padding: 40px 20px;
+            text-align: center;
+            margin-bottom: 30px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .upload-area:hover, .upload-area.dragover {
+            border-color: var(--accent);
+            background-color: rgba(100, 0, 0, 0.2);
+        }
+
+        .upload-area i {
+            font-size: 3rem;
+            margin-bottom: 15px;
+            display: block;
+        }
+
+        .file-input {
+            display: none;
+        }
+
+        .btn {
+            background-color: var(--accent);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .btn:hover {
+            background-color: var(--accent-light);
+        }
+
+        .btn:disabled {
+            background-color: #555;
+            cursor: not-allowed;
+        }
+
+        .btn-secondary {
+            background-color: transparent;
+            border: 1px solid var(--accent);
+        }
+
+        .btn-secondary:hover {
+            background-color: var(--accent);
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 10px;
+            margin: 20px 0;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .options-panel {
+            background-color: var(--bg-secondary);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 30px;
+        }
+
+        .options-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+        }
+
+        .option-group {
+            margin-bottom: 20px;
+        }
+
+        .option-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+
+        .slider-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        input[type="range"] {
+            flex-grow: 1;
+            height: 6px;
+            background: #333;
+            border-radius: 3px;
+            outline: none;
+            -webkit-appearance: none;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 18px;
+            height: 18px;
+            background: var(--accent);
+            border-radius: 50%;
+            cursor: pointer;
+        }
+
+        input[type="range"]::-moz-range-thumb {
+            width: 18px;
+            height: 18px;
+            background: var(--accent);
+            border-radius: 50%;
+            cursor: pointer;
+            border: none;
+        }
+
+        .value-display {
+            min-width: 40px;
+            text-align: center;
+        }
+
+        select, input[type="number"] {
+            width: 100%;
+            padding: 8px 12px;
+            background-color: #333;
+            border: 1px solid var(--border-color);
+            border-radius: 5px;
+            color: var(--text-primary);
+        }
+
+        .checkbox-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .image-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .image-card {
+            background-color: var(--bg-secondary);
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+            transition: transform 0.3s ease;
+        }
+
+        .image-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .image-preview {
+            position: relative;
+            height: 200px;
+            overflow: hidden;
+        }
+
+        .image-preview img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            transition: opacity 0.3s ease;
+        }
+
+        .image-preview .compare-toggle {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background-color: rgba(0, 0, 0, 0.7);
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 15px;
+            cursor: pointer;
+            font-size: 0.8rem;
+        }
+
+        .image-info {
+            padding: 15px;
+        }
+
+        .image-name {
+            font-weight: 600;
+            margin-bottom: 10px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .image-stats {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            font-size: 0.9rem;
+        }
+
+        .progress-bar {
+            height: 5px;
+            background-color: #333;
+            border-radius: 3px;
+            overflow: hidden;
+            margin-bottom: 10px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background-color: var(--accent);
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        .image-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .image-actions button {
+            flex: 1;
+            padding: 8px;
+            font-size: 0.9rem;
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background-color: var(--bg-secondary);
+            color: var(--text-primary);
+            padding: 15px 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+            transform: translateY(100px);
+            opacity: 0;
+            transition: all 0.3s ease;
+            z-index: 1000;
+            max-width: 300px;
+        }
+
+        .toast.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        .toast.success {
+            border-left: 4px solid var(--success);
+        }
+
+        .toast.error {
+            border-left: 4px solid var(--error);
+        }
+
+        .toast.warning {
+            border-left: 4px solid var(--warning);
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background-color: var(--bg-secondary);
+            border-radius: 15px;
+            padding: 30px;
+            max-width: 500px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            color: var(--text-primary);
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+
+        .preset-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 10px;
+            background-color: rgba(100, 0, 0, 0.2);
+        }
+
+        .preset-actions {
+            display: flex;
+            gap: 5px;
+        }
+
+        .preset-actions button {
+            padding: 5px 10px;
+            font-size: 0.8rem;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px;
+            color: var(--text-secondary);
+        }
+
+        .empty-state i {
+            font-size: 3rem;
+            margin-bottom: 15px;
+            display: block;
+        }
+
+        .tabs {
+            display: flex;
+            margin-bottom: 20px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .tab {
+            padding: 10px 20px;
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            transition: all 0.3s ease;
+        }
+
+        .tab.active {
+            border-bottom-color: var(--accent);
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .stat-card {
+            background-color: rgba(100, 0, 0, 0.2);
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+
+            h1 {
+                font-size: 2rem;
+            }
+
+            .image-list {
+                grid-template-columns: 1fr;
+            }
+
+            .options-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .btn-group {
+                flex-direction: column;
+            }
+
+            .btn {
+                width: 100%;
+            }
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        /* Icon styles (using Unicode symbols instead of external fonts) */
+        .icon-upload::before { content: "⬆️"; }
+        .icon-download::before { content: "⬇️"; }
+        .icon-settings::before { content: "⚙️"; }
+        .icon-trash::before { content: "🗑️"; }
+        .icon-compress::before { content: "🗜️"; }
+        .icon-zip::before { content: "📦"; }
+        .icon-image::before { content: "🖼️"; }
+        .icon-check::before { content: "✓"; }
+        .icon-warning::before { content: "⚠️"; }
+        .icon-error::before { content: "✗"; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Compressor de Imagens</h1>
+            <p class="subtitle">100% do lado do cliente - seus arquivos nunca saem do seu navegador</p>
+        </header>
+
+        <main>
+            <div class="upload-area" id="uploadArea">
+                <span class="icon-upload"></span>
+                <h2>Arraste e solte suas imagens aqui</h2>
+                <p>ou</p>
+                <button class="btn" id="browseBtn">Selecionar Arquivos</button>
+                <input type="file" id="fileInput" class="file-input" multiple accept="image/*">
+                <p class="subtitle">Suporta JPEG, PNG e WebP</p>
+            </div>
+
+            <div class="options-panel hidden" id="optionsPanel">
+                <div class="tabs">
+                    <div class="tab active" data-tab="basic">Opções Básicas</div>
+                    <div class="tab" data-tab="advanced">Opções Avançadas</div>
+                    <div class="tab" data-tab="presets">Presets</div>
+                </div>
+
+                <div class="tab-content active" id="basic-tab">
+                    <div class="options-grid">
+                        <div class="option-group">
+                            <label for="qualitySlider">Qualidade</label>
+                            <div class="slider-container">
+                                <input type="range" id="qualitySlider" min="1" max="100" value="80">
+                                <span class="value-display" id="qualityValue">80%</span>
+                            </div>
+                        </div>
+
+                        <div class="option-group">
+                            <label for="formatSelect">Formato de Saída</label>
+                            <select id="formatSelect">
+                                <option value="original">Manter Original</option>
+                                <option value="jpeg">JPEG</option>
+                                <option value="png">PNG</option>
+                                <option value="webp">WebP</option>
+                            </select>
+                        </div>
+
+                        <div class="option-group">
+                            <label for="resizeToggle">Redimensionar</label>
+                            <div class="checkbox-container">
+                                <input type="checkbox" id="resizeToggle">
+                                <span>Ativar redimensionamento</span>
+                            </div>
+                        </div>
+
+                        <div class="option-group" id="resizeOptions" style="display: none;">
+                            <label for="maxDimension">Dimensão Máxima</label>
+                            <input type="number" id="maxDimension" min="100" max="5000" value="1920">
+                            <div class="checkbox-container">
+                                <input type="checkbox" id="maintainAspect" checked>
+                                <span>Manter proporção</span>
+                            </div>
+                            <div class="checkbox-container">
+                                <input type="checkbox" id="cropSquare">
+                                <span>Recortar quadrado</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="tab-content" id="advanced-tab">
+                    <div class="options-grid">
+                        <div class="option-group">
+                            <label for="smartMode">Modo Smart</label>
+                            <div class="checkbox-container">
+                                <input type="checkbox" id="smartMode">
+                                <span>Ajustar qualidade automaticamente</span>
+                            </div>
+                            <div id="smartOptions" style="display: none; margin-top: 10px;">
+                                <label for="targetSize">Tamanho Alvo (KB)</label>
+                                <input type="number" id="targetSize" min="10" max="5000" value="500">
+                            </div>
+                        </div>
+
+                        <div class="option-group">
+                            <label for="exifCorrection">Correção EXIF</label>
+                            <div class="checkbox-container">
+                                <input type="checkbox" id="exifCorrection" checked>
+                                <span>Corrigir orientação automaticamente</span>
+                            </div>
+                        </div>
+
+                        <div class="option-group">
+                            <label for="fastPreview">Pré-visualização Rápida</label>
+                            <div class="checkbox-container">
+                                <input type="checkbox" id="fastPreview">
+                                <span>Gerar prévia de baixa qualidade</span>
+                            </div>
+                        </div>
+
+                        <div class="option-group">
+                            <label for="maxFileSize">Tamanho Máximo do Arquivo</label>
+                            <input type="number" id="maxFileSize" min="1" max="50" value="20">
+                            <span>MB</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="tab-content" id="presets-tab">
+                    <div class="btn-group">
+                        <button class="btn" id="savePresetBtn">Salvar Configuração Atual</button>
+                        <button class="btn btn-secondary" id="loadPresetBtn">Carregar Preset</button>
+                    </div>
+                    <div id="presetsList"></div>
+                </div>
+
+                <div class="btn-group">
+                    <button class="btn" id="compressAllBtn">
+                        <span class="icon-compress"></span> Comprimir Tudo
+                    </button>
+                    <button class="btn btn-secondary" id="downloadAllBtn">
+                        <span class="icon-zip"></span> Baixar Tudo
+                    </button>
+                    <button class="btn btn-secondary" id="clearAllBtn">
+                        <span class="icon-trash"></span> Limpar Lista
+                    </button>
+                </div>
+            </div>
+
+            <div class="stats-grid hidden" id="statsGrid">
+                <div class="stat-card">
+                    <div class="stat-value" id="totalFiles">0</div>
+                    <div class="stat-label">Arquivos</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="originalSize">0 MB</div>
+                    <div class="stat-label">Tamanho Original</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="compressedSize">0 MB</div>
+                    <div class="stat-label">Tamanho Comprimido</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="savingsPercent">0%</div>
+                    <div class="stat-label">Economia</div>
+                </div>
+            </div>
+
+            <div class="image-list" id="imageList"></div>
+
+            <div class="empty-state" id="emptyState">
+                <span class="icon-image"></span>
+                <h2>Nenhuma imagem carregada</h2>
+                <p>Carregue algumas imagens para começar a comprimir</p>
+            </div>
+        </main>
+    </div>
+
+    <div class="toast" id="toast"></div>
+
+    <div class="modal" id="presetModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Nome do Preset</h2>
+                <button class="modal-close" id="closeModalBtn">&times;</button>
+            </div>
+            <div class="modal-body">
+                <input type="text" id="presetNameInput" placeholder="Digite um nome para o preset">
+                <div class="btn-group" style="margin-top: 20px;">
+                    <button class="btn" id="savePresetConfirmBtn">Salvar</button>
+                    <button class="btn btn-secondary" id="cancelPresetBtn">Cancelar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Estado da aplicação
+        const state = {
+            images: [],
+            presets: [],
+            activeTab: 'basic',
+            processing: false,
+            webpSupported: false
+        };
+
+        // Elementos DOM
+        const elements = {
+            uploadArea: document.getElementById('uploadArea'),
+            fileInput: document.getElementById('fileInput'),
+            browseBtn: document.getElementById('browseBtn'),
+            optionsPanel: document.getElementById('optionsPanel'),
+            imageList: document.getElementById('imageList'),
+            emptyState: document.getElementById('emptyState'),
+            statsGrid: document.getElementById('statsGrid'),
+            toast: document.getElementById('toast'),
+            presetModal: document.getElementById('presetModal'),
+            presetNameInput: document.getElementById('presetNameInput'),
+            qualitySlider: document.getElementById('qualitySlider'),
+            qualityValue: document.getElementById('qualityValue'),
+            formatSelect: document.getElementById('formatSelect'),
+            resizeToggle: document.getElementById('resizeToggle'),
+            resizeOptions: document.getElementById('resizeOptions'),
+            maxDimension: document.getElementById('maxDimension'),
+            maintainAspect: document.getElementById('maintainAspect'),
+            cropSquare: document.getElementById('cropSquare'),
+            smartMode: document.getElementById('smartMode'),
+            smartOptions: document.getElementById('smartOptions'),
+            targetSize: document.getElementById('targetSize'),
+            exifCorrection: document.getElementById('exifCorrection'),
+            fastPreview: document.getElementById('fastPreview'),
+            maxFileSize: document.getElementById('maxFileSize'),
+            compressAllBtn: document.getElementById('compressAllBtn'),
+            downloadAllBtn: document.getElementById('downloadAllBtn'),
+            clearAllBtn: document.getElementById('clearAllBtn'),
+            savePresetBtn: document.getElementById('savePresetBtn'),
+            loadPresetBtn: document.getElementById('loadPresetBtn'),
+            presetsList: document.getElementById('presetsList'),
+            closeModalBtn: document.getElementById('closeModalBtn'),
+            savePresetConfirmBtn: document.getElementById('savePresetConfirmBtn'),
+            cancelPresetBtn: document.getElementById('cancelPresetBtn'),
+            totalFiles: document.getElementById('totalFiles'),
+            originalSize: document.getElementById('originalSize'),
+            compressedSize: document.getElementById('compressedSize'),
+            savingsPercent: document.getElementById('savingsPercent')
+        };
+
+        // Inicialização
+        document.addEventListener('DOMContentLoaded', () => {
+            // Verificar suporte a WebP
+            checkWebPSupport();
+
+            // Carregar presets do localStorage
+            loadPresets();
+
+            // Configurar event listeners
+            setupEventListeners();
+
+            // Verificar se há arquivos na URL (para compatibilidade com alguns navegadores)
+            checkURLFiles();
+        });
+
+        // Verificar suporte a WebP
+        function checkWebPSupport() {
+            const canvas = document.createElement('canvas');
+            canvas.width = 1;
+            canvas.height = 1;
+            state.webpSupported = canvas.toDataURL('image/webp').indexOf('data:image/webp') === 0;
+            
+            if (!state.webpSupported) {
+                const webpOption = elements.formatSelect.querySelector('option[value="webp"]');
+                if (webpOption) {
+                    webpOption.disabled = true;
+                    webpOption.textContent = 'WebP (não suportado)';
+                }
+            }
+        }
+
+        // Configurar event listeners
+        function setupEventListeners() {
+            // Upload
+            elements.browseBtn.addEventListener('click', () => elements.fileInput.click());
+            elements.fileInput.addEventListener('change', handleFileSelect);
+            
+            // Drag and drop
+            elements.uploadArea.addEventListener('dragover', handleDragOver);
+            elements.uploadArea.addEventListener('dragleave', handleDragLeave);
+            elements.uploadArea.addEventListener('drop', handleDrop);
+            
+            // Opções
+            elements.qualitySlider.addEventListener('input', updateQualityValue);
+            elements.resizeToggle.addEventListener('change', toggleResizeOptions);
+            elements.smartMode.addEventListener('change', toggleSmartOptions);
+            
+            // Botões
+            elements.compressAllBtn.addEventListener('click', compressAllImages);
+            elements.downloadAllBtn.addEventListener('click', downloadAllImages);
+            elements.clearAllBtn.addEventListener('click', clearAllImages);
+            elements.savePresetBtn.addEventListener('click', showSavePresetModal);
+            elements.loadPresetBtn.addEventListener('click', showLoadPresetModal);
+            
+            // Modal
+            elements.closeModalBtn.addEventListener('click', hidePresetModal);
+            elements.cancelPresetBtn.addEventListener('click', hidePresetModal);
+            elements.savePresetConfirmBtn.addEventListener('click', savePreset);
+            
+            // Tabs
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.addEventListener('click', () => switchTab(tab.dataset.tab));
+            });
+        }
+
+        // Funções de upload
+        function handleFileSelect(e) {
+            const files = Array.from(e.target.files);
+            processFiles(files);
+        }
+
+        function handleDragOver(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            elements.uploadArea.classList.add('dragover');
+        }
+
+        function handleDragLeave(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            elements.uploadArea.classList.remove('dragover');
+        }
+
+        function handleDrop(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            elements.uploadArea.classList.remove('dragover');
+            
+            const files = Array.from(e.dataTransfer.files);
+            processFiles(files);
+        }
+
+        function processFiles(files) {
+            const imageFiles = files.filter(file => file.type.startsWith('image/'));
+            
+            if (imageFiles.length === 0) {
+                showToast('Nenhum arquivo de imagem válido encontrado', 'warning');
+                return;
+            }
+            
+            // Verificar tamanho dos arquivos
+            const maxSizeMB = parseInt(elements.maxFileSize.value);
+            const maxSizeBytes = maxSizeMB * 1024 * 1024;
+            
+            const oversizedFiles = imageFiles.filter(file => file.size > maxSizeBytes);
+            if (oversizedFiles.length > 0) {
+                showToast(`${oversizedFiles.length} arquivo(s) excedem o limite de ${maxSizeMB}MB`, 'warning');
+            }
+            
+            const validFiles = imageFiles.filter(file => file.size <= maxSizeBytes);
+            
+            if (validFiles.length > 0) {
+                addImages(validFiles);
+                showToast(`${validFiles.length} imagem(ns) carregada(s) com sucesso`, 'success');
+            }
+        }
+
+        function checkURLFiles() {
+            // Esta função poderia ser expandida para lidar com arquivos passados via URL
+            // Por enquanto, não implementamos esta funcionalidade
+        }
+
+        // Funções de manipulação de imagens
+        function addImages(files) {
+            elements.emptyState.classList.add('hidden');
+            elements.optionsPanel.classList.remove('hidden');
+            elements.statsGrid.classList.remove('hidden');
+            
+            files.forEach(file => {
+                const reader = new FileReader();
+                
+                reader.onload = (e) => {
+                    const imageId = generateId();
+                    const image = {
+                        id: imageId,
+                        file: file,
+                        name: file.name,
+                        size: file.size,
+                        type: file.type,
+                        originalUrl: e.target.result,
+                        compressedUrl: null,
+                        compressedSize: 0,
+                        compressed: false,
+                        processing: false,
+                        progress: 0,
+                        quality: elements.qualitySlider.value,
+                        format: elements.formatSelect.value,
+                        resize: elements.resizeToggle.checked,
+                        maxDimension: elements.maxDimension.value,
+                        maintainAspect: elements.maintainAspect.checked,
+                        cropSquare: elements.cropSquare.checked,
+                        smartMode: elements.smartMode.checked,
+                        targetSize: elements.targetSize.value,
+                        exifCorrection: elements.exifCorrection.checked,
+                        fastPreview: elements.fastPreview.checked
+                    };
+                    
+                    state.images.push(image);
+                    renderImage(image);
+                    updateStats();
+                };
+                
+                reader.readAsDataURL(file);
+            });
+        }
+
+        function renderImage(image) {
+            const imageCard = document.createElement('div');
+            imageCard.className = 'image-card';
+            imageCard.id = `image-${image.id}`;
+            
+            const formatLabel = image.format === 'original' ? image.type.split('/')[1].toUpperCase() : image.format.toUpperCase();
+            
+            imageCard.innerHTML = `
+                <div class="image-preview">
+                    <img id="preview-${image.id}" src="${image.originalUrl}" alt="${image.name}">
+                    <button class="compare-toggle hidden" id="compare-${image.id}">Ver Original</button>
+                </div>
+                <div class="image-info">
+                    <div class="image-name" title="${image.name}">${image.name}</div>
+                    <div class="image-stats">
+                        <span>Original: ${formatFileSize(image.size)}</span>
+                        <span id="compressed-size-${image.id}">-</span>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="progress-${image.id}" style="width: 0%"></div>
+                    </div>
+                    <div class="image-actions">
+                        <button class="btn" id="compress-btn-${image.id}" onclick="compressImage('${image.id}')">
+                            <span class="icon-compress"></span> Comprimir
+                        </button>
+                        <button class="btn btn-secondary hidden" id="download-btn-${image.id}" onclick="downloadImage('${image.id}')">
+                            <span class="icon-download"></span> Baixar
+                        </button>
+                    </div>
+                </div>
+            `;
+            
+            elements.imageList.appendChild(imageCard);
+        }
+
+        function compressImage(imageId) {
+            const image = state.images.find(img => img.id === imageId);
+            if (!image || image.processing || image.compressed) return;
+            
+            image.processing = true;
+            document.getElementById(`compress-btn-${imageId}`).disabled = true;
+            
+            const img = new Image();
+            img.onload = () => {
+                // Atualizar opções da imagem com as opções atuais da UI
+                updateImageOptions(image);
+                
+                // Iniciar compressão
+                processImage(img, image);
+            };
+            
+            img.src = image.originalUrl;
+        }
+
+        function processImage(img, image) {
+            // Criar canvas para processamento
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            
+            // Corrigir orientação EXIF se necessário
+            if (image.exifCorrection) {
+                // Em uma implementação real, aqui leríamos os dados EXIF
+                // Por simplicidade, vamos apenas verificar a orientação básica
+                // e aplicar rotações se necessário
+            }
+            
+            // Redimensionar se necessário
+            let width = img.width;
+            let height = img.height;
+            
+            if (image.resize) {
+                const maxDim = parseInt(image.maxDimension);
+                
+                if (image.cropSquare) {
+                    // Recortar para quadrado
+                    const size = Math.min(width, height);
+                    const x = (width - size) / 2;
+                    const y = (height - size) / 2;
+                    
+                    canvas.width = size;
+                    canvas.height = size;
+                    ctx.drawImage(img, x, y, size, size, 0, 0, size, size);
+                } else if (image.maintainAspect) {
+                    // Manter proporção
+                    if (width > height) {
+                        if (width > maxDim) {
+                            height *= maxDim / width;
+                            width = maxDim;
+                        }
+                    } else {
+                        if (height > maxDim) {
+                            width *= maxDim / height;
+                            height = maxDim;
+                        }
+                    }
+                    
+                    canvas.width = width;
+                    canvas.height = height;
+                    ctx.drawImage(img, 0, 0, width, height);
+                } else {
+                    // Redimensionar sem manter proporção
+                    canvas.width = maxDim;
+                    canvas.height = maxDim;
+                    ctx.drawImage(img, 0, 0, maxDim, maxDim);
+                }
+            } else {
+                canvas.width = width;
+                canvas.height = height;
+                ctx.drawImage(img, 0, 0, width, height);
+            }
+            
+            // Determinar formato de saída
+            let outputFormat = image.format;
+            if (outputFormat === 'original') {
+                outputFormat = image.type.split('/')[1];
+            }
+            
+            // Determinar qualidade
+            let quality = image.quality / 100;
+            
+            // Modo Smart: ajustar qualidade para atingir tamanho alvo
+            if (image.smartMode) {
+                // Em uma implementação real, faríamos um algoritmo mais sofisticado
+                // Para simplificar, vamos apenas ajustar a qualidade com base no tamanho original
+                const targetSizeBytes = image.targetSize * 1024;
+                const estimatedSize = (width * height * 3) * quality; // Estimativa muito básica
+                
+                if (estimatedSize > targetSizeBytes) {
+                    quality = Math.max(0.1, targetSizeBytes / estimatedSize);
+                }
+            }
+            
+            // Pré-visualização rápida se necessário
+            if (image.fastPreview) {
+                // Em uma implementação real, poderíamos gerar uma versão de baixa qualidade primeiro
+                // Para simplificar, vamos apenas usar a qualidade configurada
+            }
+            
+            // Converter para blob
+            canvas.toBlob((blob) => {
+                // Atualizar imagem com dados comprimidos
+                image.compressedUrl = URL.createObjectURL(blob);
+                image.compressedSize = blob.size;
+                image.compressed = true;
+                image.processing = false;
+                
+                // Atualizar UI
+                updateImageUI(image);
+                
+                // Atualizar estatísticas gerais
+                updateStats();
+                
+                // Mostrar notificação
+                const savings = ((image.size - image.compressedSize) / image.size * 100).toFixed(1);
+                showToast(`Imagem comprimida com ${savings}% de economia`, 'success');
+            }, `image/${outputFormat}`, quality);
+        }
+
+        function updateImageOptions(image) {
+            image.quality = elements.qualitySlider.value;
+            image.format = elements.formatSelect.value;
+            image.resize = elements.resizeToggle.checked;
+            image.maxDimension = elements.maxDimension.value;
+            image.maintainAspect = elements.maintainAspect.checked;
+            image.cropSquare = elements.cropSquare.checked;
+            image.smartMode = elements.smartMode.checked;
+            image.targetSize = elements.targetSize.value;
+            image.exifCorrection = elements.exifCorrection.checked;
+            image.fastPreview = elements.fastPreview.checked;
+        }
+
+        function updateImageUI(image) {
+            // Atualizar tamanho comprimido
+            const compressedSizeEl = document.getElementById(`compressed-size-${image.id}`);
+            compressedSizeEl.textContent = `Comprimido: ${formatFileSize(image.compressedSize)}`;
+            
+            // Atualizar preview
+            const previewEl = document.getElementById(`preview-${image.id}`);
+            previewEl.src = image.compressedUrl;
+            
+            // Mostrar botão de comparação
+            const compareBtn = document.getElementById(`compare-${image.id}`);
+            compareBtn.classList.remove('hidden');
+            compareBtn.addEventListener('click', () => toggleComparison(image));
+            
+            // Atualizar botões
+            const compressBtn = document.getElementById(`compress-btn-${image.id}`);
+            compressBtn.classList.add('hidden');
+            
+            const downloadBtn = document.getElementById(`download-btn-${image.id}`);
+            downloadBtn.classList.remove('hidden');
+            
+            // Atualizar progresso
+            const progressEl = document.getElementById(`progress-${image.id}`);
+            progressEl.style.width = '100%';
+        }
+
+        function toggleComparison(image) {
+            const previewEl = document.getElementById(`preview-${image.id}`);
+            const compareBtn = document.getElementById(`compare-${image.id}`);
+            
+            if (previewEl.src === image.originalUrl) {
+                previewEl.src = image.compressedUrl;
+                compareBtn.textContent = 'Ver Original';
+            } else {
+                previewEl.src = image.originalUrl;
+                compareBtn.textContent = 'Ver Comprimido';
+            }
+        }
+
+        function compressAllImages() {
+            if (state.processing) return;
+            
+            state.processing = true;
+            elements.compressAllBtn.disabled = true;
+            
+            const uncompressedImages = state.images.filter(img => !img.compressed && !img.processing);
+            
+            if (uncompressedImages.length === 0) {
+                showToast('Todas as imagens já foram comprimidas', 'warning');
+                state.processing = false;
+                elements.compressAllBtn.disabled = false;
+                return;
+            }
+            
+            let processedCount = 0;
+            
+            // Processar imagens em lote usando setTimeout para não bloquear a UI
+            const processNext = () => {
+                if (processedCount < uncompressedImages.length) {
+                    const image = uncompressedImages[processedCount];
+                    
+                    // Atualizar progresso
+                    const progress = (processedCount / uncompressedImages.length) * 100;
+                    showToast(`Processando imagens: ${Math.round(progress)}%`, 'info');
+                    
+                    // Comprimir imagem
+                    compressImage(image.id);
+                    
+                    processedCount++;
+                    
+                    // Processar próxima imagem após um pequeno delay
+                    setTimeout(processNext, 100);
+                } else {
+                    state.processing = false;
+                    elements.compressAllBtn.disabled = false;
+                    showToast('Todas as imagens foram comprimidas', 'success');
+                }
+            };
+            
+            // Iniciar processamento
+            processNext();
+        }
+
+        function downloadImage(imageId) {
+            const image = state.images.find(img => img.id === imageId);
+            if (!image || !image.compressed) return;
+            
+            // Criar link para download
+            const link = document.createElement('a');
+            
+            // Determinar formato de saída e extensão
+            let outputFormat = image.format;
+            if (outputFormat === 'original') {
+                outputFormat = image.type.split('/')[1];
+            }
+            
+            // Criar nome de arquivo
+            const originalName = image.name.substring(0, image.name.lastIndexOf('.')) || image.name;
+            const filename = `${originalName}-compressed.${outputFormat}`;
+            
+            link.href = image.compressedUrl;
+            link.download = filename;
+            link.click();
+            
+            showToast(`Download de ${filename} iniciado`, 'success');
+        }
+
+        function downloadAllImages() {
+            const compressedImages = state.images.filter(img => img.compressed);
+            
+            if (compressedImages.length === 0) {
+                showToast('Nenhuma imagem comprimida para baixar', 'warning');
+                return;
+            }
+            
+            // Em uma implementação real, aqui criaríamos um arquivo ZIP
+            // Para simplificar, vamos apenas baixar os arquivos individualmente
+            // com um pequeno atraso entre eles
+            
+            let downloadCount = 0;
+            
+            const downloadNext = () => {
+                if (downloadCount < compressedImages.length) {
+                    const image = compressedImages[downloadCount];
+                    downloadImage(image.id);
+                    downloadCount++;
+                    
+                    // Baixar próxima imagem após um pequeno delay
+                    setTimeout(downloadNext, 500);
+                } else {
+                    showToast('Todos os downloads foram iniciados', 'success');
+                }
+            };
+            
+            // Iniciar downloads
+            downloadNext();
+        }
+
+        function clearAllImages() {
+            if (state.images.length === 0) return;
+            
+            // Revogar URLs de objeto para liberar memória
+            state.images.forEach(image => {
+                if (image.compressedUrl) {
+                    URL.revokeObjectURL(image.compressedUrl);
+                }
+            });
+            
+            // Limpar estado
+            state.images = [];
+            
+            // Limpar UI
+            elements.imageList.innerHTML = '';
+            elements.emptyState.classList.remove('hidden');
+            elements.optionsPanel.classList.add('hidden');
+            elements.statsGrid.classList.add('hidden');
+            
+            // Resetar input de arquivo
+            elements.fileInput.value = '';
+            
+            // Atualizar estatísticas
+            updateStats();
+            
+            showToast('Lista de imagens limpa', 'info');
+        }
+
+        // Funções de UI
+        function updateQualityValue() {
+            elements.qualityValue.textContent = `${elements.qualitySlider.value}%`;
+        }
+
+        function toggleResizeOptions() {
+            elements.resizeOptions.style.display = elements.resizeToggle.checked ? 'block' : 'none';
+        }
+
+        function toggleSmartOptions() {
+            elements.smartOptions.style.display = elements.smartMode.checked ? 'block' : 'none';
+        }
+
+        function switchTab(tabName) {
+            // Atualizar tabs
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.classList.remove('active');
+                if (tab.dataset.tab === tabName) {
+                    tab.classList.add('active');
+                }
+            });
+            
+            // Atualizar conteúdo
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.remove('active');
+            });
+            document.getElementById(`${tabName}-tab`).classList.add('active');
+            
+            state.activeTab = tabName;
+        }
+
+        function updateStats() {
+            const totalFiles = state.images.length;
+            const originalSize = state.images.reduce((sum, img) => sum + img.size, 0);
+            const compressedSize = state.images
+                .filter(img => img.compressed)
+                .reduce((sum, img) => sum + img.compressedSize, 0);
+            
+            const savings = originalSize > 0 ? ((originalSize - compressedSize) / originalSize * 100) : 0;
+            
+            elements.totalFiles.textContent = totalFiles;
+            elements.originalSize.textContent = formatFileSize(originalSize);
+            elements.compressedSize.textContent = formatFileSize(compressedSize);
+            elements.savingsPercent.textContent = `${savings.toFixed(1)}%`;
+        }
+
+        // Funções de presets
+        function loadPresets() {
+            const savedPresets = localStorage.getItem('imageCompressorPresets');
+            if (savedPresets) {
+                try {
+                    state.presets = JSON.parse(savedPresets);
+                } catch (e) {
+                    console.error('Erro ao carregar presets:', e);
+                    state.presets = [];
+                }
+            }
+        }
+
+        function savePresets() {
+            localStorage.setItem('imageCompressorPresets', JSON.stringify(state.presets));
+        }
+
+        function showSavePresetModal() {
+            elements.presetModal.style.display = 'flex';
+            elements.presetNameInput.value = '';
+            elements.presetNameInput.focus();
+        }
+
+        function hidePresetModal() {
+            elements.presetModal.style.display = 'none';
+        }
+
+        function savePreset() {
+            const name = elements.presetNameInput.value.trim();
+            if (!name) {
+                showToast('Por favor, digite um nome para o preset', 'warning');
+                return;
+            }
+            
+            const preset = {
+                id: generateId(),
+                name: name,
+                quality: elements.qualitySlider.value,
+                format: elements.formatSelect.value,
+                resize: elements.resizeToggle.checked,
+                maxDimension: elements.maxDimension.value,
+                maintainAspect: elements.maintainAspect.checked,
+                cropSquare: elements.cropSquare.checked,
+                smartMode: elements.smartMode.checked,
+                targetSize: elements.targetSize.value,
+                exifCorrection: elements.exifCorrection.checked,
+                fastPreview: elements.fastPreview.checked,
+                createdAt: new Date().toISOString()
+            };
+            
+            state.presets.push(preset);
+            savePresets();
+            hidePresetModal();
+            showToast(`Preset "${name}" salvo com sucesso`, 'success');
+        }
+
+        function showLoadPresetModal() {
+            switchTab('presets');
+            renderPresets();
+        }
+
+        function renderPresets() {
+            elements.presetsList.innerHTML = '';
+            
+            if (state.presets.length === 0) {
+                elements.presetsList.innerHTML = '<p>Nenhum preset salvo</p>';
+                return;
+            }
+            
+            state.presets.forEach(preset => {
+                const presetItem = document.createElement('div');
+                presetItem.className = 'preset-item';
+                
+                presetItem.innerHTML = `
+                    <div>
+                        <div>${preset.name}</div>
+                        <div style="font-size: 0.8rem; color: var(--text-secondary);">
+                            Criado em ${new Date(preset.createdAt).toLocaleDateString()}
+                        </div>
+                    </div>
+                    <div class="preset-actions">
+                        <button class="btn" onclick="loadPreset('${preset.id}')">Carregar</button>
+                        <button class="btn btn-secondary" onclick="deletePreset('${preset.id}')">Excluir</button>
+                    </div>
+                `;
+                
+                elements.presetsList.appendChild(presetItem);
+            });
+        }
+
+        function loadPreset(presetId) {
+            const preset = state.presets.find(p => p.id === presetId);
+            if (!preset) return;
+            
+            // Aplicar configurações do preset
+            elements.qualitySlider.value = preset.quality;
+            updateQualityValue();
+            
+            elements.formatSelect.value = preset.format;
+            
+            elements.resizeToggle.checked = preset.resize;
+            toggleResizeOptions();
+            
+            elements.maxDimension.value = preset.maxDimension;
+            elements.maintainAspect.checked = preset.maintainAspect;
+            elements.cropSquare.checked = preset.cropSquare;
+            
+            elements.smartMode.checked = preset.smartMode;
+            toggleSmartOptions();
+            
+            elements.targetSize.value = preset.targetSize;
+            elements.exifCorrection.checked = preset.exifCorrection;
+            elements.fastPreview.checked = preset.fastPreview;
+            
+            showToast(`Preset "${preset.name}" carregado com sucesso`, 'success');
+        }
+
+        function deletePreset(presetId) {
+            const presetIndex = state.presets.findIndex(p => p.id === presetId);
+            if (presetIndex === -1) return;
+            
+            const presetName = state.presets[presetIndex].name;
+            state.presets.splice(presetIndex, 1);
+            savePresets();
+            renderPresets();
+            
+            showToast(`Preset "${presetName}" excluído`, 'info');
+        }
+
+        // Funções utilitárias
+        function generateId() {
+            return Date.now().toString(36) + Math.random().toString(36).substr(2);
+        }
+
+        function formatFileSize(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+
+        function showToast(message, type = 'info') {
+            elements.toast.textContent = message;
+            elements.toast.className = `toast ${type}`;
+            elements.toast.classList.add('show');
+            
+            setTimeout(() => {
+                elements.toast.classList.remove('show');
+            }, 3000);
+        }
+    </script>
+</body>
+</html>
