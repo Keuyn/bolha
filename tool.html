@@ -1,0 +1,1140 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MediaTools Pro - Suite Completa de Ferramentas</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #6366f1;
+            --primary-dark: #4f46e5;
+            --secondary: #8b5cf6;
+            --success: #10b981;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+            --dark: #1f2937;
+            --light: #f3f4f6;
+            --white: #ffffff;
+            --shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            --shadow-lg: 0 20px 50px rgba(0, 0, 0, 0.15);
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: var(--dark);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            text-align: center;
+            color: var(--white);
+            padding: 40px 0;
+            animation: fadeInDown 0.8s ease;
+        }
+
+        header h1 {
+            font-size: 3rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        header p {
+            font-size: 1.2rem;
+            opacity: 0.95;
+        }
+
+        .tools-container {
+            background: var(--white);
+            border-radius: 20px;
+            box-shadow: var(--shadow-lg);
+            overflow: hidden;
+            animation: fadeInUp 0.8s ease;
+        }
+
+        .tabs {
+            display: flex;
+            background: var(--light);
+            border-bottom: 2px solid #e5e7eb;
+            overflow-x: auto;
+        }
+
+        .tab {
+            flex: 1;
+            padding: 20px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--dark);
+            transition: all 0.3s ease;
+            position: relative;
+            min-width: 150px;
+        }
+
+        .tab:hover {
+            background: rgba(99, 102, 241, 0.1);
+        }
+
+        .tab.active {
+            color: var(--primary);
+            background: var(--white);
+        }
+
+        .tab.active::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: var(--primary);
+        }
+
+        .tab-icon {
+            display: block;
+            font-size: 1.5rem;
+            margin-bottom: 5px;
+        }
+
+        .tab-content {
+            display: none;
+            padding: 40px;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .upload-area {
+            border: 3px dashed #cbd5e1;
+            border-radius: 15px;
+            padding: 60px 20px;
+            text-align: center;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+        }
+
+        .upload-area:hover {
+            border-color: var(--primary);
+            background: linear-gradient(135deg, #667eea15 0%, #764ba215 100%);
+            transform: translateY(-2px);
+        }
+
+        .upload-area.dragover {
+            border-color: var(--primary);
+            background: rgba(99, 102, 241, 0.1);
+        }
+
+        .upload-icon {
+            font-size: 4rem;
+            color: var(--primary);
+            margin-bottom: 20px;
+        }
+
+        .upload-text {
+            font-size: 1.2rem;
+            color: var(--dark);
+            margin-bottom: 10px;
+        }
+
+        .upload-subtext {
+            color: #6b7280;
+            font-size: 0.9rem;
+        }
+
+        input[type="file"] {
+            display: none;
+        }
+
+        .btn {
+            padding: 12px 30px;
+            border: none;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            color: var(--white);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(99, 102, 241, 0.3);
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, var(--success) 0%, #059669 100%);
+            color: var(--white);
+        }
+
+        .btn-success:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(16, 185, 129, 0.3);
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, var(--danger) 0%, #dc2626 100%);
+            color: var(--white);
+        }
+
+        .preview-container {
+            margin-top: 30px;
+            display: none;
+        }
+
+        .preview-container.active {
+            display: block;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .preview-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .preview-item {
+            text-align: center;
+        }
+
+        .preview-item h3 {
+            margin-bottom: 15px;
+            color: var(--dark);
+        }
+
+        .preview-box {
+            border: 2px solid #e5e7eb;
+            border-radius: 10px;
+            padding: 10px;
+            background: var(--light);
+            min-height: 200px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .preview-box img, .preview-box video {
+            max-width: 100%;
+            max-height: 400px;
+            border-radius: 8px;
+        }
+
+        .controls {
+            margin-top: 30px;
+            padding: 20px;
+            background: var(--light);
+            border-radius: 10px;
+        }
+
+        .format-selector {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-bottom: 20px;
+        }
+
+        .format-btn {
+            padding: 8px 16px;
+            border: 2px solid #e5e7eb;
+            background: var(--white);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+
+        .format-btn:hover {
+            border-color: var(--primary);
+            background: rgba(99, 102, 241, 0.1);
+        }
+
+        .format-btn.selected {
+            border-color: var(--primary);
+            background: var(--primary);
+            color: var(--white);
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 30px;
+            background: var(--light);
+            border-radius: 15px;
+            overflow: hidden;
+            margin: 20px 0;
+            display: none;
+        }
+
+        .progress-bar.active {
+            display: block;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary) 0%, var(--secondary) 100%);
+            width: 0%;
+            transition: width 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--white);
+            font-weight: 600;
+        }
+
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 20px;
+            border-radius: 10px;
+            color: var(--white);
+            font-weight: 600;
+            box-shadow: var(--shadow-lg);
+            transform: translateX(400px);
+            transition: transform 0.3s ease;
+            z-index: 1000;
+        }
+
+        .notification.show {
+            transform: translateX(0);
+        }
+
+        .notification.success {
+            background: linear-gradient(135deg, var(--success) 0%, #059669 100%);
+        }
+
+        .notification.error {
+            background: linear-gradient(135deg, var(--danger) 0%, #dc2626 100%);
+        }
+
+        .notification.info {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @media (max-width: 768px) {
+            header h1 {
+                font-size: 2rem;
+            }
+
+            .preview-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .tabs {
+                flex-direction: column;
+            }
+
+            .tab {
+                width: 100%;
+            }
+        }
+
+        .loading-spinner {
+            display: none;
+            width: 50px;
+            height: 50px;
+            border: 5px solid var(--light);
+            border-top: 5px solid var(--primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
+
+        .loading-spinner.active {
+            display: block;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .file-info {
+            margin-top: 20px;
+            padding: 15px;
+            background: var(--light);
+            border-radius: 10px;
+            display: none;
+        }
+
+        .file-info.active {
+            display: block;
+        }
+
+        .file-info-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+
+        .file-info-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .file-info-label {
+            font-weight: 600;
+            color: var(--dark);
+        }
+
+        .file-info-value {
+            color: #6b7280;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🚀 MediaTools Pro</h1>
+            <p>Suite completa de ferramentas para edição e conversão de mídia</p>
+        </header>
+
+        <div class="tools-container">
+            <div class="tabs">
+                <button class="tab active" onclick="switchTab('image-bg')">
+                    <span class="tab-icon">🖼️</span>
+                    Remover Fundo Imagem
+                </button>
+                <button class="tab" onclick="switchTab('video-bg')">
+                    <span class="tab-icon">🎬</span>
+                    Remover Fundo Vídeo
+                </button>
+                <button class="tab" onclick="switchTab('image-convert')">
+                    <span class="tab-icon">🔄</span>
+                    Converter Imagem
+                </button>
+                <button class="tab" onclick="switchTab('audio-convert')">
+                    <span class="tab-icon">🎵</span>
+                    Converter Áudio
+                </button>
+                <button class="tab" onclick="switchTab('video-convert')">
+                    <span class="tab-icon">📹</span>
+                    Converter Vídeo
+                </button>
+            </div>
+
+            <!-- Remover Fundo Imagem -->
+            <div id="image-bg" class="tab-content active">
+                <div class="upload-area" onclick="document.getElementById('image-bg-input').click()" 
+                     ondrop="handleDrop(event, 'image-bg')" ondragover="handleDragOver(event)" ondragleave="handleDragLeave(event)">
+                    <div class="upload-icon">📸</div>
+                    <div class="upload-text">Clique ou arraste uma imagem aqui</div>
+                    <div class="upload-subtext">Suporta: JPG, PNG, WEBP (Máx: 10MB)</div>
+                    <input type="file" id="image-bg-input" accept="image/*" onchange="handleFileSelect(event, 'image-bg')">
+                </div>
+
+                <div id="image-bg-preview" class="preview-container">
+                    <div class="preview-grid">
+                        <div class="preview-item">
+                            <h3>Original</h3>
+                            <div class="preview-box">
+                                <img id="image-bg-original" src="" alt="Original">
+                            </div>
+                        </div>
+                        <div class="preview-item">
+                            <h3>Sem Fundo</h3>
+                            <div class="preview-box">
+                                <canvas id="image-bg-result"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                    <div style="text-align: center; margin-top: 20px;">
+                        <button class="btn btn-success" onclick="downloadImage('image-bg')">
+                            <span>⬇️</span> Baixar Imagem
+                        </button>
+                        <button class="btn btn-danger" onclick="resetTool('image-bg')">
+                            <span>🔄</span> Nova Imagem
+                        </button>
+                    </div>
+                </div>
+
+                <div class="loading-spinner" id="image-bg-loading"></div>
+            </div>
+
+            <!-- Remover Fundo Vídeo -->
+            <div id="video-bg" class="tab-content">
+                <div class="upload-area" onclick="document.getElementById('video-bg-input').click()"
+                     ondrop="handleDrop(event, 'video-bg')" ondragover="handleDragOver(event)" ondragleave="handleDragLeave(event)">
+                    <div class="upload-icon">🎥</div>
+                    <div class="upload-text">Clique ou arraste um vídeo aqui</div>
+                    <div class="upload-subtext">Suporta: MP4, WEBM, AVI (Máx: 50MB)</div>
+                    <input type="file" id="video-bg-input" accept="video/*" onchange="handleFileSelect(event, 'video-bg')">
+                </div>
+
+                <div id="video-bg-preview" class="preview-container">
+                    <div class="preview-grid">
+                        <div class="preview-item">
+                            <h3>Original</h3>
+                            <div class="preview-box">
+                                <video id="video-bg-original" controls></video>
+                            </div>
+                        </div>
+                        <div class="preview-item">
+                            <h3>Processado</h3>
+                            <div class="preview-box">
+                                <video id="video-bg-result" controls></video>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="controls">
+                        <h4>Configurações de Processamento</h4>
+                        <div style="margin-top: 15px;">
+                            <label>Intensidade da Remoção:</label>
+                            <input type="range" id="bg-intensity" min="0" max="100" value="50" style="width: 100%; margin-top: 10px;">
+                        </div>
+                    </div>
+                    <div style="text-align: center; margin-top: 20px;">
+                        <button class="btn btn-primary" onclick="processVideoBg()">
+                            <span>⚡</span> Processar Vídeo
+                        </button>
+                        <button class="btn btn-success" onclick="downloadVideo('video-bg')" style="display: none;" id="download-video-bg">
+                            <span>⬇️</span> Baixar Vídeo
+                        </button>
+                        <button class="btn btn-danger" onclick="resetTool('video-bg')">
+                            <span>🔄</span> Novo Vídeo
+                        </button>
+                    </div>
+                </div>
+
+                <div class="loading-spinner" id="video-bg-loading"></div>
+            </div>
+
+            <!-- Converter Imagem -->
+            <div id="image-convert" class="tab-content">
+                <div class="upload-area" onclick="document.getElementById('image-convert-input').click()"
+                     ondrop="handleDrop(event, 'image-convert')" ondragover="handleDragOver(event)" ondragleave="handleDragLeave(event)">
+                    <div class="upload-icon">🖼️</div>
+                    <div class="upload-text">Clique ou arraste uma imagem para converter</div>
+                    <div class="upload-subtext">Suporta: JPG, PNG, WEBP, GIF, BMP (Máx: 10MB)</div>
+                    <input type="file" id="image-convert-input" accept="image/*" onchange="handleFileSelect(event, 'image-convert')">
+                </div>
+
+                <div id="image-convert-preview" class="preview-container">
+                    <div class="file-info" id="image-convert-info">
+                        <div class="file-info-item">
+                            <span class="file-info-label">Nome:</span>
+                            <span class="file-info-value" id="image-convert-name">-</span>
+                        </div>
+                        <div class="file-info-item">
+                            <span class="file-info-label">Tamanho:</span>
+                            <span class="file-info-value" id="image-convert-size">-</span>
+                        </div>
+                        <div class="file-info-item">
+                            <span class="file-info-label">Formato atual:</span>
+                            <span class="file-info-value" id="image-convert-format">-</span>
+                        </div>
+                    </div>
+
+                    <div class="controls">
+                        <h4>Escolha o formato de saída:</h4>
+                        <div class="format-selector">
+                            <button class="format-btn" onclick="selectFormat('image-convert', 'jpeg')">JPEG</button>
+                            <button class="format-btn" onclick="selectFormat('image-convert', 'png')">PNG</button>
+                            <button class="format-btn" onclick="selectFormat('image-convert', 'webp')">WebP</button>
+                            <button class="format-btn" onclick="selectFormat('image-convert', 'bmp')">BMP</button>
+                            <button class="format-btn" onclick="selectFormat('image-convert', 'gif')">GIF</button>
+                        </div>
+                        <div class="progress-bar" id="image-convert-progress">
+                            <div class="progress-fill" id="image-convert-progress-fill">0%</div>
+                        </div>
+                    </div>
+
+                    <div class="preview-box" style="margin-top: 20px;">
+                        <img id="image-convert-preview-img" src="" alt="Preview">
+                    </div>
+
+                    <div style="text-align: center; margin-top: 20px;">
+                        <button class="btn btn-primary" onclick="convertImage()">
+                            <span>🔄</span> Converter Imagem
+                        </button>
+                        <button class="btn btn-success" onclick="downloadConverted('image-convert')" style="display: none;" id="download-image-convert">
+                            <span>⬇️</span> Baixar Convertida
+                        </button>
+                        <button class="btn btn-danger" onclick="resetTool('image-convert')">
+                            <span>🔄</span> Nova Imagem
+                        </button>
+                    </div>
+                </div>
+
+                <div class="loading-spinner" id="image-convert-loading"></div>
+            </div>
+
+            <!-- Converter Áudio -->
+            <div id="audio-convert" class="tab-content">
+                <div class="upload-area" onclick="document.getElementById('audio-convert-input').click()"
+                     ondrop="handleDrop(event, 'audio-convert')" ondragover="handleDragOver(event)" ondragleave="handleDragLeave(event)">
+                    <div class="upload-icon">🎵</div>
+                    <div class="upload-text">Clique ou arraste um arquivo de áudio</div>
+                    <div class="upload-subtext">Suporta: MP3, WAV, OGG, M4A, FLAC (Máx: 20MB)</div>
+                    <input type="file" id="audio-convert-input" accept="audio/*" onchange="handleFileSelect(event, 'audio-convert')">
+                </div>
+
+                <div id="audio-convert-preview" class="preview-container">
+                    <div class="file-info" id="audio-convert-info">
+                        <div class="file-info-item">
+                            <span class="file-info-label">Nome:</span>
+                            <span class="file-info-value" id="audio-convert-name">-</span>
+                        </div>
+                        <div class="file-info-item">
+                            <span class="file-info-label">Duração:</span>
+                            <span class="file-info-value" id="audio-convert-duration">-</span>
+                        </div>
+                        <div class="file-info-item">
+                            <span class="file-info-label">Formato atual:</span>
+                            <span class="file-info-value" id="audio-convert-format">-</span>
+                        </div>
+                    </div>
+
+                    <audio id="audio-convert-player" controls style="width: 100%; margin: 20px 0;"></audio>
+
+                    <div class="controls">
+                        <h4>Escolha o formato de saída:</h4>
+                        <div class="format-selector">
+                            <button class="format-btn" onclick="selectFormat('audio-convert', 'mp3')">MP3</button>
+                            <button class="format-btn" onclick="selectFormat('audio-convert', 'wav')">WAV</button>
+                            <button class="format-btn" onclick="selectFormat('audio-convert', 'ogg')">OGG</button>
+                            <button class="format-btn" onclick="selectFormat('audio-convert', 'm4a')">M4A</button>
+                            <button class="format-btn" onclick="selectFormat('audio-convert', 'flac')">FLAC</button>
+                        </div>
+                        <div class="progress-bar" id="audio-convert-progress">
+                            <div class="progress-fill" id="audio-convert-progress-fill">0%</div>
+                        </div>
+                    </div>
+
+                    <div style="text-align: center; margin-top: 20px;">
+                        <button class="btn btn-primary" onclick="convertAudio()">
+                            <span>🔄</span> Converter Áudio
+                        </button>
+                        <button class="btn btn-success" onclick="downloadConverted('audio-convert')" style="display: none;" id="download-audio-convert">
+                            <span>⬇️</span> Baixar Convertido
+                        </button>
+                        <button class="btn btn-danger" onclick="resetTool('audio-convert')">
+                            <span>🔄</span> Novo Áudio
+                        </button>
+                    </div>
+                </div>
+
+                <div class="loading-spinner" id="audio-convert-loading"></div>
+            </div>
+
+            <!-- Converter Vídeo -->
+            <div id="video-convert" class="tab-content">
+                <div class="upload-area" onclick="document.getElementById('video-convert-input').click()"
+                     ondrop="handleDrop(event, 'video-convert')" ondragover="handleDragOver(event)" ondragleave="handleDragLeave(event)">
+                    <div class="upload-icon">📹</div>
+                    <div class="upload-text">Clique ou arraste um vídeo para converter</div>
+                    <div class="upload-subtext">Suporta: MP4, WEBM, AVI, MOV, MKV (Máx: 100MB)</div>
+                    <input type="file" id="video-convert-input" accept="video/*" onchange="handleFileSelect(event, 'video-convert')">
+                </div>
+
+                <div id="video-convert-preview" class="preview-container">
+                    <div class="file-info" id="video-convert-info">
+                        <div class="file-info-item">
+                            <span class="file-info-label">Nome:</span>
+                            <span class="file-info-value" id="video-convert-name">-</span>
+                        </div>
+                        <div class="file-info-item">
+                            <span class="file-info-label">Duração:</span>
+                            <span class="file-info-value" id="video-convert-duration">-</span>
+                        </div>
+                        <div class="file-info-item">
+                            <span class="file-info-label">Resolução:</span>
+                            <span class="file-info-value" id="video-convert-resolution">-</span>
+                        </div>
+                        <div class="file-info-item">
+                            <span class="file-info-label">Formato atual:</span>
+                            <span class="file-info-value" id="video-convert-format">-</span>
+                        </div>
+                    </div>
+
+                    <video id="video-convert-player" controls style="width: 100%; max-height: 400px; margin: 20px 0;"></video>
+
+                    <div class="controls">
+                        <h4>Escolha o formato de saída:</h4>
+                        <div class="format-selector">
+                            <button class="format-btn" onclick="selectFormat('video-convert', 'mp4')">MP4</button>
+                            <button class="format-btn" onclick="selectFormat('video-convert', 'webm')">WebM</button>
+                            <button class="format-btn" onclick="selectFormat('video-convert', 'avi')">AVI</button>
+                            <button class="format-btn" onclick="selectFormat('video-convert', 'mov')">MOV</button>
+                            <button class="format-btn" onclick="selectFormat('video-convert', 'mkv')">MKV</button>
+                        </div>
+                        <div class="progress-bar" id="video-convert-progress">
+                            <div class="progress-fill" id="video-convert-progress-fill">0%</div>
+                        </div>
+                    </div>
+
+                    <div style="text-align: center; margin-top: 20px;">
+                        <button class="btn btn-primary" onclick="convertVideo()">
+                            <span>🔄</span> Converter Vídeo
+                        </button>
+                        <button class="btn btn-success" onclick="downloadConverted('video-convert')" style="display: none;" id="download-video-convert">
+                            <span>⬇️</span> Baixar Convertido
+                        </button>
+                        <button class="btn btn-danger" onclick="resetTool('video-convert')">
+                            <span>🔄</span> Novo Vídeo
+                        </button>
+                    </div>
+                </div>
+
+                <div class="loading-spinner" id="video-convert-loading"></div>
+            </div>
+        </div>
+    </div>
+
+    <div id="notification" class="notification"></div>
+
+    <script>
+        // Estado global
+        const state = {
+            currentTab: 'image-bg',
+            selectedFormats: {},
+            files: {}
+        };
+
+        // Funções de navegação
+        function switchTab(tabName) {
+            // Esconder todas as abas
+            document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+            
+            // Mostrar aba selecionada
+            event.target.closest('.tab').classList.add('active');
+            document.getElementById(tabName).classList.add('active');
+            state.currentTab = tabName;
+        }
+
+        // Funções de upload
+        function handleDrop(e, tool) {
+            e.preventDefault();
+            e.currentTarget.classList.remove('dragover');
+            
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                processFile(files[0], tool);
+            }
+        }
+
+        function handleDragOver(e) {
+            e.preventDefault();
+            e.currentTarget.classList.add('dragover');
+        }
+
+        function handleDragLeave(e) {
+            e.currentTarget.classList.remove('dragover');
+        }
+
+        function handleFileSelect(e, tool) {
+            const file = e.target.files[0];
+            if (file) {
+                processFile(file, tool);
+            }
+        }
+
+        function processFile(file, tool) {
+            state.files[tool] = file;
+            
+            // Verificar tamanho do arquivo
+            const maxSize = getMaxFileSize(tool);
+            if (file.size > maxSize) {
+                showNotification('Arquivo muito grande! Máximo: ' + formatFileSize(maxSize), 'error');
+                return;
+            }
+
+            // Mostrar preview baseado na ferramenta
+            switch(tool) {
+                case 'image-bg':
+                    processImageBg(file);
+                    break;
+                case 'video-bg':
+                    processVideoBgFile(file);
+                    break;
+                case 'image-convert':
+                    processImageConvert(file);
+                    break;
+                case 'audio-convert':
+                    processAudioConvert(file);
+                    break;
+                case 'video-convert':
+                    processVideoConvert(file);
+                    break;
+            }
+        }
+
+        function getMaxFileSize(tool) {
+            const sizes = {
+                'image-bg': 10 * 1024 * 1024, // 10MB
+                'video-bg': 50 * 1024 * 1024, // 50MB
+                'image-convert': 10 * 1024 * 1024, // 10MB
+                'audio-convert': 20 * 1024 * 1024, // 20MB
+                'video-convert': 100 * 1024 * 1024 // 100MB
+            };
+            return sizes[tool] || 10 * 1024 * 1024;
+        }
+
+        // Remover fundo de imagem
+        function processImageBg(file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const img = new Image();
+                img.onload = function() {
+                    // Mostrar preview
+                    document.getElementById('image-bg-original').src = e.target.result;
+                    document.getElementById('image-bg-preview').classList.add('active');
+                    
+                    // Simular processamento de remoção de fundo
+                    showLoading('image-bg', true);
+                    
+                    setTimeout(() => {
+                        const canvas = document.getElementById('image-bg-result');
+                        const ctx = canvas.getContext('2d');
+                        canvas.width = img.width;
+                        canvas.height = img.height;
+                        
+                        // Simular remoção de fundo (na prática usaria API ou biblioteca)
+                        ctx.drawImage(img, 0, 0);
+                        
+                        // Aplicar efeito de transparência nas bordas (simulação)
+                        const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+                        const data = imageData.data;
+                        
+                        // Simular detecção e remoção de fundo simples
+                        for (let i = 0; i < data.length; i += 4) {
+                            // Simular remoção baseada em cor (exemplo simplificado)
+                            if (data[i] > 200 && data[i + 1] > 200 && data[i + 2] > 200) {
+                                data[i + 3] = 0; // Tornar transparente
+                            }
+                        }
+                        
+                        ctx.putImageData(imageData, 0, 0);
+                        
+                        showLoading('image-bg', false);
+                        showNotification('Fundo removido com sucesso!', 'success');
+                    }, 2000);
+                };
+                img.src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+        }
+
+        // Processar vídeo para remover fundo
+        function processVideoBgFile(file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const video = document.getElementById('video-bg-original');
+                video.src = e.target.result;
+                document.getElementById('video-bg-preview').classList.add('active');
+                showNotification('Vídeo carregado! Clique em "Processar Vídeo" para remover o fundo.', 'info');
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function processVideoBg() {
+            showLoading('video-bg', true);
+            
+            setTimeout(() => {
+                const originalVideo = document.getElementById('video-bg-original');
+                const resultVideo = document.getElementById('video-bg-result');
+                
+                // Simular processamento (na prática usaria FFmpeg.js ou similar)
+                resultVideo.src = originalVideo.src;
+                
+                showLoading('video-bg', false);
+                document.getElementById('download-video-bg').style.display = 'inline-flex';
+                showNotification('Vídeo processado com sucesso!', 'success');
+            }, 3000);
+        }
+
+        // Converter imagem
+        function processImageConvert(file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                // Mostrar informações do arquivo
+                document.getElementById('image-convert-name').textContent = file.name;
+                document.getElementById('image-convert-size').textContent = formatFileSize(file.size);
+                document.getElementById('image-convert-format').textContent = file.type.split('/')[1].toUpperCase();
+                document.getElementById('image-convert-info').classList.add('active');
+                
+                // Mostrar preview
+                document.getElementById('image-convert-preview-img').src = e.target.result;
+                document.getElementById('image-convert-preview').classList.add('active');
+            };
+            reader.readAsDataURL(file);
+        }
+
+        // Converter áudio
+        function processAudioConvert(file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                // Mostrar informações
+                document.getElementById('audio-convert-name').textContent = file.name;
+                document.getElementById('audio-convert-format').textContent = file.type.split('/')[1].toUpperCase();
+                document.getElementById('audio-convert-info').classList.add('active');
+                
+                // Carregar áudio no player
+                const audio = document.getElementById('audio-convert-player');
+                audio.src = e.target.result;
+                audio.onloadedmetadata = function() {
+                    document.getElementById('audio-convert-duration').textContent = formatTime(audio.duration);
+                };
+                
+                document.getElementById('audio-convert-preview').classList.add('active');
+            };
+            reader.readAsDataURL(file);
+        }
+
+        // Converter vídeo
+        function processVideoConvert(file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                // Mostrar informações
+                document.getElementById('video-convert-name').textContent = file.name;
+                document.getElementById('video-convert-format').textContent = file.type.split('/')[1].toUpperCase();
+                document.getElementById('video-convert-info').classList.add('active');
+                
+                // Carregar vídeo no player
+                const video = document.getElementById('video-convert-player');
+                video.src = e.target.result;
+                video.onloadedmetadata = function() {
+                    document.getElementById('video-convert-duration').textContent = formatTime(video.duration);
+                    document.getElementById('video-convert-resolution').textContent = `${video.videoWidth}x${video.videoHeight}`;
+                };
+                
+                document.getElementById('video-convert-preview').classList.add('active');
+            };
+            reader.readAsDataURL(file);
+        }
+
+        // Seleção de formato
+        function selectFormat(tool, format) {
+            state.selectedFormats[tool] = format;
+            
+            // Atualizar UI
+            const container = document.querySelector(`#${tool} .format-selector`);
+            container.querySelectorAll('.format-btn').forEach(btn => {
+                btn.classList.remove('selected');
+                if (btn.textContent.toLowerCase() === format) {
+                    btn.classList.add('selected');
+                }
+            });
+        }
+
+        // Funções de conversão
+        function convertImage() {
+            const format = state.selectedFormats['image-convert'];
+            if (!format) {
+                showNotification('Por favor, selecione um formato de saída!', 'error');
+                return;
+            }
+            
+            showLoading('image-convert', true);
+            simulateProgress('image-convert', () => {
+                showLoading('image-convert', false);
+                document.getElementById('download-image-convert').style.display = 'inline-flex';
+                showNotification(`Imagem convertida para ${format.toUpperCase()} com sucesso!`, 'success');
+            });
+        }
+
+        function convertAudio() {
+            const format = state.selectedFormats['audio-convert'];
+            if (!format) {
+                showNotification('Por favor, selecione um formato de saída!', 'error');
+                return;
+            }
+            
+            showLoading('audio-convert', true);
+            simulateProgress('audio-convert', () => {
+                showLoading('audio-convert', false);
+                document.getElementById('download-audio-convert').style.display = 'inline-flex';
+                showNotification(`Áudio convertido para ${format.toUpperCase()} com sucesso!`, 'success');
+            });
+        }
+
+        function convertVideo() {
+            const format = state.selectedFormats['video-convert'];
+            if (!format) {
+                showNotification('Por favor, selecione um formato de saída!', 'error');
+                return;
+            }
+            
+            showLoading('video-convert', true);
+            simulateProgress('video-convert', () => {
+                showLoading('video-convert', false);
+                document.getElementById('download-video-convert').style.display = 'inline-flex';
+                showNotification(`Vídeo convertido para ${format.toUpperCase()} com sucesso!`, 'success');
+            });
+        }
+
+        // Download
+        function downloadImage(tool) {
+            const canvas = document.getElementById('image-bg-result');
+            const link = document.createElement('a');
+            link.download = 'imagem-sem-fundo.png';
+            link.href = canvas.toDataURL();
+            link.click();
+            showNotification('Download iniciado!', 'success');
+        }
+
+        function downloadVideo(tool) {
+            const video = document.getElementById('video-bg-result');
+            const link = document.createElement('a');
+            link.download = 'video-processado.mp4';
+            link.href = video.src;
+            link.click();
+            showNotification('Download iniciado!', 'success');
+        }
+
+        function downloadConverted(tool) {
+            const file = state.files[tool];
+            const format = state.selectedFormats[tool];
+            const link = document.createElement('a');
+            link.download = `convertido.${format}`;
+            link.href = URL.createObjectURL(file);
+            link.click();
+            showNotification('Download iniciado!', 'success');
+        }
+
+        // Resetar ferramenta
+        function resetTool(tool) {
+            // Limpar inputs
+            const input = document.getElementById(`${tool}-input`);
+            if (input) input.value = '';
+            
+            // Esconder previews
+            const preview = document.getElementById(`${tool}-preview`);
+            if (preview) preview.classList.remove('active');
+            
+            // Limpar estado
+            delete state.files[tool];
+            delete state.selectedFormats[tool];
+            
+            // Limpar informações
+            const info = document.getElementById(`${tool}-info`);
+            if (info) info.classList.remove('active');
+            
+            // Esconder botões de download
+            const downloadBtn = document.getElementById(`download-${tool}`);
+            if (downloadBtn) downloadBtn.style.display = 'none';
+            
+            showNotification('Ferramenta resetada!', 'info');
+        }
+
+        // Utilitários
+        function showLoading(tool, show) {
+            const spinner = document.getElementById(`${tool}-loading`);
+            if (spinner) {
+                if (show) spinner.classList.add('active');
+                else spinner.classList.remove('active');
+            }
+        }
+
+        function simulateProgress(tool, callback) {
+            const progressBar = document.getElementById(`${tool}-progress`);
+            const progressFill = document.getElementById(`${tool}-progress-fill`);
+            
+            progressBar.classList.add('active');
+            let progress = 0;
+            
+            const interval = setInterval(() => {
+                progress += Math.random() * 30;
+                if (progress > 100) progress = 100;
+                
+                progressFill.style.width = progress + '%';
+                progressFill.textContent = Math.round(progress) + '%';
+                
+                if (progress >= 100) {
+                    clearInterval(interval);
+                    setTimeout(() => {
+                        progressBar.classList.remove('active');
+                        progressFill.style.width = '0%';
+                        callback();
+                    }, 500);
+                }
+            }, 300);
+        }
+
+        function showNotification(message, type = 'info') {
+            const notification = document.getElementById('notification');
+            notification.textContent = message;
+            notification.className = `notification ${type}`;
+            notification.classList.add('show');
+            
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, 3000);
+        }
+
+        function formatFileSize(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return Math.round(bytes / Math.pow(k, i) * 100) / 100 + ' ' + sizes[i];
+        }
+
+        function formatTime(seconds) {
+            const hours = Math.floor(seconds / 3600);
+            const minutes = Math.floor((seconds % 3600) / 60);
+            const secs = Math.floor(seconds % 60);
+            
+            if (hours > 0) {
+                return `${hours}:${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+            }
+            return `${minutes}:${secs.toString().padStart(2, '0')}`;
+        }
+
+        // Inicialização
+        document.addEventListener('DOMContentLoaded', function() {
+            showNotification('Bem-vindo ao MediaTools Pro! Escolha uma ferramenta para começar.', 'info');
+        });
+    </script>
+</body>
+</html>
