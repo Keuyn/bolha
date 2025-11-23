@@ -4,8 +4,17 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>QRCodeMaker - Gerador de QR Code Avançado</title>
+    <!-- Incluindo a biblioteca qrcode.js para geração de QR Codes -->
+    <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
+    <!-- Incluindo a biblioteca jsQR para leitura de QR Codes -->
+    <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js"></script>
+    <!-- Incluindo a biblioteca jszip para geração de arquivos ZIP -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <!-- Incluindo a biblioteca FileSaver.js para download de arquivos -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+    
     <style>
-        /* Estilos CSS */
+        /* Estilos CSS (mantidos os mesmos) */
         :root {
             --bg-primary: #280000;
             --bg-secondary: #000000;
@@ -98,6 +107,8 @@
         input[type="number"],
         input[type="color"],
         input[type="url"],
+        input[type="password"],
+        input[type="email"],
         textarea,
         select {
             width: 100%;
@@ -173,7 +184,15 @@
             min-height: 300px;
         }
 
-        #qrCanvas {
+        #qrcode {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
+            height: 100%;
+        }
+
+        #qrcode img, #qrcode canvas {
             max-width: 100%;
             height: auto;
             border: 1px solid #ddd;
@@ -470,7 +489,7 @@
                 <div class="tab-content active" id="text-tab">
                     <div class="form-group">
                         <label for="qrText">Texto ou URL:</label>
-                        <textarea id="qrText" placeholder="Digite o texto ou URL que deseja codificar no QR Code"></textarea>
+                        <textarea id="qrText" placeholder="Digite o texto ou URL que deseja codificar no QR Code">QRCodeMaker - Exemplo de QR Code</textarea>
                     </div>
                     
                     <div class="button-group">
@@ -590,16 +609,6 @@
                 </div>
                 
                 <div class="form-group">
-                    <label for="qrFormat">Formato de Saída:</label>
-                    <select id="qrFormat">
-                        <option value="png">PNG</option>
-                        <option value="svg">SVG</option>
-                        <option value="jpg">JPG</option>
-                        <option value="webp">WebP</option>
-                    </select>
-                </div>
-                
-                <div class="form-group">
                     <label for="errorCorrection">Nível de Correção de Erro:</label>
                     <select id="errorCorrection">
                         <option value="L">Baixo (L) - ~7% de correção</option>
@@ -612,8 +621,8 @@
                 <div class="form-group">
                     <label for="qrMargin">Margem (módulos):</label>
                     <div class="range-container">
-                        <input type="range" id="qrMargin" min="0" max="4" value="2">
-                        <span class="range-value" id="qrMarginValue">2</span>
+                        <input type="range" id="qrMargin" min="0" max="10" value="4">
+                        <span class="range-value" id="qrMarginValue">4</span>
                     </div>
                 </div>
                 
@@ -629,38 +638,6 @@
                             <input type="color" id="qrBackgroundColor" value="#FFFFFF">
                         </div>
                     </div>
-                </div>
-                
-                <div class="form-group">
-                    <label for="useGradient">Usar Gradiente:</label>
-                    <label class="switch">
-                        <input type="checkbox" id="useGradient">
-                        <span class="slider"></span>
-                    </label>
-                </div>
-                
-                <div id="gradientOptions" class="form-group hidden">
-                    <label>Gradiente:</label>
-                    <div class="color-inputs">
-                        <div class="color-input-group">
-                            <label for="gradientStart">Cor Inicial:</label>
-                            <input type="color" id="gradientStart" value="#000000">
-                        </div>
-                        <div class="color-input-group">
-                            <label for="gradientEnd">Cor Final:</label>
-                            <input type="color" id="gradientEnd" value="#640000">
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="form-group">
-                    <label for="moduleStyle">Estilo dos Módulos:</label>
-                    <select id="moduleStyle">
-                        <option value="square">Quadrado</option>
-                        <option value="rounded">Arredondado</option>
-                        <option value="circle">Circular</option>
-                        <option value="dots">Pontos</option>
-                    </select>
                 </div>
                 
                 <div class="form-group">
@@ -697,15 +674,6 @@
                             <span class="slider"></span>
                         </label>
                     </div>
-                    
-                    <div class="form-group">
-                        <label for="logoMask">Máscara do Logo:</label>
-                        <select id="logoMask">
-                            <option value="none">Nenhuma</option>
-                            <option value="circle">Circular</option>
-                            <option value="square">Quadrada</option>
-                        </select>
-                    </div>
                 </div>
                 
                 <div class="form-group">
@@ -729,7 +697,7 @@
                 <h2 class="section-title">Visualização</h2>
                 
                 <div class="qr-preview">
-                    <canvas id="qrCanvas" width="300" height="300"></canvas>
+                    <div id="qrcode"></div>
                 </div>
                 
                 <div class="qr-info">
@@ -763,6 +731,7 @@
             </div>
             <div class="scanner-container">
                 <video id="scannerVideo" autoplay playsinline></video>
+                <canvas id="scannerCanvas" style="display: none;"></canvas>
                 <div class="scanner-result" id="scannerResult"></div>
                 <div class="button-group">
                     <button id="startScanButton">Iniciar Scanner</button>
@@ -802,15 +771,12 @@ Texto 3
     <div id="toast" class="toast"></div>
 
     <script>
-        // Implementação do gerador de QR Code
-        // Esta é uma implementação simplificada para demonstração
-        // Em um projeto real, você usaria uma biblioteca como qrcode.js ou implementaria o algoritmo completo
-        
         // Variáveis globais
-        let currentQRData = '';
-        let currentQRImage = null;
+        let qrcode = null;
+        let currentQRData = 'QRCodeMaker - Exemplo de QR Code';
         let logoImageData = null;
         let scannerStream = null;
+        let scanningInterval = null;
         
         // Inicialização
         document.addEventListener('DOMContentLoaded', function() {
@@ -838,7 +804,6 @@ Texto 3
             document.getElementById('qrSize').addEventListener('input', updateQRSize);
             document.getElementById('qrMargin').addEventListener('input', updateQRMargin);
             document.getElementById('logoSize').addEventListener('input', updateLogoSize);
-            document.getElementById('useGradient').addEventListener('change', toggleGradientOptions);
             document.getElementById('logoUpload').addEventListener('change', handleLogoUpload);
             document.getElementById('invertColors').addEventListener('change', generateQRCode);
             document.getElementById('highContrast').addEventListener('change', toggleHighContrast);
@@ -956,299 +921,82 @@ END:VCARD`;
             const errorCorrection = document.getElementById('errorCorrection').value;
             const foregroundColor = document.getElementById('qrForegroundColor').value;
             const backgroundColor = document.getElementById('qrBackgroundColor').value;
-            const useGradient = document.getElementById('useGradient').checked;
-            const gradientStart = document.getElementById('gradientStart').value;
-            const gradientEnd = document.getElementById('gradientEnd').value;
-            const moduleStyle = document.getElementById('moduleStyle').value;
             const invertColors = document.getElementById('invertColors').checked;
             
             // Inverter cores se necessário
             const finalForegroundColor = invertColors ? backgroundColor : foregroundColor;
             const finalBackgroundColor = invertColors ? foregroundColor : backgroundColor;
             
-            // Gerar QR Code (usando uma implementação simplificada)
-            // Em um projeto real, você usaria uma biblioteca como qrcode.js
-            const canvas = document.getElementById('qrCanvas');
-            const ctx = canvas.getContext('2d');
+            // Limpar QR Code anterior
+            const qrcodeContainer = document.getElementById('qrcode');
+            qrcodeContainer.innerHTML = '';
             
-            // Limpar canvas
-            ctx.fillStyle = finalBackgroundColor;
-            ctx.fillRect(0, 0, size, size);
-            
-            // Gerar QR Code usando uma implementação simplificada
-            // Esta é uma implementação muito básica apenas para demonstração
-            generateSimpleQRCode(ctx, qrData, size, margin, finalForegroundColor, finalBackgroundColor, moduleStyle, useGradient, gradientStart, gradientEnd);
+            // Gerar QR Code usando a biblioteca qrcode.js
+            qrcode = new QRCode(qrcodeContainer, {
+                text: qrData,
+                width: size,
+                height: size,
+                colorDark: finalForegroundColor,
+                colorLight: finalBackgroundColor,
+                correctLevel: QRCode.CorrectLevel[errorCorrection]
+            });
             
             // Adicionar logo se houver
             if (logoImageData) {
-                const logoSize = parseInt(document.getElementById('logoSize').value);
-                const logoPadding = document.getElementById('logoPadding').checked;
-                const logoMask = document.getElementById('logoMask').value;
-                
-                addLogoToQRCode(ctx, logoImageData, size, logoSize, logoPadding, logoMask);
+                setTimeout(() => {
+                    addLogoToQRCode();
+                }, 100);
             }
             
             // Atualizar informações técnicas
             updateQRInfo(qrData, size, errorCorrection);
             
-            // Salvar imagem atual para exportação
-            currentQRImage = canvas.toDataURL('image/png');
-            
             // Mostrar notificação de sucesso
             showToast('QR Code gerado com sucesso!', 'success');
         }
         
-        // Implementação simplificada de geração de QR Code
-        // NOTA: Esta é uma implementação muito básica apenas para demonstração
-        // Em um projeto real, você usaria uma biblioteca dedicada ou implementaria o algoritmo completo
-        function generateSimpleQRCode(ctx, data, size, margin, foregroundColor, backgroundColor, moduleStyle, useGradient, gradientStart, gradientEnd) {
-            // Calcular tamanho do módulo
-            const moduleCount = 25; // Simplificado - QR codes reais variam de 21 a 177 módulos
-            const moduleSize = Math.floor((size - 2 * margin) / moduleCount);
-            const actualSize = moduleSize * moduleCount;
-            const offset = (size - actualSize) / 2;
-            
-            // Criar um padrão de QR Code simplificado baseado nos dados
-            const modules = generateQRModules(data, moduleCount);
-            
-            // Desenhar os módulos
-            for (let row = 0; row < moduleCount; row++) {
-                for (let col = 0; col < moduleCount; col++) {
-                    if (modules[row][col]) {
-                        const x = offset + col * moduleSize;
-                        const y = offset + row * moduleSize;
-                        
-                        // Aplicar gradiente se necessário
-                        if (useGradient) {
-                            const gradient = ctx.createLinearGradient(x, y, x + moduleSize, y + moduleSize);
-                            gradient.addColorStop(0, gradientStart);
-                            gradient.addColorStop(1, gradientEnd);
-                            ctx.fillStyle = gradient;
-                        } else {
-                            ctx.fillStyle = foregroundColor;
-                        }
-                        
-                        // Desenhar módulo com base no estilo
-                        switch (moduleStyle) {
-                            case 'square':
-                                ctx.fillRect(x, y, moduleSize, moduleSize);
-                                break;
-                            case 'rounded':
-                                drawRoundedRect(ctx, x, y, moduleSize, moduleSize, moduleSize / 4);
-                                break;
-                            case 'circle':
-                                ctx.beginPath();
-                                ctx.arc(x + moduleSize / 2, y + moduleSize / 2, moduleSize / 2, 0, 2 * Math.PI);
-                                ctx.fill();
-                                break;
-                            case 'dots':
-                                ctx.beginPath();
-                                ctx.arc(x + moduleSize / 2, y + moduleSize / 2, moduleSize / 3, 0, 2 * Math.PI);
-                                ctx.fill();
-                                break;
-                        }
-                    }
-                }
-            }
-            
-            // Adicionar marcadores de posição (padrão QR Code)
-            drawPositionMarkers(ctx, offset, moduleSize, foregroundColor, moduleStyle, useGradient, gradientStart, gradientEnd);
-        }
-        
-        // Gerar matriz de módulos para QR Code (implementação simplificada)
-        function generateQRModules(data, moduleCount) {
-            // Inicializar matriz
-            const modules = Array(moduleCount).fill().map(() => Array(moduleCount).fill(false));
-            
-            // Adicionar marcadores de posição (cantos superior esquerdo, superior direito, inferior esquerdo)
-            // Superior esquerdo
-            for (let i = 0; i < 7; i++) {
-                for (let j = 0; j < 7; j++) {
-                    if (i === 0 || i === 6 || j === 0 || j === 6 || (i >= 2 && i <= 4 && j >= 2 && j <= 4)) {
-                        modules[i][j] = true;
-                    }
-                }
-            }
-            
-            // Superior direito
-            for (let i = 0; i < 7; i++) {
-                for (let j = 0; j < 7; j++) {
-                    if (i === 0 || i === 6 || j === 0 || j === 6 || (i >= 2 && i <= 4 && j >= 2 && j <= 4)) {
-                        modules[i][moduleCount - 7 + j] = true;
-                    }
-                }
-            }
-            
-            // Inferior esquerdo
-            for (let i = 0; i < 7; i++) {
-                for (let j = 0; j < 7; j++) {
-                    if (i === 0 || i === 6 || j === 0 || j === 6 || (i >= 2 && i <= 4 && j >= 2 && j <= 4)) {
-                        modules[moduleCount - 7 + i][j] = true;
-                    }
-                }
-            }
-            
-            // Adicionar dados (implementação simplificada)
-            // Em um QR Code real, os dados seriam codificados, divididos em blocos, com correção de erros, etc.
-            // Aqui, estamos apenas criando um padrão pseudo-aleatório baseado nos dados
-            const dataHash = hashString(data);
-            let hashIndex = 0;
-            
-            // Preencher áreas de dados (evitando marcadores de posição e temporização)
-            for (let row = 0; row < moduleCount; row++) {
-                for (let col = 0; col < moduleCount; col++) {
-                    // Pular áreas reservadas
-                    if ((row < 9 && col < 9) || 
-                        (row < 9 && col >= moduleCount - 8) || 
-                        (row >= moduleCount - 8 && col < 9)) {
-                        continue;
-                    }
-                    
-                    // Usar hash para determinar se o módulo está preenchido
-                    const byteIndex = Math.floor(hashIndex / 8);
-                    const bitIndex = hashIndex % 8;
-                    
-                    if (byteIndex < dataHash.length) {
-                        const byte = dataHash.charCodeAt(byteIndex);
-                        const bit = (byte >> bitIndex) & 1;
-                        modules[row][col] = bit === 1;
-                    }
-                    
-                    hashIndex++;
-                }
-            }
-            
-            // Adicionar padrões de temporização
-            for (let i = 8; i < moduleCount - 8; i++) {
-                modules[6][i] = i % 2 === 0;
-                modules[i][6] = i % 2 === 0;
-            }
-            
-            return modules;
-        }
-        
-        // Função de hash simples para gerar padrão de dados
-        function hashString(str) {
-            let hash = 0;
-            for (let i = 0; i < str.length; i++) {
-                const char = str.charCodeAt(i);
-                hash = ((hash << 5) - hash) + char;
-                hash = hash & hash; // Converter para 32-bit integer
-            }
-            return hash.toString();
-        }
-        
-        // Desenhar marcadores de posição do QR Code
-        function drawPositionMarkers(ctx, offset, moduleSize, color, moduleStyle, useGradient, gradientStart, gradientEnd) {
-            const positions = [
-                { x: offset, y: offset }, // Superior esquerdo
-                { x: offset + (17 * moduleSize), y: offset }, // Superior direito
-                { x: offset, y: offset + (17 * moduleSize) } // Inferior esquerdo
-            ];
-            
-            positions.forEach(pos => {
-                // Desenhar marcador externo
-                if (useGradient) {
-                    const gradient = ctx.createLinearGradient(pos.x, pos.y, pos.x + 7 * moduleSize, pos.y + 7 * moduleSize);
-                    gradient.addColorStop(0, gradientStart);
-                    gradient.addColorStop(1, gradientEnd);
-                    ctx.fillStyle = gradient;
-                } else {
-                    ctx.fillStyle = color;
-                }
-                
-                // Desenhar quadrado externo
-                if (moduleStyle === 'rounded') {
-                    drawRoundedRect(ctx, pos.x, pos.y, 7 * moduleSize, 7 * moduleSize, moduleSize / 2);
-                } else {
-                    ctx.fillRect(pos.x, pos.y, 7 * moduleSize, 7 * moduleSize);
-                }
-                
-                // Desenhar quadrado interno branco
-                ctx.fillStyle = '#FFFFFF';
-                if (moduleStyle === 'rounded') {
-                    drawRoundedRect(ctx, pos.x + moduleSize, pos.y + moduleSize, 5 * moduleSize, 5 * moduleSize, moduleSize / 2);
-                } else {
-                    ctx.fillRect(pos.x + moduleSize, pos.y + moduleSize, 5 * moduleSize, 5 * moduleSize);
-                }
-                
-                // Desenhar quadrado central
-                if (useGradient) {
-                    const gradient = ctx.createLinearGradient(pos.x + 2 * moduleSize, pos.y + 2 * moduleSize, pos.x + 5 * moduleSize, pos.y + 5 * moduleSize);
-                    gradient.addColorStop(0, gradientStart);
-                    gradient.addColorStop(1, gradientEnd);
-                    ctx.fillStyle = gradient;
-                } else {
-                    ctx.fillStyle = color;
-                }
-                
-                if (moduleStyle === 'rounded') {
-                    drawRoundedRect(ctx, pos.x + 2 * moduleSize, pos.y + 2 * moduleSize, 3 * moduleSize, 3 * moduleSize, moduleSize / 2);
-                } else {
-                    ctx.fillRect(pos.x + 2 * moduleSize, pos.y + 2 * moduleSize, 3 * moduleSize, 3 * moduleSize);
-                }
-            });
-        }
-        
-        // Desenhar retângulo arredondado
-        function drawRoundedRect(ctx, x, y, width, height, radius) {
-            ctx.beginPath();
-            ctx.moveTo(x + radius, y);
-            ctx.lineTo(x + width - radius, y);
-            ctx.quadraticCurveTo(x + width, y, x + width, y + radius);
-            ctx.lineTo(x + width, y + height - radius);
-            ctx.quadraticCurveTo(x + width, y + height, x + width - radius, y + height);
-            ctx.lineTo(x + radius, y + height);
-            ctx.quadraticCurveTo(x, y + height, x, y + height - radius);
-            ctx.lineTo(x, y + radius);
-            ctx.quadraticCurveTo(x, y, x + radius, y);
-            ctx.closePath();
-            ctx.fill();
-        }
-        
         // Adicionar logo ao QR Code
-        function addLogoToQRCode(ctx, logoData, qrSize, logoPercentage, padding, mask) {
-            const logoSize = Math.floor(qrSize * logoPercentage / 100);
-            const logoX = (qrSize - logoSize) / 2;
-            const logoY = (qrSize - logoSize) / 2;
+        function addLogoToQRCode() {
+            const logoSize = parseInt(document.getElementById('logoSize').value);
+            const logoPadding = document.getElementById('logoPadding').checked;
             
-            // Criar imagem temporária para o logo
+            // Obter imagem do QR Code
+            const qrImage = document.querySelector('#qrcode img');
+            if (!qrImage) return;
+            
+            // Criar canvas para manipulação
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            
+            // Definir tamanho do canvas
+            canvas.width = qrImage.width;
+            canvas.height = qrImage.height;
+            
+            // Desenhar QR Code no canvas
+            ctx.drawImage(qrImage, 0, 0);
+            
+            // Calcular tamanho e posição do logo
+            const logoWidth = Math.floor(canvas.width * logoSize / 100);
+            const logoHeight = Math.floor(canvas.height * logoSize / 100);
+            const logoX = (canvas.width - logoWidth) / 2;
+            const logoY = (canvas.height - logoHeight) / 2;
+            
+            // Adicionar padding se necessário
+            if (logoPadding) {
+                const paddingSize = Math.floor(logoWidth * 0.1);
+                ctx.fillStyle = '#FFFFFF';
+                ctx.fillRect(logoX - paddingSize, logoY - paddingSize, logoWidth + 2 * paddingSize, logoHeight + 2 * paddingSize);
+            }
+            
+            // Carregar e desenhar logo
             const img = new Image();
             img.onload = function() {
-                // Salvar estado atual do contexto
-                ctx.save();
+                ctx.drawImage(img, logoX, logoY, logoWidth, logoHeight);
                 
-                // Adicionar padding se necessário
-                if (padding) {
-                    const paddingSize = logoSize * 0.1;
-                    ctx.fillStyle = '#FFFFFF';
-                    
-                    if (mask === 'circle') {
-                        ctx.beginPath();
-                        ctx.arc(qrSize / 2, qrSize / 2, logoSize / 2 + paddingSize, 0, 2 * Math.PI);
-                        ctx.fill();
-                    } else {
-                        ctx.fillRect(logoX - paddingSize, logoY - paddingSize, logoSize + 2 * paddingSize, logoSize + 2 * paddingSize);
-                    }
-                }
-                
-                // Aplicar máscara se necessário
-                if (mask === 'circle') {
-                    ctx.beginPath();
-                    ctx.arc(qrSize / 2, qrSize / 2, logoSize / 2, 0, 2 * Math.PI);
-                    ctx.clip();
-                }
-                
-                // Desenhar logo
-                ctx.drawImage(img, logoX, logoY, logoSize, logoSize);
-                
-                // Restaurar estado do contexto
-                ctx.restore();
-                
-                // Atualizar imagem atual para exportação
-                currentQRImage = ctx.canvas.toDataURL('image/png');
+                // Substituir imagem do QR Code pela imagem com logo
+                qrImage.src = canvas.toDataURL('image/png');
             };
-            img.src = logoData;
+            img.src = logoImageData;
         }
         
         // Atualizar informações do QR Code
@@ -1273,11 +1021,6 @@ END:VCARD`;
         function updateQRSize() {
             const size = document.getElementById('qrSize').value;
             document.getElementById('qrSizeValue').textContent = size;
-            
-            const canvas = document.getElementById('qrCanvas');
-            canvas.width = size;
-            canvas.height = size;
-            
             generateQRCode();
         }
         
@@ -1290,20 +1033,9 @@ END:VCARD`;
         function updateLogoSize() {
             const logoSize = document.getElementById('logoSize').value;
             document.getElementById('logoSizeValue').textContent = `${logoSize}%`;
-            generateQRCode();
-        }
-        
-        function toggleGradientOptions() {
-            const useGradient = document.getElementById('useGradient').checked;
-            const gradientOptions = document.getElementById('gradientOptions');
-            
-            if (useGradient) {
-                gradientOptions.classList.remove('hidden');
-            } else {
-                gradientOptions.classList.add('hidden');
+            if (logoImageData) {
+                addLogoToQRCode();
             }
-            
-            generateQRCode();
         }
         
         function handleLogoUpload(event) {
@@ -1366,85 +1098,55 @@ END:VCARD`;
         
         // Funções de exportação
         function downloadQRCode() {
-            const format = document.getElementById('qrFormat').value;
-            const canvas = document.getElementById('qrCanvas');
-            
-            // Converter canvas para blob no formato desejado
-            let mimeType = 'image/png';
-            let extension = 'png';
-            
-            switch (format) {
-                case 'png':
-                    mimeType = 'image/png';
-                    extension = 'png';
-                    break;
-                case 'svg':
-                    // Para SVG, precisaríamos de uma implementação diferente
-                    // Por enquanto, vamos usar o canvas
-                    mimeType = 'image/svg+xml';
-                    extension = 'svg';
-                    break;
-                case 'jpg':
-                    mimeType = 'image/jpeg';
-                    extension = 'jpg';
-                    break;
-                case 'webp':
-                    mimeType = 'image/webp';
-                    extension = 'webp';
-                    break;
+            const qrImage = document.querySelector('#qrcode img');
+            if (!qrImage) {
+                showToast('Nenhum QR Code para baixar', 'warning');
+                return;
             }
             
             // Criar link para download
             const link = document.createElement('a');
-            link.download = `qrcode.${extension}`;
+            link.download = 'qrcode.png';
+            link.href = qrImage.src;
+            link.click();
             
-            if (format === 'svg') {
-                // Para SVG, precisaríamos converter o canvas para SVG
-                // Por enquanto, vamos apenas baixar como PNG
-                link.href = canvas.toDataURL('image/png');
-                link.download = `qrcode.png`;
-            } else {
-                canvas.toBlob(function(blob) {
-                    link.href = URL.createObjectURL(blob);
-                    link.click();
-                    URL.revokeObjectURL(link.href);
-                }, mimeType);
-            }
-            
-            showToast(`QR Code baixado como ${extension.toUpperCase()}`, 'success');
+            showToast('QR Code baixado com sucesso!', 'success');
         }
         
         function copyQRImageToClipboard() {
-            const canvas = document.getElementById('qrCanvas');
+            const qrImage = document.querySelector('#qrcode img');
+            if (!qrImage) {
+                showToast('Nenhum QR Code para copiar', 'warning');
+                return;
+            }
             
-            canvas.toBlob(function(blob) {
-                try {
-                    navigator.clipboard.write([
-                        new ClipboardItem({
-                            'image/png': blob
-                        })
-                    ]).then(() => {
-                        showToast('QR Code copiado para o clipboard!', 'success');
-                    }).catch(err => {
-                        showToast('Não foi possível copiar para o clipboard: ' + err, 'error');
-                    });
-                } catch (err) {
-                    showToast('Seu navegador não suporta esta funcionalidade', 'error');
-                }
-            });
+            fetch(qrImage.src)
+                .then(res => res.blob())
+                .then(blob => {
+                    try {
+                        navigator.clipboard.write([
+                            new ClipboardItem({
+                                'image/png': blob
+                            })
+                        ]).then(() => {
+                            showToast('QR Code copiado para o clipboard!', 'success');
+                        }).catch(err => {
+                            showToast('Não foi possível copiar para o clipboard: ' + err, 'error');
+                        });
+                    } catch (err) {
+                        showToast('Seu navegador não suporta esta funcionalidade', 'error');
+                    }
+                });
         }
         
         function copyEmbedCode() {
-            const format = document.getElementById('qrFormat').value;
-            let embedCode = '';
-            
-            if (format === 'svg') {
-                // Para SVG, precisaríamos gerar o código SVG
-                // Por enquanto, vamos usar o data URL do canvas
-                embedCode = `<img src="${currentQRImage}" alt="QR Code">`;
-            } else {
-                embedCode = `<img src="${currentQRImage}" alt="QR Code">`;
+            const qrImage = document.querySelector('#qrcode img');
+            if (!qrImage) {
+                showToast('Nenhum QR Code para incorporar', 'warning');
+                return;
             }
+            
+            const embedCode = `<img src="${qrImage.src}" alt="QR Code">`;
             
             navigator.clipboard.writeText(embedCode)
                 .then(() => {
@@ -1467,27 +1169,38 @@ END:VCARD`;
         
         function startScanner() {
             const video = document.getElementById('scannerVideo');
+            const canvas = document.getElementById('scannerCanvas');
+            const context = canvas.getContext('2d');
             
             navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } })
                 .then(stream => {
                     scannerStream = stream;
                     video.srcObject = stream;
+                    video.setAttribute('playsinline', true);
+                    video.play();
                     
-                    // Iniciar análise do vídeo (implementação simplificada)
-                    // Em um projeto real, você usaria uma biblioteca como jsQR
                     showToast('Scanner iniciado. Aponte a câmera para um QR Code.', 'success');
                     
-                    // Simular detecção de QR Code após 3 segundos
-                    setTimeout(() => {
-                        if (scannerStream) {
-                            // Simular QR Code detectado
-                            const simulatedQRData = "QRCode detectado pela câmera (simulação)";
-                            document.getElementById('scannerResult').textContent = simulatedQRData;
-                            document.getElementById('qrText').value = simulatedQRData;
-                            generateQRCode();
-                            showToast('QR Code detectado!', 'success');
+                    // Iniciar análise do vídeo
+                    scanningInterval = setInterval(() => {
+                        if (video.readyState === video.HAVE_ENOUGH_DATA) {
+                            canvas.height = video.videoHeight;
+                            canvas.width = video.videoWidth;
+                            context.drawImage(video, 0, 0, canvas.width, canvas.height);
+                            const imageData = context.getImageData(0, 0, canvas.width, canvas.height);
+                            const code = jsQR(imageData.data, imageData.width, imageData.height, {
+                                inversionAttempts: 'dontInvert',
+                            });
+                            
+                            if (code) {
+                                document.getElementById('scannerResult').textContent = code.data;
+                                document.getElementById('qrText').value = code.data;
+                                generateQRCode();
+                                showToast('QR Code detectado!', 'success');
+                                stopScanner();
+                            }
                         }
-                    }, 3000);
+                    }, 100);
                 })
                 .catch(err => {
                     showToast('Não foi possível acessar a câmera: ' + err, 'error');
@@ -1502,6 +1215,11 @@ END:VCARD`;
                 const video = document.getElementById('scannerVideo');
                 video.srcObject = null;
             }
+            
+            if (scanningInterval) {
+                clearInterval(scanningInterval);
+                scanningInterval = null;
+            }
         }
         
         function handleScanFileUpload(event) {
@@ -1511,13 +1229,24 @@ END:VCARD`;
                 reader.onload = function(e) {
                     const img = new Image();
                     img.onload = function() {
-                        // Simular leitura de QR Code da imagem
-                        // Em um projeto real, você usaria uma biblioteca como jsQR
-                        const simulatedQRData = "QRCode detectado na imagem (simulação)";
-                        document.getElementById('scannerResult').textContent = simulatedQRData;
-                        document.getElementById('qrText').value = simulatedQRData;
-                        generateQRCode();
-                        showToast('QR Code detectado na imagem!', 'success');
+                        const canvas = document.createElement('canvas');
+                        const context = canvas.getContext('2d');
+                        
+                        canvas.width = img.width;
+                        canvas.height = img.height;
+                        context.drawImage(img, 0, 0);
+                        
+                        const imageData = context.getImageData(0, 0, canvas.width, canvas.height);
+                        const code = jsQR(imageData.data, imageData.width, imageData.height);
+                        
+                        if (code) {
+                            document.getElementById('scannerResult').textContent = code.data;
+                            document.getElementById('qrText').value = code.data;
+                            generateQRCode();
+                            showToast('QR Code detectado na imagem!', 'success');
+                        } else {
+                            showToast('Nenhum QR Code encontrado na imagem', 'warning');
+                        }
                     };
                     img.src = e.target.result;
                 };
@@ -1553,47 +1282,62 @@ END:VCARD`;
             
             // Obter opções de personalização atuais
             const size = parseInt(document.getElementById('qrSize').value);
-            const format = document.getElementById('qrFormat').value;
+            const margin = parseInt(document.getElementById('qrMargin').value);
+            const errorCorrection = document.getElementById('errorCorrection').value;
+            const foregroundColor = document.getElementById('qrForegroundColor').value;
+            const backgroundColor = document.getElementById('qrBackgroundColor').value;
+            const invertColors = document.getElementById('invertColors').checked;
+            
+            // Inverter cores se necessário
+            const finalForegroundColor = invertColors ? backgroundColor : foregroundColor;
+            const finalBackgroundColor = invertColors ? foregroundColor : backgroundColor;
+            
+            // Criar um arquivo ZIP
+            const zip = new JSZip();
             
             // Gerar QR Codes para cada linha
-            const qrCodes = [];
             lines.forEach((line, index) => {
-                // Gerar QR Code (simplificado)
-                const canvas = document.createElement('canvas');
-                canvas.width = size;
-                canvas.height = size;
-                const ctx = canvas.getContext('2d');
+                // Criar um container temporário para o QR Code
+                const tempContainer = document.createElement('div');
+                tempContainer.style.display = 'none';
+                document.body.appendChild(tempContainer);
                 
-                // Limpar canvas
-                ctx.fillStyle = '#FFFFFF';
-                ctx.fillRect(0, 0, size, size);
-                
-                // Gerar QR Code simplificado
-                generateSimpleQRCode(ctx, line, size, 2, '#000000', '#FFFFFF', 'square', false, '#000000', '#000000');
-                
-                // Converter para data URL
-                const dataUrl = canvas.toDataURL('image/png');
+                // Gerar QR Code
+                const tempQRCode = new QRCode(tempContainer, {
+                    text: line,
+                    width: size,
+                    height: size,
+                    colorDark: finalForegroundColor,
+                    colorLight: finalBackgroundColor,
+                    correctLevel: QRCode.CorrectLevel[errorCorrection]
+                });
                 
                 // Gerar nome do arquivo
-                const filename = naming.replace('{index}', index + 1).replace('{data}', line.substring(0, 10));
+                const filename = naming.replace('{index}', index + 1).replace('{data}', line.substring(0, 10).replace(/[^a-z0-9]/gi, '_'));
                 
-                qrCodes.push({
-                    data: line,
-                    dataUrl: dataUrl,
-                    filename: filename
-                });
+                // Aguardar a geração do QR Code e adicionar ao ZIP
+                setTimeout(() => {
+                    const tempImage = tempContainer.querySelector('img');
+                    if (tempImage) {
+                        // Converter imagem para base64
+                        const base64 = tempImage.src.replace(/^data:image\/(png|jpg|jpeg);base64,/, '');
+                        
+                        // Adicionar ao ZIP
+                        zip.file(`${filename}.png`, base64, { base64: true });
+                        
+                        // Remover container temporário
+                        document.body.removeChild(tempContainer);
+                        
+                        // Se for o último QR Code, baixar o ZIP
+                        if (index === lines.length - 1) {
+                            zip.generateAsync({ type: 'blob' }).then(function(content) {
+                                saveAs(content, 'qrcodes.zip');
+                                showToast(`${lines.length} QR Codes gerados e baixados como ZIP!`, 'success');
+                            });
+                        }
+                    }
+                }, 100);
             });
-            
-            // Em um projeto real, você criaria um arquivo ZIP aqui
-            // Por enquanto, vamos apenas baixar o primeiro QR Code
-            if (qrCodes.length > 0) {
-                const link = document.createElement('a');
-                link.download = `${qrCodes[0].filename}.png`;
-                link.href = qrCodes[0].dataUrl;
-                link.click();
-                
-                showToast(`${qrCodes.length} QR Codes gerados. Baixando o primeiro...`, 'success');
-            }
         }
         
         // Função de notificação (Toast)
