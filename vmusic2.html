@@ -1,0 +1,997 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Audio Visualizer - Music to Visual Art</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            color: white;
+        }
+
+        header {
+            background: rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(10px);
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 100;
+            position: relative;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+
+        .logo-icon {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(45deg, #f093fb 0%, #f5576c 100%);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        .header-controls {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .toggle-controls-btn {
+            background: rgba(255, 255, 255, 0.1);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .toggle-controls-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+        }
+
+        .visualization-modes {
+            display: flex;
+            gap: 0.5rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .mode-btn {
+            padding: 0.5rem 1rem;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+        }
+
+        .mode-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .mode-btn.active {
+            background: linear-gradient(45deg, #f093fb 0%, #f5576c 100%);
+            border-color: transparent;
+        }
+
+        main {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        #visualizer {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+        }
+
+        .controls-container {
+            position: absolute;
+            bottom: 2rem;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(20px);
+            padding: 2rem;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+            z-index: 10;
+            min-width: 400px;
+            max-width: 90%;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            opacity: 1;
+            transform: translateX(-50%) translateY(0);
+        }
+
+        .controls-container.hidden {
+            opacity: 0;
+            transform: translateX(-50%) translateY(20px);
+            pointer-events: none;
+        }
+
+        .mini-player {
+            position: fixed;
+            bottom: 2rem;
+            left: 50%;
+            transform: translateX(-50%) translateY(150%);
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(20px);
+            padding: 1rem 2rem;
+            border-radius: 50px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            z-index: 15;
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .mini-player.visible {
+            transform: translateX(-50%) translateY(0);
+        }
+
+        .mini-track-info {
+            display: flex;
+            flex-direction: column;
+            min-width: 150px;
+        }
+
+        .mini-track-name {
+            font-size: 0.9rem;
+            font-weight: 600;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .mini-track-time {
+            font-size: 0.8rem;
+            opacity: 0.7;
+        }
+
+        .mini-controls {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .mini-btn {
+            background: rgba(255, 255, 255, 0.1);
+            border: none;
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .mini-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: scale(1.1);
+        }
+
+        .show-controls-hint {
+            position: fixed;
+            bottom: 2rem;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.8);
+            padding: 0.75rem 1.5rem;
+            border-radius: 30px;
+            font-size: 0.9rem;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+            z-index: 20;
+        }
+
+        .show-controls-hint.visible {
+            opacity: 1;
+        }
+
+        .audio-controls {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .file-input-wrapper {
+            position: relative;
+            overflow: hidden;
+            display: inline-block;
+            width: 100%;
+        }
+
+        .file-input-wrapper input[type=file] {
+            position: absolute;
+            left: -9999px;
+        }
+
+        .file-input-label {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            padding: 1rem 2rem;
+            background: linear-gradient(45deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+            box-shadow: 0 4px 15px rgba(240, 147, 251, 0.3);
+        }
+
+        .file-input-label:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(240, 147, 251, 0.4);
+        }
+
+        .playback-controls {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            justify-content: center;
+        }
+
+        .btn {
+            background: rgba(255, 255, 255, 0.1);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 1rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .btn-primary {
+            background: linear-gradient(45deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn-primary:hover {
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .volume-control {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .volume-slider {
+            flex: 1;
+            -webkit-appearance: none;
+            appearance: none;
+            height: 6px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 3px;
+            outline: none;
+        }
+
+        .volume-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 18px;
+            height: 18px;
+            background: white;
+            border-radius: 50%;
+            cursor: pointer;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .volume-slider::-moz-range-thumb {
+            width: 18px;
+            height: 18px;
+            background: white;
+            border-radius: 50%;
+            cursor: pointer;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .track-info {
+            text-align: center;
+            margin-bottom: 1rem;
+            opacity: 0.9;
+        }
+
+        .track-name {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+        }
+
+        .track-time {
+            font-size: 0.9rem;
+            opacity: 0.8;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 4px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 2px;
+            overflow: hidden;
+            cursor: pointer;
+            margin: 1rem 0;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #f093fb 0%, #f5576c 100%);
+            width: 0%;
+            transition: width 0.1s linear;
+        }
+
+        .welcome-overlay {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            z-index: 5;
+            transition: opacity 0.5s ease;
+        }
+
+        .welcome-overlay.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .welcome-title {
+            font-size: 3rem;
+            font-weight: bold;
+            margin-bottom: 1rem;
+            background: linear-gradient(45deg, #fff 0%, #f093fb 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .welcome-subtitle {
+            font-size: 1.2rem;
+            opacity: 0.9;
+            margin-bottom: 2rem;
+        }
+
+        @media (max-width: 768px) {
+            .controls-container {
+                min-width: auto;
+                width: 95%;
+                padding: 1.5rem;
+            }
+
+            .welcome-title {
+                font-size: 2rem;
+            }
+
+            header {
+                padding: 1rem;
+                flex-direction: column;
+                gap: 1rem;
+            }
+
+            .header-controls {
+                width: 100%;
+                justify-content: space-between;
+            }
+
+            .mini-player {
+                width: 90%;
+                padding: 0.75rem 1rem;
+            }
+        }
+
+        .icon {
+            width: 20px;
+            height: 20px;
+            fill: currentColor;
+        }
+
+        .mini-icon {
+            width: 18px;
+            height: 18px;
+            fill: currentColor;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="logo">
+            <div class="logo-icon">
+                <svg class="icon" viewBox="0 0 24 24">
+                    <path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/>
+                </svg>
+            </div>
+            <span>Audio Visualizer</span>
+        </div>
+        <div class="header-controls">
+            <div class="visualization-modes">
+                <button class="mode-btn active" data-mode="bars">Bars</button>
+                <button class="mode-btn" data-mode="wave">Wave</button>
+                <button class="mode-btn" data-mode="circular">Circular</button>
+                <button class="mode-btn" data-mode="particles">Particles</button>
+            </div>
+            <button class="toggle-controls-btn" id="toggleControls">
+                <svg class="icon" viewBox="0 0 24 24">
+                    <path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/>
+                </svg>
+                <span id="toggleText">Hide Controls</span>
+            </button>
+        </div>
+    </header>
+
+    <main>
+        <canvas id="visualizer"></canvas>
+        
+        <div class="welcome-overlay" id="welcomeOverlay">
+            <h1 class="welcome-title">Audio Visualizer</h1>
+            <p class="welcome-subtitle">Upload your music and watch it come to life</p>
+        </div>
+
+        <div class="controls-container" id="controlsContainer">
+            <div class="audio-controls">
+                <div class="track-info" id="trackInfo" style="display: none;">
+                    <div class="track-name" id="trackName">No track loaded</div>
+                    <div class="track-time">
+                        <span id="currentTime">0:00</span> / <span id="duration">0:00</span>
+                    </div>
+                </div>
+
+                <div class="progress-bar" id="progressBar" style="display: none;">
+                    <div class="progress-fill" id="progressFill"></div>
+                </div>
+
+                <div class="file-input-wrapper">
+                    <input type="file" id="audioFile" accept="audio/*">
+                    <label for="audioFile" class="file-input-label">
+                        <svg class="icon" viewBox="0 0 24 24">
+                            <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>
+                        </svg>
+                        Choose Audio File
+                    </label>
+                </div>
+
+                <div class="playback-controls">
+                    <button class="btn btn-primary" id="playBtn" disabled>
+                        <svg class="icon" viewBox="0 0 24 24">
+                            <path d="M8 5v14l11-7z"/>
+                        </svg>
+                        Play
+                    </button>
+                    <button class="btn" id="pauseBtn" disabled>
+                        <svg class="icon" viewBox="0 0 24 24">
+                            <path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>
+                        </svg>
+                        Pause
+                    </button>
+                    <button class="btn" id="stopBtn" disabled>
+                        <svg class="icon" viewBox="0 0 24 24">
+                            <path d="M6 6h12v12H6z"/>
+                        </svg>
+                        Stop
+                    </button>
+                </div>
+
+                <div class="volume-control">
+                    <svg class="icon" viewBox="0 0 24 24">
+                        <path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/>
+                    </svg>
+                    <input type="range" class="volume-slider" id="volumeSlider" min="0" max="100" value="70">
+                    <span id="volumeValue">70%</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="mini-player" id="miniPlayer">
+            <div class="mini-track-info">
+                <div class="mini-track-name" id="miniTrackName">No track</div>
+                <div class="mini-track-time">
+                    <span id="miniCurrentTime">0:00</span> / <span id="miniDuration">0:00</span>
+                </div>
+            </div>
+            <div class="mini-controls">
+                <button class="mini-btn" id="miniPlayBtn">
+                    <svg class="mini-icon" viewBox="0 0 24 24">
+                        <path d="M8 5v14l11-7z"/>
+                    </svg>
+                </button>
+                <button class="mini-btn" id="miniPauseBtn" style="display: none;">
+                    <svg class="mini-icon" viewBox="0 0 24 24">
+                        <path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>
+                    </svg>
+                </button>
+                <button class="mini-btn" id="showControlsBtn">
+                    <svg class="mini-icon" viewBox="0 0 24 24">
+                        <path d="M12 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"/>
+                    </svg>
+                </button>
+            </div>
+        </div>
+
+        <div class="show-controls-hint" id="showControlsHint">
+            Press 'H' or click the dots button to show controls
+        </div>
+    </main>
+
+    <script>
+        class AudioVisualizer {
+            constructor() {
+                this.canvas = document.getElementById('visualizer');
+                this.ctx = this.canvas.getContext('2d');
+                this.audioContext = null;
+                this.analyser = null;
+                this.source = null;
+                this.audio = new Audio();
+                this.dataArray = null;
+                this.bufferLength = null;
+                this.animationId = null;
+                this.mode = 'bars';
+                this.particles = [];
+                this.isPlaying = false;
+                this.controlsVisible = true;
+                
+                this.setupCanvas();
+                this.setupEventListeners();
+                this.initAudioContext();
+            }
+
+            setupCanvas() {
+                const resize = () => {
+                    this.canvas.width = window.innerWidth;
+                    this.canvas.height = window.innerHeight;
+                };
+                resize();
+                window.addEventListener('resize', resize);
+            }
+
+            initAudioContext() {
+                this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                this.analyser = this.audioContext.createAnalyser();
+                this.analyser.fftSize = 256;
+                this.bufferLength = this.analyser.frequencyBinCount;
+                this.dataArray = new Uint8Array(this.bufferLength);
+            }
+
+            setupEventListeners() {
+                const fileInput = document.getElementById('audioFile');
+                const playBtn = document.getElementById('playBtn');
+                const pauseBtn = document.getElementById('pauseBtn');
+                const stopBtn = document.getElementById('stopBtn');
+                const miniPlayBtn = document.getElementById('miniPlayBtn');
+                const miniPauseBtn = document.getElementById('miniPauseBtn');
+                const volumeSlider = document.getElementById('volumeSlider');
+                const volumeValue = document.getElementById('volumeValue');
+                const progressBar = document.getElementById('progressBar');
+                const progressFill = document.getElementById('progressFill');
+                const currentTimeEl = document.getElementById('currentTime');
+                const durationEl = document.getElementById('duration');
+                const miniCurrentTimeEl = document.getElementById('miniCurrentTime');
+                const miniDurationEl = document.getElementById('miniDuration');
+                const trackInfo = document.getElementById('trackInfo');
+                const trackName = document.getElementById('trackName');
+                const miniTrackName = document.getElementById('miniTrackName');
+                const welcomeOverlay = document.getElementById('welcomeOverlay');
+                const toggleControls = document.getElementById('toggleControls');
+                const toggleText = document.getElementById('toggleText');
+                const controlsContainer = document.getElementById('controlsContainer');
+                const miniPlayer = document.getElementById('miniPlayer');
+                const showControlsBtn = document.getElementById('showControlsBtn');
+                const showControlsHint = document.getElementById('showControlsHint');
+
+                // Toggle controls
+                toggleControls.addEventListener('click', () => {
+                    this.toggleControlsVisibility();
+                });
+
+                showControlsBtn.addEventListener('click', () => {
+                    this.showControls();
+                });
+
+                // Keyboard shortcut
+                document.addEventListener('keydown', (e) => {
+                    if (e.key === 'h' || e.key === 'H') {
+                        if (this.controlsVisible) {
+                            this.hideControls();
+                        } else {
+                            this.showControls();
+                        }
+                    }
+                });
+
+                // File input
+                fileInput.addEventListener('change', (e) => {
+                    const file = e.target.files[0];
+                    if (file) {
+                        const url = URL.createObjectURL(file);
+                        this.loadAudio(url);
+                        const fileName = file.name.replace(/\.[^/.]+$/, "");
+                        trackName.textContent = fileName;
+                        miniTrackName.textContent = fileName;
+                        trackInfo.style.display = 'block';
+                        progressBar.style.display = 'block';
+                        welcomeOverlay.classList.add('hidden');
+                    }
+                });
+
+                // Main playback controls
+                playBtn.addEventListener('click', () => this.play());
+                pauseBtn.addEventListener('click', () => this.pause());
+                stopBtn.addEventListener('click', () => this.stop());
+
+                // Mini player controls
+                miniPlayBtn.addEventListener('click', () => this.play());
+                miniPauseBtn.addEventListener('click', () => this.pause());
+
+                // Volume control
+                volumeSlider.addEventListener('input', (e) => {
+                    const volume = e.target.value / 100;
+                    this.audio.volume = volume;
+                    volumeValue.textContent = `${e.target.value}%`;
+                });
+
+                // Progress bar
+                this.audio.addEventListener('timeupdate', () => {
+                    const progress = (this.audio.currentTime / this.audio.duration) * 100;
+                    progressFill.style.width = `${progress}%`;
+                    currentTimeEl.textContent = this.formatTime(this.audio.currentTime);
+                    miniCurrentTimeEl.textContent = this.formatTime(this.audio.currentTime);
+                });
+
+                this.audio.addEventListener('loadedmetadata', () => {
+                    durationEl.textContent = this.formatTime(this.audio.duration);
+                    miniDurationEl.textContent = this.formatTime(this.audio.duration);
+                });
+
+                progressBar.addEventListener('click', (e) => {
+                    const rect = progressBar.getBoundingClientRect();
+                    const percent = (e.clientX - rect.left) / rect.width;
+                    this.audio.currentTime = percent * this.audio.duration;
+                });
+
+                // Visualization modes
+                document.querySelectorAll('.mode-btn').forEach(btn => {
+                    btn.addEventListener('click', () => {
+                        document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
+                        btn.classList.add('active');
+                        this.mode = btn.dataset.mode;
+                        if (this.mode === 'particles') {
+                            this.initParticles();
+                        }
+                    });
+                });
+            }
+
+            toggleControlsVisibility() {
+                if (this.controlsVisible) {
+                    this.hideControls();
+                } else {
+                    this.showControls();
+                }
+            }
+
+            hideControls() {
+                const controlsContainer = document.getElementById('controlsContainer');
+                const miniPlayer = document.getElementById('miniPlayer');
+                const toggleText = document.getElementById('toggleText');
+                const showControlsHint = document.getElementById('showControlsHint');
+
+                controlsContainer.classList.add('hidden');
+                toggleText.textContent = 'Show Controls';
+                this.controlsVisible = false;
+
+                // Show mini player if audio is loaded
+                if (this.audio.src) {
+                    miniPlayer.classList.add('visible');
+                    showControlsHint.classList.add('visible');
+                    setTimeout(() => {
+                        showControlsHint.classList.remove('visible');
+                    }, 3000);
+                }
+            }
+
+            showControls() {
+                const controlsContainer = document.getElementById('controlsContainer');
+                const miniPlayer = document.getElementById('miniPlayer');
+                const toggleText = document.getElementById('toggleText');
+                const showControlsHint = document.getElementById('showControlsHint');
+
+                controlsContainer.classList.remove('hidden');
+                miniPlayer.classList.remove('visible');
+                toggleText.textContent = 'Hide Controls';
+                showControlsHint.classList.remove('visible');
+                this.controlsVisible = true;
+            }
+
+            play() {
+                if (this.audioContext.state === 'suspended') {
+                    this.audioContext.resume();
+                }
+                this.audio.play();
+                this.isPlaying = true;
+                
+                document.getElementById('playBtn').disabled = true;
+                document.getElementById('pauseBtn').disabled = false;
+                document.getElementById('stopBtn').disabled = false;
+                document.getElementById('miniPlayBtn').style.display = 'none';
+                document.getElementById('miniPauseBtn').style.display = 'flex';
+                
+                this.animate();
+            }
+
+            pause() {
+                this.audio.pause();
+                this.isPlaying = false;
+                
+                document.getElementById('playBtn').disabled = false;
+                document.getElementById('pauseBtn').disabled = true;
+                document.getElementById('miniPlayBtn').style.display = 'flex';
+                document.getElementById('miniPauseBtn').style.display = 'none';
+            }
+
+            stop() {
+                this.audio.pause();
+                this.audio.currentTime = 0;
+                this.isPlaying = false;
+                
+                document.getElementById('playBtn').disabled = false;
+                document.getElementById('pauseBtn').disabled = true;
+                document.getElementById('stopBtn').disabled = true;
+                document.getElementById('miniPlayBtn').style.display = 'flex';
+                document.getElementById('miniPauseBtn').style.display = 'none';
+                
+                cancelAnimationFrame(this.animationId);
+                this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+            }
+
+            loadAudio(url) {
+                if (this.source) {
+                    this.source.disconnect();
+                }
+
+                this.audio.src = url;
+                this.source = this.audioContext.createMediaElementSource(this.audio);
+                this.source.connect(this.analyser);
+                this.analyser.connect(this.audioContext.destination);
+
+                document.getElementById('playBtn').disabled = false;
+                document.getElementById('stopBtn').disabled = false;
+            }
+
+            formatTime(seconds) {
+                const mins = Math.floor(seconds / 60);
+                const secs = Math.floor(seconds % 60);
+                return `${mins}:${secs.toString().padStart(2, '0')}`;
+            }
+
+            initParticles() {
+                this.particles = [];
+                for (let i = 0; i < 100; i++) {
+                    this.particles.push({
+                        x: Math.random() * this.canvas.width,
+                        y: Math.random() * this.canvas.height,
+                        vx: (Math.random() - 0.5) * 2,
+                        vy: (Math.random() - 0.5) * 2,
+                        size: Math.random() * 3 + 1,
+                        color: `hsl(${Math.random() * 360}, 70%, 60%)`
+                    });
+                }
+            }
+
+            animate() {
+                this.animationId = requestAnimationFrame(() => this.animate());
+                this.analyser.getByteFrequencyData(this.dataArray);
+
+                this.ctx.fillStyle = 'rgba(0, 0, 0, 0.2)';
+                this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+
+                switch(this.mode) {
+                    case 'bars':
+                        this.drawBars();
+                        break;
+                    case 'wave':
+                        this.drawWave();
+                        break;
+                    case 'circular':
+                        this.drawCircular();
+                        break;
+                    case 'particles':
+                        this.drawParticles();
+                        break;
+                }
+            }
+
+            drawBars() {
+                const barWidth = (this.canvas.width / this.bufferLength) * 2.5;
+                let x = 0;
+
+                for (let i = 0; i < this.bufferLength; i++) {
+                    const barHeight = (this.dataArray[i] / 255) * this.canvas.height * 0.7;
+                    
+                    const r = (this.dataArray[i] / 255) * 250;
+                    const g = 50;
+                    const b = 250 - (this.dataArray[i] / 255) * 200;
+                    
+                    const gradient = this.ctx.createLinearGradient(0, this.canvas.height - barHeight, 0, this.canvas.height);
+                    gradient.addColorStop(0, `rgba(${r}, ${g}, ${b}, 0.8)`);
+                    gradient.addColorStop(1, `rgba(${r}, ${g}, ${b}, 0.2)`);
+                    
+                    this.ctx.fillStyle = gradient;
+                    this.ctx.fillRect(x, this.canvas.height - barHeight, barWidth, barHeight);
+                    
+                    // Add reflection
+                    this.ctx.fillStyle = `rgba(${r}, ${g}, ${b}, 0.1)`;
+                    this.ctx.fillRect(x, this.canvas.height - barHeight - 10, barWidth, 5);
+                    
+                    x += barWidth + 1;
+                }
+            }
+
+            drawWave() {
+                this.ctx.lineWidth = 3;
+                this.ctx.strokeStyle = 'rgba(255, 255, 255, 0.8)';
+                this.ctx.beginPath();
+
+                const sliceWidth = this.canvas.width / this.bufferLength;
+                let x = 0;
+
+                for (let i = 0; i < this.bufferLength; i++) {
+                    const v = this.dataArray[i] / 128.0;
+                    const y = v * this.canvas.height / 2;
+
+                    if (i === 0) {
+                        this.ctx.moveTo(x, y);
+                    } else {
+                        this.ctx.lineTo(x, y);
+                    }
+
+                    x += sliceWidth;
+                }
+
+                this.ctx.lineTo(this.canvas.width, this.canvas.height / 2);
+                this.ctx.stroke();
+
+                // Add glow effect
+                this.ctx.shadowBlur = 20;
+                this.ctx.shadowColor = 'rgba(240, 147, 251, 0.5)';
+                this.ctx.stroke();
+                this.ctx.shadowBlur = 0;
+            }
+
+            drawCircular() {
+                const centerX = this.canvas.width / 2;
+                const centerY = this.canvas.height / 2;
+                const radius = Math.min(centerX, centerY) - 100;
+
+                for (let i = 0; i < this.bufferLength; i++) {
+                    const angle = (i / this.bufferLength) * Math.PI * 2;
+                    const barHeight = (this.dataArray[i] / 255) * radius;
+                    
+                    const x1 = centerX + Math.cos(angle) * radius;
+                    const y1 = centerY + Math.sin(angle) * radius;
+                    const x2 = centerX + Math.cos(angle) * (radius + barHeight);
+                    const y2 = centerY + Math.sin(angle) * (radius + barHeight);
+                    
+                    const gradient = this.ctx.createLinearGradient(x1, y1, x2, y2);
+                    gradient.addColorStop(0, `hsl(${(i / this.bufferLength) * 360}, 70%, 50%)`);
+                    gradient.addColorStop(1, `hsl(${(i / this.bufferLength) * 360}, 70%, 70%)`);
+                    
+                    this.ctx.strokeStyle = gradient;
+                    this.ctx.lineWidth = 2;
+                    this.ctx.beginPath();
+                    this.ctx.moveTo(x1, y1);
+                    this.ctx.lineTo(x2, y2);
+                    this.ctx.stroke();
+                }
+
+                // Draw center circle
+                this.ctx.beginPath();
+                this.ctx.arc(centerX, centerY, radius, 0, Math.PI * 2);
+                this.ctx.strokeStyle = 'rgba(255, 255, 255, 0.1)';
+                this.ctx.lineWidth = 1;
+                this.ctx.stroke();
+            }
+
+            drawParticles() {
+                const average = this.dataArray.reduce((a, b) => a + b) / this.bufferLength;
+                const intensity = average / 255;
+
+                this.particles.forEach((particle, index) => {
+                    particle.x += particle.vx * (1 + intensity * 3);
+                    particle.y += particle.vy * (1 + intensity * 3);
+
+                    if (particle.x < 0 || particle.x > this.canvas.width) particle.vx *= -1;
+                    if (particle.y < 0 || particle.y > this.canvas.height) particle.vy *= -1;
+
+                    const size = particle.size * (1 + intensity * 2);
+                    
+                    this.ctx.beginPath();
+                    this.ctx.arc(particle.x, particle.y, size, 0, Math.PI * 2);
+                    this.ctx.fillStyle = particle.color;
+                    this.ctx.globalAlpha = 0.5 + intensity * 0.5;
+                    this.ctx.fill();
+                    
+                    // Draw connections
+                    this.particles.slice(index + 1).forEach(other => {
+                        const distance = Math.hypot(particle.x - other.x, particle.y - other.y);
+                        if (distance < 100) {
+                            this.ctx.beginPath();
+                            this.ctx.moveTo(particle.x, particle.y);
+                            this.ctx.lineTo(other.x, other.y);
+                            this.ctx.strokeStyle = particle.color;
+                            this.ctx.globalAlpha = (1 - distance / 100) * intensity;
+                            this.ctx.stroke();
+                        }
+                    });
+                });
+                
+                this.ctx.globalAlpha = 1;
+            }
+        }
+
+        // Initialize the visualizer
+        const visualizer = new AudioVisualizer();
+    </script>
+</body>
+</html>
