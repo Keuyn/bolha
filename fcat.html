@@ -1,0 +1,547 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Cat Cursor Follower</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            cursor: none;
+        }
+
+        body {
+            min-height: 100vh;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            overflow: hidden;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            position: relative;
+        }
+
+        /* Custom cursor */
+        .custom-cursor {
+            width: 20px;
+            height: 20px;
+            border: 2px solid white;
+            border-radius: 50%;
+            position: fixed;
+            pointer-events: none;
+            z-index: 10000;
+            transition: transform 0.1s ease;
+            mix-blend-mode: difference;
+        }
+
+        .custom-cursor::after {
+            content: '';
+            width: 4px;
+            height: 4px;
+            background: white;
+            border-radius: 50%;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        /* Cat Container */
+        .cat-container {
+            position: fixed;
+            width: 120px;
+            height: 100px;
+            pointer-events: none;
+            z-index: 9999;
+            transition: none;
+        }
+
+        .cat {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            transform-origin: center bottom;
+            animation: idle 2s ease-in-out infinite;
+        }
+
+        @keyframes idle {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-5px); }
+        }
+
+        /* Cat Body */
+        .cat-body {
+            position: absolute;
+            bottom: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80px;
+            height: 60px;
+            background: linear-gradient(135deg, #ff6b6b, #ff8e53);
+            border-radius: 40px 40px 35px 35px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        }
+
+        /* Cat Head */
+        .cat-head {
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 70px;
+            height: 65px;
+            background: linear-gradient(135deg, #ff6b6b, #ff8e53);
+            border-radius: 50% 50% 45% 45%;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.2);
+        }
+
+        /* Cat Ears */
+        .ear {
+            position: absolute;
+            width: 0;
+            height: 0;
+            border-style: solid;
+        }
+
+        .ear-left {
+            top: -5px;
+            left: 10px;
+            border-width: 0 12px 25px 12px;
+            border-color: transparent transparent #ff6b6b transparent;
+            transform: rotate(-15deg);
+        }
+
+        .ear-right {
+            top: -5px;
+            right: 10px;
+            border-width: 0 12px 25px 12px;
+            border-color: transparent transparent #ff6b6b transparent;
+            transform: rotate(15deg);
+        }
+
+        .ear-inner {
+            position: absolute;
+            width: 0;
+            height: 0;
+            border-style: solid;
+        }
+
+        .ear-left .ear-inner {
+            top: 8px;
+            left: 6px;
+            border-width: 0 6px 12px 6px;
+            border-color: transparent transparent #ffb3ba transparent;
+        }
+
+        .ear-right .ear-inner {
+            top: 8px;
+            right: 6px;
+            border-width: 0 6px 12px 6px;
+            border-color: transparent transparent #ffb3ba transparent;
+        }
+
+        /* Cat Eyes */
+        .eyes {
+            position: absolute;
+            top: 25px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 15px;
+        }
+
+        .eye {
+            width: 12px;
+            height: 16px;
+            background: #333;
+            border-radius: 50%;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .eye::before {
+            content: '';
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            width: 4px;
+            height: 4px;
+            background: white;
+            border-radius: 50%;
+            animation: sparkle 3s ease-in-out infinite;
+        }
+
+        @keyframes sparkle {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
+
+        .eye.blink {
+            animation: blink 0.3s ease-in-out;
+        }
+
+        @keyframes blink {
+            0%, 100% { transform: scaleY(1); }
+            50% { transform: scaleY(0.1); }
+        }
+
+        /* Cat Nose */
+        .nose {
+            position: absolute;
+            top: 38px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 0;
+            height: 0;
+            border-style: solid;
+            border-width: 0 4px 4px 4px;
+            border-color: transparent transparent #d63031 transparent;
+        }
+
+        /* Cat Mouth */
+        .mouth {
+            position: absolute;
+            top: 42px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 20px;
+            height: 10px;
+            border: 2px solid #333;
+            border-top: none;
+            border-radius: 0 0 20px 20px;
+        }
+
+        /* Cat Tail */
+        .tail {
+            position: absolute;
+            bottom: 15px;
+            right: -30px;
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, #ff6b6b, #ff8e53);
+            border-radius: 50% 10% 50% 10%;
+            transform-origin: 10% 50%;
+            animation: wag 1s ease-in-out infinite alternate;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.2);
+        }
+
+        @keyframes wag {
+            0% { transform: rotate(-20deg); }
+            100% { transform: rotate(20deg); }
+        }
+
+        /* Cat Paws */
+        .paws {
+            position: absolute;
+            bottom: -5px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 20px;
+        }
+
+        .paw {
+            width: 18px;
+            height: 15px;
+            background: linear-gradient(135deg, #ff6b6b, #ff8e53);
+            border-radius: 50% 50% 40% 40%;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+
+        /* Walking animation */
+        .cat.walking .paw {
+            animation: walk 0.4s ease-in-out infinite alternate;
+        }
+
+        .cat.walking .paw:first-child {
+            animation-delay: 0.2s;
+        }
+
+        @keyframes walk {
+            0% { transform: translateY(0); }
+            100% { transform: translateY(-3px); }
+        }
+
+        /* Shadow */
+        .shadow {
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80px;
+            height: 20px;
+            background: rgba(0,0,0,0.2);
+            border-radius: 50%;
+            filter: blur(10px);
+        }
+
+        /* Content */
+        .content {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            color: white;
+            pointer-events: none;
+        }
+
+        .content h1 {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            animation: float 3s ease-in-out infinite;
+        }
+
+        .content p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        /* Interactive elements */
+        .interactive-zone {
+            position: absolute;
+            width: 150px;
+            height: 150px;
+            border: 3px dashed rgba(255,255,255,0.3);
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            pointer-events: auto;
+        }
+
+        .interactive-zone:hover {
+            background: rgba(255,255,255,0.1);
+            transform: scale(1.05);
+        }
+
+        .zone1 {
+            top: 20%;
+            left: 10%;
+        }
+
+        .zone2 {
+            top: 60%;
+            right: 15%;
+        }
+
+        .zone3 {
+            bottom: 20%;
+            left: 20%;
+        }
+
+        /* Particle effect */
+        .particle {
+            position: fixed;
+            pointer-events: none;
+            opacity: 0;
+            animation: particle-float 1s ease-out forwards;
+        }
+
+        @keyframes particle-float {
+            0% {
+                opacity: 1;
+                transform: translate(0, 0) scale(0);
+            }
+            100% {
+                opacity: 0;
+                transform: translate(var(--x), var(--y)) scale(1);
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Custom Cursor -->
+    <div class="custom-cursor"></div>
+
+    <!-- Cat Container -->
+    <div class="cat-container" id="cat">
+        <div class="cat" id="catElement">
+            <!-- Cat Head -->
+            <div class="cat-head">
+                <div class="ear ear-left">
+                    <div class="ear-inner"></div>
+                </div>
+                <div class="ear ear-right">
+                    <div class="ear-inner"></div>
+                </div>
+                <div class="eyes">
+                    <div class="eye" id="leftEye"></div>
+                    <div class="eye" id="rightEye"></div>
+                </div>
+                <div class="nose"></div>
+                <div class="mouth"></div>
+            </div>
+            
+            <!-- Cat Body -->
+            <div class="cat-body"></div>
+            
+            <!-- Tail -->
+            <div class="tail"></div>
+            
+            <!-- Paws -->
+            <div class="paws">
+                <div class="paw"></div>
+                <div class="paw"></div>
+            </div>
+            
+            <!-- Shadow -->
+            <div class="shadow"></div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="content">
+        <h1>🐱 Follow the Cat!</h1>
+        <p>Move your mouse around and watch the cat follow you!</p>
+    </div>
+
+    <!-- Interactive Zones -->
+    <div class="interactive-zone zone1">Pet Zone 1</div>
+    <div class="interactive-zone zone2">Pet Zone 2</div>
+    <div class="interactive-zone zone3">Pet Zone 3</div>
+
+    <script>
+        // Cat following mouse
+        const cat = document.getElementById('cat');
+        const catElement = document.getElementById('catElement');
+        const cursor = document.querySelector('.custom-cursor');
+        const leftEye = document.getElementById('leftEye');
+        const rightEye = document.getElementById('rightEye');
+        
+        let mouseX = window.innerWidth / 2;
+        let mouseY = window.innerHeight / 2;
+        let catX = mouseX;
+        let catY = mouseY;
+        let isMoving = false;
+        let lastBlinkTime = Date.now();
+        
+        // Mouse tracking
+        document.addEventListener('mousemove', (e) => {
+            mouseX = e.clientX;
+            mouseY = e.clientY;
+            
+            // Update custom cursor
+            cursor.style.left = mouseX - 10 + 'px';
+            cursor.style.top = mouseY - 10 + 'px';
+            
+            // Create particle effect occasionally
+            if (Math.random() < 0.1) {
+                createParticle(mouseX, mouseY);
+            }
+        });
+        
+        // Smooth cat movement
+        function animateCat() {
+            // Calculate distance
+            const dx = mouseX - catX;
+            const dy = mouseY - catY;
+            const distance = Math.sqrt(dx * dx + dy * dy);
+            
+            // Only move if distance is significant
+            if (distance > 5) {
+                // Smooth following with easing
+                catX += dx * 0.1;
+                catY += dy * 0.1;
+                
+                // Update cat position
+                cat.style.left = catX - 60 + 'px';
+                cat.style.top = catY - 50 + 'px';
+                
+                // Rotate cat based on movement direction
+                const angle = Math.atan2(dy, dx) * (180 / Math.PI);
+                const rotation = Math.max(-30, Math.min(30, angle));
+                catElement.style.transform = `rotate(${rotation}deg)`;
+                
+                // Add walking animation
+                if (!isMoving) {
+                    isMoving = true;
+                    catElement.classList.add('walking');
+                }
+            } else {
+                // Stop walking animation
+                if (isMoving) {
+                    isMoving = false;
+                    catElement.classList.remove('walking');
+                }
+            }
+            
+            requestAnimationFrame(animateCat);
+        }
+        
+        // Blinking animation
+        function blink() {
+            leftEye.classList.add('blink');
+            rightEye.classList.add('blink');
+            
+            setTimeout(() => {
+                leftEye.classList.remove('blink');
+                rightEye.classList.remove('blink');
+            }, 300);
+        }
+        
+        // Random blinking
+        setInterval(() => {
+            if (Math.random() < 0.7) {
+                blink();
+            }
+        }, 3000);
+        
+        // Create particle effect
+        function createParticle(x, y) {
+            const particle = document.createElement('div');
+            particle.className = 'particle';
+            particle.innerHTML = '✨';
+            particle.style.left = x + 'px';
+            particle.style.top = y + 'px';
+            particle.style.setProperty('--x', (Math.random() - 0.5) * 100 + 'px');
+            particle.style.setProperty('--y', (Math.random() - 0.5) * 100 + 'px');
+            document.body.appendChild(particle);
+            
+            setTimeout(() => {
+                particle.remove();
+            }, 1000);
+        }
+        
+        // Interactive zones
+        document.querySelectorAll('.interactive-zone').forEach(zone => {
+            zone.addEventListener('mouseenter', () => {
+                zone.style.background = 'rgba(255,255,255,0.2)';
+                zone.style.transform = 'scale(1.1)';
+                
+                // Make cat happy
+                for (let i = 0; i < 5; i++) {
+                    setTimeout(() => createParticle(catX, catY), i * 100);
+                }
+            });
+            
+            zone.addEventListener('mouseleave', () => {
+                zone.style.background = 'rgba(255,255,255,0.1)';
+                zone.style.transform = 'scale(1.05)';
+            });
+        });
+        
+        // Start animations
+        animateCat();
+        
+        // Initial blink
+        setTimeout(blink, 1000);
+        
+        // Touch support for mobile
+        document.addEventListener('touchmove', (e) => {
+            const touch = e.touches[0];
+            mouseX = touch.clientX;
+            mouseY = touch.clientY;
+        });
+    </script>
+</body>
+</html>
