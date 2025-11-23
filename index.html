@@ -1,579 +1,78 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pt-BR">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Digital Bubble Wrap - Endless Popping Fun!</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Menu de Jogos</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      background: linear-gradient(135deg, #1a1a1a, #3a0d0d);
+      font-family: Arial, sans-serif;
+      color: #fff;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
 
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            overflow-x: hidden;
-            position: relative;
-        }
+    .container {
+      text-align: center;
+      width: 90%;
+      max-width: 600px;
+    }
 
-        header {
-            background: rgba(255, 255, 255, 0.95);
-            padding: 1rem 2rem;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-            position: fixed;
-            width: 100%;
-            top: 0;
-            z-index: 1000;
-            backdrop-filter: blur(10px);
-        }
+    h1 {
+      margin-bottom: 20px;
+      color: #ff4b4b;
+      font-size: 2.2rem;
+      text-shadow: 0 0 10px #000;
+    }
 
-        .header-content {
-            max-width: 1400px;
-            margin: 0 auto;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-wrap: wrap;
-            gap: 1rem;
-        }
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 15px;
+    }
 
-        h1 {
-            color: #764ba2;
-            font-size: 1.8rem;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
+    .btn {
+      display: block;
+      padding: 15px;
+      border-radius: 12px;
+      background: #8b0000;
+      color: white;
+      text-decoration: none;
+      font-size: 1.2rem;
+      font-weight: bold;
+      transition: 0.2s;
+      border: 2px solid #ff4b4b;
+    }
 
-        .bubble-icon {
-            width: 40px;
-            height: 40px;
-            background: linear-gradient(135deg, #667eea, #764ba2);
-            border-radius: 50%;
-            display: inline-block;
-            position: relative;
-            animation: float 3s ease-in-out infinite;
-        }
+    .btn:hover {
+      background: #ff4b4b;
+      transform: scale(1.05);
+      border-color: #ffffff;
+    }
 
-        @keyframes float {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-10px); }
-        }
-
-        .stats {
-            display: flex;
-            gap: 2rem;
-            align-items: center;
-        }
-
-        .stat-item {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-
-        .stat-label {
-            font-size: 0.85rem;
-            color: #666;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-
-        .stat-value {
-            font-size: 2rem;
-            font-weight: bold;
-            background: linear-gradient(135deg, #667eea, #764ba2);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-
-        .controls {
-            display: flex;
-            gap: 1rem;
-            flex-wrap: wrap;
-        }
-
-        button {
-            padding: 0.75rem 1.5rem;
-            border: none;
-            border-radius: 50px;
-            background: linear-gradient(135deg, #667eea, #764ba2);
-            color: white;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
-        }
-
-        button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.5);
-        }
-
-        button:active {
-            transform: translateY(0);
-        }
-
-        .bubble-container {
-            padding: 120px 2rem 2rem;
-            max-width: 1400px;
-            margin: 0 auto;
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
-            gap: 10px;
-            animation: fadeIn 0.5s ease;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        .bubble {
-            aspect-ratio: 1;
-            background: radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0.6));
-            border-radius: 50%;
-            box-shadow: 
-                0 4px 10px rgba(0, 0, 0, 0.1),
-                inset -5px -5px 10px rgba(0, 0, 0, 0.1),
-                inset 5px 5px 10px rgba(255, 255, 255, 0.8);
-            cursor: pointer;
-            transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
-            position: relative;
-            overflow: hidden;
-        }
-
-        .bubble::before {
-            content: '';
-            position: absolute;
-            top: 15%;
-            left: 20%;
-            width: 30%;
-            height: 30%;
-            background: radial-gradient(circle, rgba(255, 255, 255, 0.9), transparent);
-            border-radius: 50%;
-        }
-
-        .bubble:hover {
-            transform: scale(1.1);
-            box-shadow: 
-                0 6px 20px rgba(0, 0, 0, 0.15),
-                inset -5px -5px 10px rgba(0, 0, 0, 0.1),
-                inset 5px 5px 10px rgba(255, 255, 255, 0.8);
-        }
-
-        .bubble.popping {
-            animation: pop 0.4s ease-out forwards;
-        }
-
-        @keyframes pop {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.3); }
-            100% { 
-                transform: scale(0); 
-                opacity: 0;
-            }
-        }
-
-        .bubble.golden {
-            background: radial-gradient(circle at 30% 30%, #ffd700, #ffed4e);
-            box-shadow: 
-                0 4px 20px rgba(255, 215, 0, 0.5),
-                inset -5px -5px 10px rgba(0, 0, 0, 0.1),
-                inset 5px 5px 10px rgba(255, 255, 255, 0.9);
-        }
-
-        .bubble.rainbow {
-            background: conic-gradient(from 0deg, #ff0000, #ff7f00, #ffff00, #00ff00, #0000ff, #4b0082, #9400d3, #ff0000);
-            animation: rainbow-spin 3s linear infinite;
-        }
-
-        @keyframes rainbow-spin {
-            from { transform: rotate(0deg); }
-            to { transform: rotate(360deg); }
-        }
-
-        .particle {
-            position: fixed;
-            pointer-events: none;
-            width: 10px;
-            height: 10px;
-            border-radius: 50%;
-            animation: particle-fly 1s ease-out forwards;
-        }
-
-        @keyframes particle-fly {
-            0% {
-                transform: translate(0, 0) scale(1);
-                opacity: 1;
-            }
-            100% {
-                transform: translate(var(--tx), var(--ty)) scale(0);
-                opacity: 0;
-            }
-        }
-
-        .combo-indicator {
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            font-size: 3rem;
-            font-weight: bold;
-            color: white;
-            text-shadow: 0 0 20px rgba(255, 255, 255, 0.8);
-            pointer-events: none;
-            animation: combo-pop 1s ease-out forwards;
-            z-index: 2000;
-        }
-
-        @keyframes combo-pop {
-            0% {
-                transform: translate(-50%, -50%) scale(0) rotate(0deg);
-                opacity: 0;
-            }
-            50% {
-                transform: translate(-50%, -50%) scale(1.5) rotate(180deg);
-                opacity: 1;
-            }
-            100% {
-                transform: translate(-50%, -50%) scale(1) rotate(360deg);
-                opacity: 0;
-            }
-        }
-
-        .sound-toggle {
-            position: fixed;
-            bottom: 2rem;
-            right: 2rem;
-            width: 60px;
-            height: 60px;
-            border-radius: 50%;
-            background: white;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            z-index: 1000;
-        }
-
-        .sound-toggle:hover {
-            transform: scale(1.1);
-        }
-
-        .sound-toggle.muted {
-            background: #ff6b6b;
-        }
-
-        .speed-control {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            background: white;
-            padding: 0.5rem 1rem;
-            border-radius: 50px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-        }
-
-        .speed-control label {
-            font-size: 0.9rem;
-            color: #666;
-        }
-
-        .speed-control select {
-            border: none;
-            background: transparent;
-            color: #764ba2;
-            font-weight: 600;
-            cursor: pointer;
-            outline: none;
-        }
-
-        @media (max-width: 768px) {
-            .header-content {
-                justify-content: center;
-                text-align: center;
-            }
-            
-            h1 {
-                font-size: 1.5rem;
-            }
-            
-            .bubble-container {
-                grid-template-columns: repeat(auto-fill, minmax(60px, 1fr));
-                gap: 8px;
-                padding: 100px 1rem 1rem;
-            }
-        }
-    </style>
+    footer {
+      margin-top: 25px;
+      font-size: 0.9rem;
+      opacity: 0.7;
+    }
+  </style>
 </head>
 <body>
-    <header>
-        <div class="header-content">
-            <h1>
-                <span class="bubble-icon"></span>
-                Digital Bubble Wrap
-            </h1>
-            <div class="stats">
-                <div class="stat-item">
-                    <span class="stat-label">Score</span>
-                    <span class="stat-value" id="score">0</span>
-                </div>
-                <div class="stat-item">
-                    <span class="stat-label">Combo</span>
-                    <span class="stat-value" id="combo">0</span>
-                </div>
-                <div class="stat-item">
-                    <span class="stat-label">High Score</span>
-                    <span class="stat-value" id="highScore">0</span>
-                </div>
-            </div>
-            <div class="controls">
-                <div class="speed-control">
-                    <label for="bubbleSize">Size:</label>
-                    <select id="bubbleSize">
-                        <option value="small">Small</option>
-                        <option value="medium" selected>Medium</option>
-                        <option value="large">Large</option>
-                    </select>
-                </div>
-                <button onclick="resetBubbles()">🔄 New Sheet</button>
-                <button onclick="autoPop()">🎯 Auto Pop</button>
-            </div>
-        </div>
-    </header>
-
-    <main class="bubble-container" id="bubbleContainer"></main>
-
-    <div class="sound-toggle" id="soundToggle" onclick="toggleSound()">
-        <span id="soundIcon">🔊</span>
+  <div class="container">
+    <h1>Escolha Seu Jogo</h1>
+    <div class="grid">
+      <a class="btn" href="https://keuyn.github.io/bolha/bolha">Bolha</a>
+      <a class="btn" href="https://keuyn.github.io/bolha/fcat">F Cat</a>
+      <a class="btn" href="https://keuyn.github.io/bolha/foodwheel">Food Wheel</a>
+     <!-- <a class="btn" href="https://keuyn.github.io/bolha/index">Jogo Principal</a> -->
+      <a class="btn" href="https://keuyn.github.io/bolha/vmusic2">V Music 2</a>
     </div>
-
-    <script>
-        let score = 0;
-        let combo = 0;
-        let highScore = localStorage.getItem('bubbleWrapHighScore') || 0;
-        let soundEnabled = true;
-        let lastPopTime = 0;
-        let bubbleSize = 'medium';
-
-        // Initialize high score display
-        document.getElementById('highScore').textContent = highScore;
-
-        // Audio context for generating pop sounds
-        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
-
-        function createPopSound(frequency = 800, duration = 0.1) {
-            if (!soundEnabled) return;
-            
-            const oscillator = audioContext.createOscillator();
-            const gainNode = audioContext.createGain();
-            
-            oscillator.connect(gainNode);
-            gainNode.connect(audioContext.destination);
-            
-            oscillator.frequency.value = frequency;
-            oscillator.type = 'sine';
-            
-            gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
-            gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + duration);
-            
-            oscillator.start(audioContext.currentTime);
-            oscillator.stop(audioContext.currentTime + duration);
-        }
-
-        function createBubble() {
-            const bubble = document.createElement('div');
-            bubble.className = 'bubble';
-            
-            // Random chance for special bubbles
-            const rand = Math.random();
-            if (rand < 0.05) {
-                bubble.classList.add('golden');
-                bubble.dataset.points = '50';
-            } else if (rand < 0.02) {
-                bubble.classList.add('rainbow');
-                bubble.dataset.points = '100';
-            } else {
-                bubble.dataset.points = '10';
-            }
-            
-            // Set size based on selection
-            const sizes = {
-                small: '60px',
-                medium: '80px',
-                large: '100px'
-            };
-            bubble.style.width = sizes[bubbleSize];
-            bubble.style.height = sizes[bubbleSize];
-            
-            bubble.addEventListener('click', popBubble);
-            bubble.addEventListener('touchstart', popBubble);
-            
-            return bubble;
-        }
-
-        function popBubble(e) {
-            e.preventDefault();
-            const bubble = e.target;
-            
-            if (bubble.classList.contains('popping')) return;
-            
-            bubble.classList.add('popping');
-            
-            // Calculate combo
-            const currentTime = Date.now();
-            if (currentTime - lastPopTime < 500) {
-                combo++;
-                if (combo > 2) {
-                    showCombo(combo);
-                }
-            } else {
-                combo = 1;
-            }
-            lastPopTime = currentTime;
-            
-            // Update score
-            const points = parseInt(bubble.dataset.points);
-            const totalPoints = points * combo;
-            score += totalPoints;
-            updateScore();
-            
-            // Create particles
-            createParticles(e.clientX || e.touches[0].clientX, e.clientY || e.touches[0].clientY);
-            
-            // Play sound based on bubble type
-            if (bubble.classList.contains('golden')) {
-                createPopSound(1200, 0.15);
-            } else if (bubble.classList.contains('rainbow')) {
-                createPopSound(1600, 0.2);
-            } else {
-                createPopSound(800, 0.1);
-            }
-            
-            // Remove bubble and create new one
-            setTimeout(() => {
-                bubble.remove();
-                const newBubble = createBubble();
-                document.getElementById('bubbleContainer').appendChild(newBubble);
-            }, 400);
-        }
-
-        function createParticles(x, y) {
-            const colors = ['#667eea', '#764ba2', '#ffd700', '#ff6b6b', '#4ecdc4'];
-            
-            for (let i = 0; i < 8; i++) {
-                const particle = document.createElement('div');
-                particle.className = 'particle';
-                particle.style.left = x + 'px';
-                particle.style.top = y + 'px';
-                particle.style.background = colors[Math.floor(Math.random() * colors.length)];
-                
-                const angle = (Math.PI * 2 * i) / 8;
-                const velocity = 50 + Math.random() * 50;
-                particle.style.setProperty('--tx', Math.cos(angle) * velocity + 'px');
-                particle.style.setProperty('--ty', Math.sin(angle) * velocity + 'px');
-                
-                document.body.appendChild(particle);
-                
-                setTimeout(() => particle.remove(), 1000);
-            }
-        }
-
-        function showCombo(comboCount) {
-            const existing = document.querySelector('.combo-indicator');
-            if (existing) existing.remove();
-            
-            const indicator = document.createElement('div');
-            indicator.className = 'combo-indicator';
-            indicator.textContent = `${comboCount}x COMBO!`;
-            document.body.appendChild(indicator);
-            
-            setTimeout(() => indicator.remove(), 1000);
-        }
-
-        function updateScore() {
-            document.getElementById('score').textContent = score;
-            document.getElementById('combo').textContent = combo;
-            
-            if (score > highScore) {
-                highScore = score;
-                localStorage.setItem('bubbleWrapHighScore', highScore);
-                document.getElementById('highScore').textContent = highScore;
-            }
-        }
-
-        function resetBubbles() {
-            score = 0;
-            combo = 0;
-            updateScore();
-            
-            const container = document.getElementById('bubbleContainer');
-            container.innerHTML = '';
-            
-            for (let i = 0; i < 100; i++) {
-                container.appendChild(createBubble());
-            }
-        }
-
-        function autoPop() {
-            const bubbles = document.querySelectorAll('.bubble:not(.popping)');
-            if (bubbles.length > 0) {
-                const randomBubble = bubbles[Math.floor(Math.random() * bubbles.length)];
-                randomBubble.click();
-            }
-        }
-
-        function toggleSound() {
-            soundEnabled = !soundEnabled;
-            const toggle = document.getElementById('soundToggle');
-            const icon = document.getElementById('soundIcon');
-            
-            if (soundEnabled) {
-                toggle.classList.remove('muted');
-                icon.textContent = '🔊';
-            } else {
-                toggle.classList.add('muted');
-                icon.textContent = '🔇';
-            }
-        }
-
-        // Bubble size change handler
-        document.getElementById('bubbleSize').addEventListener('change', (e) => {
-            bubbleSize = e.target.value;
-            resetBubbles();
-        });
-
-        // Initialize bubbles
-        function initBubbles() {
-            const container = document.getElementById('bubbleContainer');
-            const bubbleCount = window.innerWidth < 768 ? 50 : 100;
-            
-            for (let i = 0; i < bubbleCount; i++) {
-                container.appendChild(createBubble());
-            }
-        }
-
-        // Start the app
-        initBubbles();
-
-        // Add keyboard shortcuts
-        document.addEventListener('keydown', (e) => {
-            if (e.key === ' ') {
-                e.preventDefault();
-                autoPop();
-            } else if (e.key === 'r' || e.key === 'R') {
-                resetBubbles();
-            } else if (e.key === 'm' || e.key === 'M') {
-                toggleSound();
-            }
-        });
-    </script>
+    <footer>© 2025 — Menu de Jogos</footer>
+  </div>
 </body>
 </html>
