@@ -1,0 +1,825 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FLAMENGO x PALMEIRAS - FINAL DA LIBERTADORES 2025</title>
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --flamengo-red: #D90000;
+            --flamengo-dark: #000000;
+            --flamengo-gold: #FFD700;
+            --palmeiras-green: #006400;
+            --white: #FFFFFF;
+            --gray: #333333;
+        }
+
+        body {
+            font-family: 'Arial Black', sans-serif;
+            background: linear-gradient(135deg, #000000 0%, #1a0000 50%, #000000 100%);
+            color: var(--white);
+            min-height: 100vh;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* Background Pattern */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                repeating-linear-gradient(
+                    45deg,
+                    transparent,
+                    transparent 10px,
+                    rgba(217, 0, 0, 0.03) 10px,
+                    rgba(217, 0, 0, 0.03) 20px
+                );
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .container {
+            position: relative;
+            z-index: 2;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        /* Header */
+        header {
+            text-align: center;
+            padding: 30px 0;
+            background: linear-gradient(90deg, var(--flamengo-dark) 0%, var(--flamengo-red) 50%, var(--flamengo-dark) 100%);
+            border-radius: 20px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(217, 0, 0, 0.5);
+            position: relative;
+            overflow: hidden;
+        }
+
+        header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(45deg, transparent, rgba(255, 215, 0, 0.1), transparent);
+            animation: shine 3s infinite;
+        }
+
+        @keyframes shine {
+            0% { transform: translateX(-100%) translateY(-100%) rotate(45deg); }
+            100% { transform: translateX(100%) translateY(100%) rotate(45deg); }
+        }
+
+        h1 {
+            font-size: clamp(2rem, 5vw, 3.5rem);
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            text-shadow: 3px 3px 6px rgba(0, 0, 0, 0.8);
+            position: relative;
+            z-index: 1;
+        }
+
+        .subtitle {
+            font-size: 1.2rem;
+            color: var(--flamengo-gold);
+            margin-top: 10px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+        }
+
+        /* Countdown Section */
+        .countdown-section {
+            background: linear-gradient(135deg, rgba(217, 0, 0, 0.1), rgba(0, 0, 0, 0.5));
+            border-radius: 20px;
+            padding: 40px;
+            margin-bottom: 30px;
+            text-align: center;
+            border: 2px solid var(--flamengo-red);
+            box-shadow: 0 0 30px rgba(217, 0, 0, 0.3);
+            transition: all 0.3s ease;
+        }
+
+        .countdown-section:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 40px rgba(217, 0, 0, 0.5);
+        }
+
+        .countdown-title {
+            font-size: 2rem;
+            margin-bottom: 20px;
+            color: var(--flamengo-gold);
+            text-transform: uppercase;
+        }
+
+        .countdown {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .time-block {
+            background: var(--flamengo-dark);
+            border: 3px solid var(--flamengo-red);
+            border-radius: 15px;
+            padding: 20px;
+            min-width: 100px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
+            transition: all 0.3s ease;
+        }
+
+        .time-block:hover {
+            transform: scale(1.1);
+            border-color: var(--flamengo-gold);
+        }
+
+        .time-number {
+            font-size: 3rem;
+            font-weight: bold;
+            color: var(--flamengo-red);
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+        }
+
+        .time-label {
+            font-size: 0.9rem;
+            color: var(--flamengo-gold);
+            text-transform: uppercase;
+            margin-top: 5px;
+        }
+
+        /* Score Section */
+        .score-section {
+            background: linear-gradient(135deg, rgba(0, 0, 0, 0.8), rgba(217, 0, 0, 0.2));
+            border-radius: 20px;
+            padding: 40px;
+            margin-bottom: 30px;
+            border: 2px solid var(--flamengo-red);
+        }
+
+        .match-info {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .match-date {
+            font-size: 1.2rem;
+            color: var(--flamengo-gold);
+            margin-bottom: 10px;
+        }
+
+        .scoreboard {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 50px;
+            margin-bottom: 30px;
+        }
+
+        .team {
+            text-align: center;
+            flex: 1;
+            max-width: 300px;
+        }
+
+        .team-name {
+            font-size: 2rem;
+            font-weight: bold;
+            margin-bottom: 15px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .flamengo-name {
+            color: var(--flamengo-red);
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+        }
+
+        .palmeiras-name {
+            color: var(--palmeiras-green);
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+        }
+
+        .team-logo {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            margin: 0 auto 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3rem;
+            font-weight: bold;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.5);
+        }
+
+        .flamengo-logo {
+            background: linear-gradient(135deg, var(--flamengo-red), var(--flamengo-dark));
+            border: 3px solid var(--flamengo-gold);
+        }
+
+        .palmeiras-logo {
+            background: var(--palmeiras-green);
+            border: 3px solid var(--white);
+        }
+
+        .score {
+            font-size: 4rem;
+            font-weight: bold;
+            color: var(--flamengo-gold);
+            text-shadow: 3px 3px 6px rgba(0, 0, 0, 0.8);
+        }
+
+        .vs {
+            font-size: 2rem;
+            color: var(--flamengo-gold);
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+        }
+
+        /* Match Events */
+        .events-section {
+            background: rgba(0, 0, 0, 0.5);
+            border-radius: 15px;
+            padding: 20px;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .events-title {
+            font-size: 1.5rem;
+            color: var(--flamengo-gold);
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        .event {
+            padding: 10px;
+            margin-bottom: 10px;
+            border-left: 4px solid var(--flamengo-red);
+            background: rgba(217, 0, 0, 0.1);
+            border-radius: 5px;
+            animation: slideIn 0.5s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .event-time {
+            color: var(--flamengo-gold);
+            font-weight: bold;
+        }
+
+        /* Goal Animations */
+        .goal-animation {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 1000;
+            pointer-events: none;
+        }
+
+        .flamengo-goal {
+            font-size: 10rem;
+            font-weight: bold;
+            color: var(--flamengo-red);
+            text-shadow: 
+                0 0 20px var(--flamengo-red),
+                0 0 40px var(--flamengo-red),
+                0 0 60px var(--flamengo-red),
+                0 0 80px var(--flamengo-gold);
+            animation: flamengoGoal 2s ease-out forwards;
+        }
+
+        @keyframes flamengoGoal {
+            0% {
+                transform: scale(0) rotate(0deg);
+                opacity: 0;
+            }
+            50% {
+                transform: scale(1.5) rotate(360deg);
+                opacity: 1;
+            }
+            100% {
+                transform: scale(1) rotate(720deg);
+                opacity: 0;
+            }
+        }
+
+        .palmeiras-goal {
+            font-size: 2rem;
+            color: var(--palmeiras-green);
+            opacity: 0.5;
+            animation: palmeirasGoal 1s ease-out forwards;
+        }
+
+        @keyframes palmeirasGoal {
+            0% {
+                transform: translateY(20px);
+                opacity: 0;
+            }
+            100% {
+                transform: translateY(0);
+                opacity: 0.5;
+            }
+        }
+
+        /* Victory Animation */
+        .victory-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, var(--flamengo-red), var(--flamengo-dark));
+            z-index: 2000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+        }
+
+        .victory-text {
+            font-size: 5rem;
+            color: var(--flamengo-gold);
+            text-shadow: 3px 3px 6px rgba(0, 0, 0, 0.8);
+            animation: pulse 1s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+
+        .confetti {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            background: var(--flamengo-gold);
+            animation: confettiFall 3s linear infinite;
+        }
+
+        @keyframes confettiFall {
+            0% {
+                transform: translateY(-100vh) rotate(0deg);
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(100vh) rotate(720deg);
+                opacity: 0;
+            }
+        }
+
+        /* Defeat Screen */
+        .defeat-screen {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0, 0, 0, 0.9);
+            padding: 50px;
+            border-radius: 20px;
+            z-index: 2000;
+            display: none;
+            text-align: center;
+        }
+
+        .defeat-text {
+            font-size: 2rem;
+            color: var(--gray);
+        }
+
+        /* Controls */
+        .controls {
+            background: rgba(0, 0, 0, 0.5);
+            border-radius: 15px;
+            padding: 20px;
+            margin-top: 30px;
+            text-align: center;
+        }
+
+        .btn {
+            background: var(--flamengo-red);
+            color: var(--white);
+            border: none;
+            padding: 12px 24px;
+            margin: 5px;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+        }
+
+        .btn:hover {
+            background: var(--flamengo-gold);
+            color: var(--flamengo-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(255, 215, 0, 0.5);
+        }
+
+        .btn-palmeiras {
+            background: var(--palmeiras-green);
+        }
+
+        .btn-palmeiras:hover {
+            background: var(--white);
+            color: var(--palmeiras-green);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .scoreboard {
+                flex-direction: column;
+                gap: 20px;
+            }
+
+            .vs {
+                transform: rotate(90deg);
+            }
+
+            .time-number {
+                font-size: 2rem;
+            }
+
+            .team-name {
+                font-size: 1.5rem;
+            }
+
+            .score {
+                font-size: 3rem;
+            }
+        }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar {
+            width: 10px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--flamengo-dark);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--flamengo-red);
+            border-radius: 5px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--flamengo-gold);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>⚽ FINAL DA LIBERTADORES 2025 ⚽</h1>
+            <p class="subtitle">A Batalha dos Gigantes do Futebol Brasileiro</p>
+        </header>
+
+        <section class="countdown-section" id="countdownSection">
+            <h2 class="countdown-title">⏰ FALTAM PARA A GRANDE FINAL ⏰</h2>
+            <div class="countdown" id="countdown">
+                <div class="time-block">
+                    <div class="time-number" id="days">00</div>
+                    <div class="time-label">Dias</div>
+                </div>
+                <div class="time-block">
+                    <div class="time-number" id="hours">00</div>
+                    <div class="time-label">Horas</div>
+                </div>
+                <div class="time-block">
+                    <div class="time-number" id="minutes">00</div>
+                    <div class="time-label">Minutos</div>
+                </div>
+                <div class="time-block">
+                    <div class="time-number" id="seconds">00</div>
+                    <div class="time-label">Segundos</div>
+                </div>
+            </div>
+        </section>
+
+        <section class="score-section">
+            <div class="match-info">
+                <p class="match-date">🏟️ 29 de Novembro de 2025 - 18:00h 🏟️</p>
+                <p style="color: var(--flamengo-gold);">Estádio: Monumental (Buenos Aires)</p>
+            </div>
+
+            <div class="scoreboard">
+                <div class="team">
+                    <div class="team-logo flamengo-logo">FLA</div>
+                    <div class="team-name flamengo-name">Flamengo</div>
+                    <div class="score" id="flamengoScore">0</div>
+                </div>
+                
+                <div class="vs">VS</div>
+                
+                <div class="team">
+                    <div class="team-logo palmeiras-logo">PAL</div>
+                    <div class="team-name palmeiras-name">Palmeiras</div>
+                    <div class="score" id="palmeirasScore">0</div>
+                </div>
+            </div>
+
+            <div class="events-section">
+                <h3 class="events-title">📋 Acompanhe em Tempo Real 📋</h3>
+                <div id="eventsList">
+                    <div class="event">
+                        <span class="event-time">AGUARDANDO...</span> - Ainda não começou a partida
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="controls">
+            <h3 style="color: var(--flamengo-gold); margin-bottom: 15px;">🎮 Simulação do Jogo 🎮</h3>
+            <button class="btn" onclick="simulateFlamengoGoal()">⚽ Gol do Flamengo!</button>
+            <button class="btn btn-palmeiras" onclick="simulatePalmeirasGoal()">⚽ Gol do Palmeiras</button>
+            <button class="btn" onclick="startMatch()">🏁 Iniciar Partida</button>
+            <button class="btn" onclick="endMatch()">🏁 Finalizar Partida</button>
+            <button class="btn" onclick="resetMatch()">🔄 Resetar</button>
+        </section>
+    </div>
+
+    <!-- Goal Animations -->
+    <div class="goal-animation" id="goalAnimation"></div>
+
+    <!-- Victory Screen -->
+    <div class="victory-screen" id="victoryScreen">
+        <h1 class="victory-text">🏆 CAMPEÃO! 🏆</h1>
+        <p style="font-size: 2rem; color: var(--flamengo-gold); margin-top: 20px;">FLAMENGO É BICAMPEÃO DA LIBERTADORES!</p>
+        <div id="confettiContainer"></div>
+    </div>
+
+    <!-- Defeat Screen -->
+    <div class="defeat-screen" id="defeatScreen">
+        <p class="defeat-text">Palmeiras ganhou.</p>
+    </div>
+
+    <script>
+        // Countdown Timer
+        const targetDate = new Date('2025-11-29T18:00:00-03:00');
+        
+        function updateCountdown() {
+            const now = new Date();
+            const difference = targetDate - now;
+            
+            if (difference <= 0) {
+                document.getElementById('countdownSection').innerHTML = `
+                    <h2 class="countdown-title">🔥 A HORA É AGORA! 🔥</h2>
+                    <p style="font-size: 2rem; color: var(--flamengo-gold);">A FINAL COMEÇOU!</p>
+                `;
+                startMatch();
+                return;
+            }
+            
+            const days = Math.floor(difference / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((difference % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const minutes = Math.floor((difference % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((difference % (1000 * 60)) / 1000);
+            
+            document.getElementById('days').textContent = String(days).padStart(2, '0');
+            document.getElementById('hours').textContent = String(hours).padStart(2, '0');
+            document.getElementById('minutes').textContent = String(minutes).padStart(2, '0');
+            document.getElementById('seconds').textContent = String(seconds).padStart(2, '0');
+        }
+        
+        setInterval(updateCountdown, 1000);
+        updateCountdown();
+        
+        // Match State
+        let matchState = {
+            flamengoScore: 0,
+            palmeirasScore: 0,
+            isLive: false,
+            events: [],
+            minute: 0
+        };
+        
+        // Goal Animations
+        function showFlamengoGoal() {
+            const goalDiv = document.getElementById('goalAnimation');
+            goalDiv.innerHTML = '<div class="flamengo-goal">GOOOOOOOOL!</div>';
+            
+            // Create explosion effect
+            for (let i = 0; i < 20; i++) {
+                setTimeout(() => {
+                    createFirework();
+                }, i * 100);
+            }
+            
+            setTimeout(() => {
+                goalDiv.innerHTML = '';
+            }, 2000);
+        }
+        
+        function showPalmeirasGoal() {
+            const goalDiv = document.getElementById('goalAnimation');
+            goalDiv.innerHTML = '<div class="palmeiras-goal">gol</div>';
+            
+            setTimeout(() => {
+                goalDiv.innerHTML = '';
+            }, 1000);
+        }
+        
+        function createFirework() {
+            const firework = document.createElement('div');
+            firework.style.position = 'fixed';
+            firework.style.width = '10px';
+            firework.style.height = '10px';
+            firework.style.background = `hsl(${Math.random() * 60}, 100%, 50%)`;
+            firework.style.borderRadius = '50%';
+            firework.style.left = Math.random() * window.innerWidth + 'px';
+            firework.style.top = Math.random() * window.innerHeight + 'px';
+            firework.style.zIndex = '999';
+            firework.style.animation = 'confettiFall 2s ease-out forwards';
+            
+            document.body.appendChild(firework);
+            
+            setTimeout(() => {
+                firework.remove();
+            }, 2000);
+        }
+        
+        // Simulate Goals
+        function simulateFlamengoGoal() {
+            if (!matchState.isLive) {
+                addEvent('A partida ainda não começou!');
+                return;
+            }
+            
+            matchState.flamengoScore++;
+            document.getElementById('flamengoScore').textContent = matchState.flamengoScore;
+            showFlamengoGoal();
+            
+            const scorers = ['Gabriel Barbosa', 'Pedro', 'Arrascaeta', 'Everton Ribeiro', 'De Arrascaeta', 'Bruno Henrique'];
+            const scorer = scorers[Math.floor(Math.random() * scorers.length)];
+            addEvent(`⚽ GOOOOL DO FLAMENGO! ${scorer} marca!`, 'flamengo');
+        }
+        
+        function simulatePalmeirasGoal() {
+            if (!matchState.isLive) {
+                addEvent('A partida ainda não começou!');
+                return;
+            }
+            
+            matchState.palmeirasScore++;
+            document.getElementById('palmeirasScore').textContent = matchState.palmeirasScore;
+            showPalmeirasGoal();
+            
+            const scorers = ['Rony', 'Endrick', 'Veiga', 'Gustavo Gomez', 'Gustavo Scarpa'];
+            const scorer = scorers[Math.floor(Math.random() * scorers.length)];
+            addEvent(`gol do palmeiras... ${scorer}`, 'palmeiras');
+        }
+        
+        // Events
+        function addEvent(text, team = '') {
+            const eventsList = document.getElementById('eventsList');
+            const event = document.createElement('div');
+            event.className = 'event';
+            
+            const time = matchState.isLive ? `${matchState.minute}'` : new Date().toLocaleTimeString('pt-BR');
+            const color = team === 'flamengo' ? 'var(--flamengo-red)' : team === 'palmeiras' ? 'var(--palmeiras-green)' : 'var(--flamengo-gold)';
+            
+            event.innerHTML = `
+                <span class="event-time" style="color: ${color}">${time}</span> - ${text}
+            `;
+            
+            eventsList.insertBefore(event, eventsList.firstChild);
+            
+            // Keep only last 10 events
+            while (eventsList.children.length > 10) {
+                eventsList.removeChild(eventsList.lastChild);
+            }
+        }
+        
+        // Match Control
+        function startMatch() {
+            matchState.isLive = true;
+            matchState.minute = 0;
+            addEvent('🟢 INÍCIO DA PARTIDA! VAI FLAMENGO! 🟢');
+            
+            // Simulate match progression
+            setInterval(() => {
+                if (matchState.isLive && matchState.minute < 90) {
+                    matchState.minute++;
+                    
+                    // Random events
+                    if (Math.random() < 0.1) {
+                        const events = [
+                            'O Flamengo pressiona alto!',
+                            'Bela jogada do Flamengo no meio-campo',
+                            'Defesa difícil do goleiro!',
+                            'Cartão amarelo para jogador do Palmeiras',
+                            'Flamengo com posse de bola'
+                        ];
+                        const randomEvent = events[Math.floor(Math.random() * events.length)];
+                        addEvent(randomEvent);
+                    }
+                }
+            }, 30000); // Update every 30 seconds (simulating 1 minute)
+        }
+        
+        function endMatch() {
+            matchState.isLive = false;
+            addEvent('🏁 FIM DE JOGO! 🏁');
+            
+            setTimeout(() => {
+                if (matchState.flamengoScore > matchState.palmeirasScore) {
+                    showVictory();
+                } else if (matchState.palmeirasScore > matchState.flamengoScore) {
+                    showDefeat();
+                } else {
+                    addEvent('Empate! Vai para os pênaltis!');
+                }
+            }, 2000);
+        }
+        
+        function resetMatch() {
+            matchState = {
+                flamengoScore: 0,
+                palmeirasScore: 0,
+                isLive: false,
+                events: [],
+                minute: 0
+            };
+            
+            document.getElementById('flamengoScore').textContent = '0';
+            document.getElementById('palmeirasScore').textContent = '0';
+            document.getElementById('eventsList').innerHTML = `
+                <div class="event">
+                    <span class="event-time">AGUARDANDO...</span> - Partida resetada
+                </div>
+            `;
+            
+            document.getElementById('victoryScreen').style.display = 'none';
+            document.getElementById('defeatScreen').style.display = 'none';
+        }
+        
+        function showVictory() {
+            const victoryScreen = document.getElementById('victoryScreen');
+            victoryScreen.style.display = 'flex';
+            
+            // Create confetti
+            const confettiContainer = document.getElementById('confettiContainer');
+            for (let i = 0; i < 100; i++) {
+                const confetti = document.createElement('div');
+                confetti.className = 'confetti';
+                confetti.style.left = Math.random() * 100 + '%';
+                confetti.style.animationDelay = Math.random() * 3 + 's';
+                confetti.style.backgroundColor = ['#D90000', '#FFD700', '#000000', '#FFFFFF'][Math.floor(Math.random() * 4)];
+                confettiContainer.appendChild(confetti);
+            }
+            
+            // Add taunting message
+            setTimeout(() => {
+                const taunt = document.createElement('p');
+                taunt.style.fontSize = '1.5rem';
+                taunt.style.color = '#FFD700';
+                taunt.style.marginTop = '20px';
+                taunt.textContent = '🎭 Palmeiras, na próxima vez tenta mais! 🎭';
+                victoryScreen.appendChild(taunt);
+            }, 3000);
+        }
+        
+        function showDefeat() {
+            document.getElementById('defeatScreen').style.display = 'block';
+        }
+        
+        // Keyboard shortcuts
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'f' || e.key === 'F') {
+                simulateFlamengoGoal();
+            } else if (e.key === 'p' || e.key === 'P') {
+                simulatePalmeirasGoal();
+            }
+        });
+        
+        // Initial message
+        addEvent('🔥 Preparem-se para a maior final da América! 🔥');
+    </script>
+</body>
+</html>
