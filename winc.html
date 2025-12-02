@@ -3,569 +3,857 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Comandos Windows - Guia Definitivo (CMD & PowerShell)</title>
+    <title>Referência de Comandos Windows</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         :root {
-            --bg-color: #f4f7f6;
-            --text-color: #333;
+            --bg-color: #f5f7fa;
             --card-bg: #ffffff;
-            --header-bg: #2c3e50;
-            --header-text: #ecf0f1;
-            --primary-color: #3498db;
-            --primary-hover: #2980b9;
-            --border-color: #ddd;
-            --code-bg: #2d2d2d;
-            --code-color: #f8f8f2;
-            --sidebar-bg: #34495e;
-            --sidebar-text: #bdc3c7;
-            --sidebar-hover: #4a627a;
-            --shadow: 0 4px 8px rgba(0,0,0,0.1);
+            --text-color: #333333;
+            --secondary-text: #666666;
+            --primary-color: #0078d4;
+            --primary-hover: #106ebe;
+            --border-color: #e1e1e1;
+            --shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            --category-cmd: #4caf50;
+            --category-tool: #ff9800;
+            --category-ps: #9c27b0;
+            --category-extract: #2196f3;
         }
 
         [data-theme="dark"] {
-            --bg-color: #1a1a1a;
-            --text-color: #e0e0e0;
-            --card-bg: #2c2c2c;
-            --header-bg: #1f1f1f;
-            --header-text: #e0e0e0;
-            --primary-color: #5dade2;
-            --primary-hover: #3498db;
-            --border-color: #444;
-            --code-bg: #1e1e1e;
-            --code-color: #d4d4d4;
-            --sidebar-bg: #252526;
-            --sidebar-text: #cccccc;
-            --sidebar-hover: #3e3e42;
-            --shadow: 0 4px 8px rgba(0,0,0,0.3);
+            --bg-color: #1e1e1e;
+            --card-bg: #2d2d30;
+            --text-color: #f1f1f1;
+            --secondary-text: #cccccc;
+            --primary-color: #4080ff;
+            --primary-hover: #0060ff;
+            --border-color: #3e3e42;
+            --shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
         }
 
         body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background-color: var(--bg-color);
             color: var(--text-color);
-            margin: 0;
+            transition: background-color 0.3s ease, color 0.3s ease;
             line-height: 1.6;
-            transition: background-color 0.3s, color 0.3s;
         }
 
         .container {
-            display: flex;
-            min-height: 100vh;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
         }
 
-        /* Header */
-        .header {
-            background-color: var(--header-bg);
-            color: var(--header-text);
-            padding: 1rem 2rem;
+        header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            position: sticky;
-            top: 0;
-            z-index: 1000;
-            box-shadow: var(--shadow);
-        }
-        .header h1 {
-            margin: 0;
-            font-size: 1.5rem;
-        }
-        .theme-toggle {
-            background: none;
-            border: 2px solid var(--header-text);
-            color: var(--header-text);
-            padding: 0.5rem 1rem;
-            border-radius: 20px;
-            cursor: pointer;
-            font-size: 1rem;
-            transition: background-color 0.3s, color 0.3s;
-        }
-        .theme-toggle:hover {
-            background-color: var(--header-text);
-            color: var(--header-bg);
-        }
-
-        /* Sidebar */
-        .sidebar {
-            width: 250px;
-            background-color: var(--sidebar-bg);
-            color: var(--sidebar-text);
-            padding: 1.5rem;
-            position: sticky;
-            top: 80px; /* Height of header */
-            height: calc(100vh - 80px);
-            overflow-y: auto;
-            transition: transform 0.3s ease-in-out;
-        }
-        .sidebar h2 {
-            margin-top: 0;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
             border-bottom: 1px solid var(--border-color);
-            padding-bottom: 0.5rem;
-            font-size: 1.2rem;
-        }
-        .sidebar ul {
-            list-style-type: none;
-            padding: 0;
-        }
-        .sidebar li {
-            margin-bottom: 0.5rem;
-        }
-        .sidebar a {
-            color: var(--sidebar-text);
-            text-decoration: none;
-            display: block;
-            padding: 0.5rem;
-            border-radius: 5px;
-            transition: background-color 0.2s;
-        }
-        .sidebar a:hover, .sidebar a.active {
-            background-color: var(--sidebar-hover);
         }
 
-        /* Main Content */
-        .main-content {
-            flex-grow: 1;
-            padding: 2rem;
-            padding-top: 0;
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
         }
 
-        /* Search and Filters */
-        .controls {
-            background-color: var(--card-bg);
-            padding: 1.5rem;
-            border-radius: 8px;
-            margin-bottom: 2rem;
-            box-shadow: var(--shadow);
+        .logo i {
+            font-size: 2rem;
+            color: var(--primary-color);
         }
-        .search-bar {
-            width: 100%;
-            padding: 0.8rem;
-            font-size: 1rem;
-            border: 1px solid var(--border-color);
-            border-radius: 5px;
-            box-sizing: border-box;
-            background-color: var(--bg-color);
+
+        h1 {
+            font-size: 1.8rem;
             color: var(--text-color);
         }
-        .filters {
-            margin-top: 1rem;
-            display: flex;
-            flex-wrap: wrap;
-            gap: 1rem;
-        }
-        .filter-group {
-            display: flex;
-            align-items: center;
-        }
-        .filter-group input[type="checkbox"] {
-            margin-right: 0.5rem;
-        }
 
-        /* Command Cards */
-        .command-list {
-            display: grid;
-            gap: 2rem;
-        }
-        .command-card {
-            background-color: var(--card-bg);
-            border: 1px solid var(--border-color);
-            border-radius: 8px;
-            padding: 1.5rem;
-            box-shadow: var(--shadow);
-            transition: transform 0.2s, box-shadow 0.2s;
-        }
-        .command-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 8px 16px rgba(0,0,0,0.15);
-        }
-        .command-card h3 {
-            margin-top: 0;
-            color: var(--primary-color);
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-        .command-card .category-icon {
-            font-size: 1.2rem;
-        }
-        .type-badge {
-            font-size: 0.8rem;
-            padding: 0.2rem 0.5rem;
-            border-radius: 12px;
-            color: white;
-            font-weight: bold;
-        }
-        .type-cmd { background-color: #e74c3c; }
-        .type-powershell { background-color: #9b59b6; }
-        .type-ambos { background-color: #1abc9c; }
-
-        .command-details p {
-            margin-bottom: 0.5rem;
-        }
-        .command-details strong {
-            color: var(--primary-color);
-        }
-        .command-block {
-            display: flex;
-            align-items: center;
-            background-color: var(--code-bg);
-            color: var(--code-color);
-            padding: 1rem;
-            border-radius: 5px;
-            margin-top: 1rem;
-            font-family: 'Courier New', Courier, monospace;
-            font-size: 0.9rem;
-            white-space: pre-wrap;
-            word-break: break-all;
-            position: relative;
-        }
-        .command-block code {
-            flex-grow: 1;
-        }
-        .copy-btn {
-            background: var(--primary-color);
-            border: none;
-            color: white;
-            padding: 0.5rem 1rem;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 0.9rem;
-            margin-left: 1rem;
-            transition: background-color 0.2s;
-        }
-        .copy-btn:hover {
-            background: var(--primary-hover);
-        }
-
-        /* Tooltip */
-        .tooltip {
-            position: absolute;
-            background-color: #333;
-            color: #fff;
-            text-align: center;
-            padding: 5px 10px;
-            border-radius: 6px;
-            z-index: 1001;
-            font-size: 0.8rem;
-            top: -30px;
-            left: 50%;
-            transform: translateX(-50%);
-            white-space: nowrap;
-            opacity: 0;
-            transition: opacity 0.3s;
-        }
-        .tooltip.show {
-            opacity: 1;
-        }
-
-        /* Responsive Design */
-        @media (max-width: 768px) {
-            .container {
-                flex-direction: column;
-            }
-            .sidebar {
-                width: 100%;
-                position: static;
-                height: auto;
-                transform: translateX(-100%);
-                position: fixed;
-                top: 0;
-                left: 0;
-                z-index: 999;
-                padding-top: 4rem;
-            }
-            .sidebar.open {
-                transform: translateX(0);
-            }
-            .main-content {
-                padding: 1rem;
-            }
-            .header {
-                padding: 1rem;
-            }
-            .menu-toggle {
-                display: block;
-            }
-        }
-        .menu-toggle {
-            display: none;
+        .theme-toggle {
             background: none;
             border: none;
-            color: var(--header-text);
             font-size: 1.5rem;
             cursor: pointer;
+            color: var(--text-color);
+            transition: transform 0.3s ease;
+        }
+
+        .theme-toggle:hover {
+            transform: scale(1.1);
+        }
+
+        .search-container {
+            position: relative;
+            margin-bottom: 30px;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 15px 50px 15px 20px;
+            border-radius: 50px;
+            border: 1px solid var(--border-color);
+            background-color: var(--card-bg);
+            color: var(--text-color);
+            font-size: 1rem;
+            box-shadow: var(--shadow);
+            transition: border-color 0.3s ease;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+        }
+
+        .search-icon {
+            position: absolute;
+            right: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--secondary-text);
+        }
+
+        .filter-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 30px;
+        }
+
+        .filter-btn {
+            padding: 8px 16px;
+            border-radius: 20px;
+            border: 1px solid var(--border-color);
+            background-color: var(--card-bg);
+            color: var(--text-color);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+        }
+
+        .filter-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow);
+        }
+
+        .filter-btn.active {
+            background-color: var(--primary-color);
+            color: white;
+            border-color: var(--primary-color);
+        }
+
+        .section-title {
+            font-size: 1.5rem;
+            margin: 40px 0 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid var(--primary-color);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .section-title i {
+            color: var(--primary-color);
+        }
+
+        .commands-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+
+        .command-card {
+            background-color: var(--card-bg);
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: var(--shadow);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .command-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 5px;
+            height: 100%;
+        }
+
+        .command-card.cmd::before {
+            background-color: var(--category-cmd);
+        }
+
+        .command-card.tool::before {
+            background-color: var(--category-tool);
+        }
+
+        .command-card.ps::before {
+            background-color: var(--category-ps);
+        }
+
+        .command-card.extract::before {
+            background-color: var(--category-extract);
+        }
+
+        .command-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .command-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .command-name {
+            font-weight: 600;
+            font-size: 1.1rem;
+            color: var(--text-color);
+            word-break: break-all;
+        }
+
+        .command-category {
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: white;
+            text-transform: uppercase;
+        }
+
+        .category-cmd {
+            background-color: var(--category-cmd);
+        }
+
+        .category-tool {
+            background-color: var(--category-tool);
+        }
+
+        .category-ps {
+            background-color: var(--category-ps);
+        }
+
+        .category-extract {
+            background-color: var(--category-extract);
+        }
+
+        .command-actions {
+            display: flex;
+            justify-content: flex-end;
+            margin-top: 10px;
+        }
+
+        .copy-btn {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 0.9rem;
+            transition: background-color 0.3s ease;
+        }
+
+        .copy-btn:hover {
+            background-color: var(--primary-hover);
+        }
+
+        .copy-btn.copied {
+            background-color: var(--category-cmd);
+        }
+
+        .no-results {
+            text-align: center;
+            padding: 40px;
+            color: var(--secondary-text);
+            font-size: 1.2rem;
+        }
+
+        footer {
+            margin-top: 50px;
+            padding: 20px 0;
+            text-align: center;
+            color: var(--secondary-text);
+            border-top: 1px solid var(--border-color);
+        }
+
+        .stats {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .stat-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .stat-number {
+            font-weight: bold;
+            color: var(--primary-color);
+        }
+
+        @media (max-width: 768px) {
+            .commands-grid {
+                grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+            }
+
+            .filter-container {
+                justify-content: center;
+            }
+
+            .stats {
+                flex-direction: column;
+                gap: 10px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .commands-grid {
+                grid-template-columns: 1fr;
+            }
+
+            h1 {
+                font-size: 1.5rem;
+            }
+        }
+
+        .accordion {
+            margin-bottom: 20px;
+        }
+
+        .accordion-item {
+            background-color: var(--card-bg);
+            border-radius: 8px;
+            margin-bottom: 10px;
+            overflow: hidden;
+            box-shadow: var(--shadow);
+        }
+
+        .accordion-header {
+            padding: 15px 20px;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: background-color 0.3s ease;
+        }
+
+        .accordion-header:hover {
+            background-color: rgba(0, 0, 0, 0.05);
+        }
+
+        [data-theme="dark"] .accordion-header:hover {
+            background-color: rgba(255, 255, 255, 0.05);
+        }
+
+        .accordion-title {
+            font-weight: 600;
+            font-size: 1.1rem;
+        }
+
+        .accordion-icon {
+            transition: transform 0.3s ease;
+        }
+
+        .accordion-item.active .accordion-icon {
+            transform: rotate(180deg);
+        }
+
+        .accordion-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+        }
+
+        .accordion-item.active .accordion-content {
+            max-height: 1000px;
+        }
+
+        .accordion-body {
+            padding: 0 20px 20px;
         }
     </style>
 </head>
-<body data-theme="light">
-    <header class="header">
-        <div style="display: flex; align-items: center;">
-            <button class="menu-toggle" id="menuToggle"><i class="fas fa-bars"></i></button>
-            <h1><i class="fas fa-terminal"></i> Guia de Comandos Windows</h1>
-        </div>
-        <button class="theme-toggle" id="themeToggle"><i class="fas fa-moon"></i> Dark Mode</button>
-    </header>
-
+<body>
     <div class="container">
-        <aside class="sidebar" id="sidebar">
-            <h2>Índice</h2>
-            <ul>
-                <li><a href="#cmd-section"><i class="fas fa-keyboard"></i> Prompt de Comando (CMD)</a></li>
-                <li><a href="#powershell-section"><i class="fas fa-code"></i> PowerShell</a></li>
-                <li><a href="#administrative-section"><i class="fas fa-tools"></i> Ferramentas Administrativas</a></li>
-            </ul>
-        </aside>
+        <header>
+            <div class="logo">
+                <i class="fas fa-terminal"></i>
+                <h1>Referência de Comandos Windows</h1>
+            </div>
+            <button class="theme-toggle" id="themeToggle">
+                <i class="fas fa-moon"></i>
+            </button>
+        </header>
 
-        <main class="main-content">
-            <div class="controls">
-                <input type="search" class="search-bar" id="searchBar" placeholder="Buscar por comando ou descrição...">
-                <div class="filters" id="categoryFilters">
-                    <div class="filter-group">
-                        <input type="checkbox" id="filterArquivos" value="Arquivos" checked>
-                        <label for="filterArquivos">Arquivos</label>
-                    </div>
-                    <div class="filter-group">
-                        <input type="checkbox" id="filterRede" value="Rede" checked>
-                        <label for="filterRede">Rede</label>
-                    </div>
-                    <div class="filter-group">
-                        <input type="checkbox" id="filterSistema" value="Sistema" checked>
-                        <label for="filterSistema">Sistema</label>
-                    </div>
-                    <div class="filter-group">
-                        <input type="checkbox" id="filterSeguranca" value="Segurança" checked>
-                        <label for="filterSeguranca">Segurança</label>
-                    </div>
-                    <div class="filter-group">
-                        <input type="checkbox" id="filterAdministracao" value="Administração" checked>
-                        <label for="filterAdministracao">Administração</label>
-                    </div>
-                    <div class="filter-group">
-                        <input type="checkbox" id="filterInformacoes" value="Informações" checked>
-                        <label for="filterInformacoes">Informações</label>
+        <div class="search-container">
+            <input type="text" class="search-input" id="searchInput" placeholder="Buscar comandos...">
+            <i class="fas fa-search search-icon"></i>
+        </div>
+
+        <div class="filter-container">
+            <button class="filter-btn active" data-filter="all">Todos</button>
+            <button class="filter-btn" data-filter="cmd">CMD Interno</button>
+            <button class="filter-btn" data-filter="tool">Ferramentas Windows</button>
+            <button class="filter-btn" data-filter="ps">PowerShell</button>
+            <button class="filter-btn" data-filter="extract">Extração</button>
+        </div>
+
+        <div class="stats">
+            <div class="stat-item">
+                <span class="stat-number" id="totalCommands">0</span>
+                <span>Comandos no total</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-number" id="visibleCommands">0</span>
+                <span>Comandos visíveis</span>
+            </div>
+        </div>
+
+        <!-- Seção de Comandos Internos do CMD -->
+        <div class="section-title">
+            <i class="fas fa-code"></i>
+            <span>Comandos Internos do CMD</span>
+        </div>
+        <div class="commands-grid" id="cmdCommands"></div>
+
+        <!-- Seção de Ferramentas Padrão do Windows -->
+        <div class="section-title">
+            <i class="fas fa-tools"></i>
+            <span>Ferramentas Padrão do Windows</span>
+        </div>
+        <div class="commands-grid" id="toolCommands"></div>
+
+        <!-- Seção de Comandos PowerShell -->
+        <div class="section-title">
+            <i class="fas fa-cogs"></i>
+            <span>Comandos PowerShell</span>
+        </div>
+        
+        <div class="accordion">
+            <div class="accordion-item">
+                <div class="accordion-header">
+                    <div class="accordion-title">Microsoft.PowerShell.Management</div>
+                    <i class="fas fa-chevron-down accordion-icon"></i>
+                </div>
+                <div class="accordion-content">
+                    <div class="accordion-body">
+                        <div class="commands-grid" id="psManagementCommands"></div>
                     </div>
                 </div>
             </div>
-
-            <div class="command-list" id="commandList">
-                <!-- CMD Commands -->
-                <section id="cmd-section">
-                    <div class="command-card" data-type="CMD" data-category="Arquivos">
-                        <h3><i class="fas fa-folder category-icon"></i> DIR</h3>
-                        <div class="command-details">
-                            <p><strong>Tipo:</strong> <span class="type-badge type-cmd">CMD</span></p>
-                            <p><strong>Descrição:</strong> Lista os arquivos e subdiretórios de um diretório.</p>
-                            <p><strong>Sintaxe:</strong> <code>DIR [unidade:][caminho][arquivo] [/A[[:]atributos]] [/B] [/C] [/D] [/L] [/N] [/O[[:]ordem]] [/P] [/Q] [/R] [/S] [/T[[:]campo]] [/W] [/X] [/4]</p>
-                        </div>
-                        <div class="command-block">
-                            <code>dir C:\Users\SeuUsuario\Documents</code>
-                            <button class="copy-btn">Copiar</button>
-                        </div>
-                        <div class="command-block">
-                            <code>dir /b /s *.txt</code>
-                            <button class="copy-btn">Copiar</button>
-                        </div>
-                        <p><strong>Observações:</strong> O parâmetro `/B` exibe os nomes sem cabeçalho ou resumo. O `/S` lista os arquivos em subdiretórios.</p>
+            
+            <div class="accordion-item">
+                <div class="accordion-header">
+                    <div class="accordion-title">Microsoft.PowerShell.Utility</div>
+                    <i class="fas fa-chevron-down accordion-icon"></i>
+                </div>
+                <div class="accordion-content">
+                    <div class="accordion-body">
+                        <div class="commands-grid" id="psUtilityCommands"></div>
                     </div>
-
-                    <div class="command-card" data-type="CMD" data-category="Arquivos">
-                        <h3><i class="fas fa-copy category-icon"></i> COPY</h3>
-                        <div class="command-details">
-                            <p><strong>Tipo:</strong> <span class="type-badge type-cmd">CMD</span></p>
-                            <p><strong>Descrição:</strong> Copia um ou mais arquivos para outro local.</p>
-                            <p><strong>Sintaxe:</strong> <code>COPY [/D] [/V] [/N] [/Y | /-Y] [/Z] [/L] [/A | /B ] origem [/A | /B] [+ origem [/A | /B] [+ ...]] [destino [/A | /B]]</code></p>
-                        </div>
-                        <div class="command-block">
-                            <code>copy "C:\caminho\arquivo.txt" "D:\backup\"</code>
-                            <button class="copy-btn">Copiar</button>
-                        </div>
-                        <p><strong>Observações:</strong> Use `/Y` para suprimir o prompt de confirmação de sobrescrita.</p>
+                </div>
+            </div>
+            
+            <div class="accordion-item">
+                <div class="accordion-header">
+                    <div class="accordion-title">Microsoft.PowerShell.Security</div>
+                    <i class="fas fa-chevron-down accordion-icon"></i>
+                </div>
+                <div class="accordion-content">
+                    <div class="accordion-body">
+                        <div class="commands-grid" id="psSecurityCommands"></div>
                     </div>
-
-                    <div class="command-card" data-type="CMD" data-category="Arquivos">
-                        <h3><i class="fas fa-arrows-alt category-icon"></i> MOVE</h3>
-                        <div class="command-details">
-                            <p><strong>Tipo:</strong> <span class="type-badge type-cmd">CMD</span></p>
-                            <p><strong>Descrição:</strong> Move um ou mais arquivos de um diretório para outro. Também pode renomear arquivos.</p>
-                            <p><strong>Sintaxe:</strong> <code>MOVE [/Y | /-Y] [unidade:][caminho]nomearquivo1[, ...] destino</code></p>
-                        </div>
-                        <div class="command-block">
-                            <code>move "C:\temp\relatorio.docx" "C:\Documentos\Relatorios\"</code>
-                            <button class="copy-btn">Copiar</button>
-                        </div>
-                        <p><strong>Observações:</strong> Para renomear, use `move nome_antigo.txt nome_novo.txt`.</p>
+                </div>
+            </div>
+            
+            <div class="accordion-item">
+                <div class="accordion-header">
+                    <div class="accordion-title">Módulo NetTCPIP</div>
+                    <i class="fas fa-chevron-down accordion-icon"></i>
+                </div>
+                <div class="accordion-content">
+                    <div class="accordion-body">
+                        <div class="commands-grid" id="psNetTCPIPCommands"></div>
                     </div>
-
-                    <div class="command-card" data-type="CMD" data-category="Arquivos">
-                        <h3><i class="fas fa-trash-alt category-icon"></i> DEL / ERASE</h3>
-                        <div class="command-details">
-                            <p><strong>Tipo:</strong> <span class="type-badge type-cmd">CMD</span></p>
-                            <p><strong>Descrição:</strong> Exclui um ou mais arquivos.</p>
-                            <p><strong>Sintaxe:</strong> <code>DEL [/P] [/F] [/S] [/Q] [/A[[:]atributos]] nomes</code></p>
-                        </div>
-                        <div class="command-block">
-                            <code>del /S /Q C:\Temp\*.log</code>
-                            <button class="copy-btn">Copiar</button>
-                        </div>
-                        <p><strong>Observações:</strong> `/S` exclui de subdiretórios. `/Q` não pede confirmação. Use com extrema cautela.</p>
+                </div>
+            </div>
+            
+            <div class="accordion-item">
+                <div class="accordion-header">
+                    <div class="accordion-title">Módulo DISM</div>
+                    <i class="fas fa-chevron-down accordion-icon"></i>
+                </div>
+                <div class="accordion-content">
+                    <div class="accordion-body">
+                        <div class="commands-grid" id="psDismCommands"></div>
                     </div>
+                </div>
+            </div>
+        </div>
 
-                    <div class="command-card" data-type="CMD" data-category="Arquivos">
-                        <h3><i class="fas fa-folder-plus category-icon"></i> MKDIR / MD</h3>
-                        <div class="command-details">
-                            <p><strong>Tipo:</strong> <span class="type-badge type-cmd">CMD</span></p>
-                            <p><strong>Descrição:</strong> Cria um novo diretório.</p>
-                            <p><strong>Sintaxe:</strong> <code>MKDIR [unidade:]caminho</code> ou <code>MD [unidade:]caminho</code></p>
-                        </div>
-                        <div class="command-block">
-                            <code>mkdir "C:\Novos Projetos\Projeto Alpha"</code>
-                            <button class="copy-btn">Copiar</button>
-                        </div>
-                        <p><strong>Observações:</strong> Cria diretórios pai se não existirem.</p>
-                    </div>
+        <!-- Seção de Comandos para Extração -->
+        <div class="section-title">
+            <i class="fas fa-download"></i>
+            <span>Comandos para Extração</span>
+        </div>
+        <div class="commands-grid" id="extractCommands"></div>
 
-                    <div class="command-card" data-type="CMD" data-category="Arquivos">
-                        <h3><i class="fas fa-folder-minus category-icon"></i> RMDIR / RD</h3>
-                        <div class="command-details">
-                            <p><strong>Tipo:</strong> <span class="type-badge type-cmd">CMD</span></p>
-                            <p><strong>Descrição:</strong> Exclui um diretório.</p>
-                            <p><strong>Sintaxe:</strong> <code>RMDIR [/S] [/Q] [unidade:]caminho</code> ou <code>RD [/S] [/Q] [unidade:]caminho</code></p>
-                        </div>
-                        <div class="command-block">
-                            <code>rmdir /S /Q "C:\Temp\PastaAntiga"</code>
-                            <button class="copy-btn">Copiar</button>
-                        </div>
-                        <p><strong>Observações:</strong> `/S` remove a árvore de diretórios inteira (todos os arquivos e subpastas). `/Q` modo silencioso.</p>
-                    </div>
+        <footer>
+            <p>&copy; 2023 Referência de Comandos Windows - Todos os direitos reservados</p>
+        </footer>
+    </div>
 
-                    <div class="command-card" data-type="CMD" data-category="Arquivos">
-                        <h3><i class="fas fa-file-alt category-icon"></i> TYPE</h3>
-                        <div class="command-details">
-                            <p><strong>Tipo:</strong> <span class="type-badge type-cmd">CMD</span></p>
-                            <p><strong>Descrição:</strong> Exibe o conteúdo de um arquivo de texto na tela.</p>
-                            <p><strong>Sintaxe:</strong> <code>TYPE [unidade:][caminho]nomedoarquivo</code></p>
-                        </div>
-                        <div class="command-block">
-                            <code>type C:\logs\app.log</code>
-                            <button class="copy-btn">Copiar</button>
-                        </div>
-                        <p><strong>Observações:</strong> Ideal para visualizar arquivos de configuração ou log rapidamente.</p>
-                    </div>
+    <script>
+        // Lista de comandos
+        const cmdCommands = [
+            'ASSOC', 'AT', 'ATTRIB', 'BREAK', 'BCDEDIT', 'CACLS', 'CALL', 'CD', 'CHCP', 'CHDIR',
+            'CHKDSK', 'CHKNTFS', 'CHOICE', 'CLS', 'CMD', 'COLOR', 'COMP', 'COMPACT', 'CONVERT',
+            'COPY', 'DATE', 'DEL', 'DIR', 'DISKCOMP', 'DISKCOPY', 'DISKPART', 'DOSKEY',
+            'DRIVERQUERY', 'ECHO', 'ENDLOCAL', 'ERASE', 'EXIT', 'FC', 'FIND', 'FINDSTR', 'FOR',
+            'FORMAT', 'FSUTIL', 'FTYPE', 'GOTO', 'GPRESULT', 'GRAFTABL', 'HELP', 'ICACLS', 'IF',
+            'IPCONFIG', 'LABEL', 'MD', 'MKDIR', 'MODE', 'MORE', 'MOVE', 'NSLOOKUP', 'PATH',
+            'PAUSE', 'POPD', 'PRINT', 'PROMPT', 'PUSHD', 'RD', 'RECOVER', 'REN', 'RENAME',
+            'RMDIR', 'ROBOCOPY', 'SET', 'SETLOCAL', 'SC', 'SCHTASKS', 'SHIFT', 'SHUTDOWN', 'SORT',
+            'START', 'SUBST', 'SYSTEMINFO', 'TASKLIST', 'TASKKILL', 'TIME', 'TITLE', 'TREE',
+            'TYPE', 'VER', 'VERIFY', 'VOL', 'XCOPY', 'WMIC'
+        ];
 
-                    <div class="command-card" data-type="CMD" data-category="Rede">
-                        <h3><i class="fas fa-network-wired category-icon"></i> PING</h3>
-                        <div class="command-details">
-                            <p><strong>Tipo:</strong> <span class="type-badge type-cmd">CMD</span></p>
-                            <p><strong>Descrição:</strong> Verifica a conectividade de rede com outro dispositivo (IP ou domínio).</p>
-                            <p><strong>Sintaxe:</strong> <code>PING [-t] [-a] [-n contagem] [-l tamanho] [-f] [-i TTL] [-v TOS] [-r contagem] [-s contagem] [[-j listaHost] | [-k listaHost]] [-w tempoLimite] nomeDestino</code></p>
-                        </div>
-                        <div class="command-block">
-                            <code>ping google.com</code>
-                            <button class="copy-btn">Copiar</button>
-                        </div>
-                        <div class="command-block">
-                            <code>ping -t 192.168.1.1</code>
-                            <button class="copy-btn">Copiar</button>
-                        </div>
-                        <p><strong>Observações:</strong> `-t` faz o ping contínuo até ser interrompido (Ctrl+C).</p>
-                    </div>
+        const toolCommands = [
+            'append.exe', 'arp.exe', 'at.exe', 'autochk.exe', 'autoconv.exe', 'autofmt.exe',
+            'bcdboot.exe', 'bcdedit.exe', 'bootcfg.exe', 'bootsect.exe', 'cacls.exe', 'calc.exe',
+            'certreq.exe', 'certutil.exe', 'chglogon.exe', 'chgport.exe', 'chgusr.exe', 'chkdsk.exe',
+            'chkntfs.exe', 'choice.exe', 'cipher.exe', 'cleanmgr.exe', 'clip.exe', 'cmd.exe',
+            'cmstp.exe', 'colorcpl.exe', 'comp.exe', 'compact.exe', 'conhost.exe', 'control.exe',
+            'convert.exe', 'cscript.exe', 'csvde.exe', 'debug.exe', 'defrag.exe', 'dfrgui.exe',
+            'dialer.exe', 'diskmgmt.msc', 'diskpart.exe', 'diskperf.exe', 'dispdiag.exe', 'dism.exe',
+            'dllhost.exe', 'doskey.exe', 'driverquery.exe', 'dxdiag.exe', 'edlin.exe', 'esentutl.exe',
+            'eventvwr.exe', 'expand.exe', 'extract.exe', 'fc.exe', 'find.exe', 'findstr.exe',
+            'finger.exe', 'fontview.exe', 'fsutil.exe', 'ftp.exe', 'getmac.exe', 'gpresult.exe',
+            'gpupdate.exe', 'help.exe', 'hostname.exe', 'icacls.exe', 'iexpress.exe', 'ipconfig.exe',
+            'iso2usb.exe', 'klist.exe', 'lodctr.exe', 'logman.exe', 'logoff.exe', 'makecab.exe',
+            'manage-bde.exe', 'md.exe', 'mklink.exe', 'mode.exe', 'more.exe', 'mountvol.exe',
+            'msconfig.exe', 'msdt.exe', 'msinfo32.exe', 'mspaint.exe', 'mstsc.exe', 'nbtstat.exe',
+            'net.exe', 'net1.exe', 'netdom.exe', 'netsh.exe', 'netstat.exe', 'nltest.exe',
+            'notepad.exe', 'nslookup.exe', 'odbcad32.exe', 'openfiles.exe', 'pathping.exe',
+            'perfmon.exe', 'ping.exe', 'pkgmgr.exe', 'pnputil.exe', 'powercfg.exe', 'print.exe',
+            'procdump.exe', 'psr.exe', 'qprocess.exe', 'qwinsta.exe', 'rasdial.exe', 'rasphone.exe',
+            'reg.exe', 'regedit.exe', 'regini.exe', 'regsvr32.exe', 'repair-bde.exe', 'robocopy.exe',
+            'route.exe', 'rpcping.exe', 'rwinsta.exe', 'sc.exe', 'schtasks.exe', 'sdbinst.exe',
+            'secedit.exe', 'setx.exe', 'shadow.exe', 'shutdown.exe', 'sigverif.exe', 'slmgr.vbs',
+            'sort.exe', 'subst.exe', 'systeminfo.exe', 'taskkill.exe', 'tasklist.exe', 'telnet.exe',
+            'tftp.exe', 'timeout.exe', 'tracert.exe', 'tree.com', 'typeperf.exe', 'tzutil.exe',
+            'unlodctr.exe', 'verifier.exe', 'vol.exe', 'vssadmin.exe', 'wevtutil.exe', 'where.exe',
+            'whoami.exe', 'winhlp32.exe', 'wmic.exe', 'wscript.exe', 'xcopy.exe'
+        ];
 
-                    <div class="command-card" data-type="CMD" data-category="Rede">
-                        <h3><i class="fas fa-wifi category-icon"></i> IPCONFIG</h3>
-                        <div class="command-details">
-                            <p><strong>Tipo:</strong> <span class="type-badge type-cmd">CMD</span></p>
-                            <p><strong>Descrição:</strong> Exibe a configuração do protocolo IP (TCP/IP) dos adaptadores de rede.</p>
-                            <p><strong>Sintaxe:</strong> <code>IPCONFIG [/allcompartments] [/all] [/renew [adaptador]] [/release [adaptador]] [/renew6 [adaptador]] [/release6 [adaptador]] [/flushdns] [/displaydns] [/registerdns] [/showclassid adaptador] [/setclassid adaptador [IDClasse]]</code></p>
-                        </div>
-                        <div class="command-block">
-                            <code>ipconfig /all</code>
-                            <button class="copy-btn">Copiar</button>
-                        </div>
-                        <div class="command-block">
-                            <code>ipconfig /flushdns</code>
-                            <button class="copy-btn">Copiar</button>
-                        </div>
-                        <p><strong>Observações:</strong> `/all` mostra informações detalhadas. `/flushdns` limpa o cache de resolução de DNS.</p>
-                    </div>
+        const psManagementCommands = [
+            'Clear-Content', 'Clear-Item', 'Clear-ItemProperty', 'Copy-Item', 'Get-ChildItem',
+            'Get-Command', 'Get-Content', 'Get-Item', 'Get-ItemProperty', 'Move-Item',
+            'New-Item', 'Remove-Item', 'Remove-ItemProperty', 'Rename-Item', 'Set-Content',
+            'Set-Item', 'Set-ItemProperty'
+        ];
 
-                    <div class="command-card" data-type="CMD" data-category="Rede">
-                        <h3><i class="fas fa-sitemap category-icon"></i> TRACERT</h3>
-                        <div class="command-details">
-                            <p><strong>Tipo:</strong> <span class="type-badge type-cmd">CMD</span></p>
-                            <p><strong>Descrição:</strong> Determina a rota até um destino, mostrando os saltos (routers) intermediários.</p>
-                            <p><strong>Sintaxe:</strong> <code>TRACERT [-d] [-h saltos_máximos] [-j listaHost] [-w tempoLimite] nomeDestino</code></p>
-                        </div>
-                        <div class="command-block">
-                            <code>tracert -d microsoft.com</code>
-                            <button class="copy-btn">Copiar</button>
-                        </div>
-                        <p><strong>Observações:</strong> `-d` impede a resolução de nomes para endereços IP, acelerando o processo.</p>
-                    </div>
+        const psUtilityCommands = [
+            'Add-Content', 'ConvertTo-Json', 'ConvertFrom-Json', 'Export-Clixml', 'Export-Csv',
+            'Format-Table', 'Format-List', 'Get-Date', 'Get-Random', 'Get-Help', 'Import-Clixml',
+            'Import-Csv', 'Measure-Object', 'New-Guid', 'Out-File', 'Out-String', 'Select-Object',
+            'Set-Date', 'Sort-Object', 'Start-Sleep', 'Tee-Object', 'Where-Object', 'Write-Host',
+            'Write-Output'
+        ];
 
-                    <div class="command-card" data-type="CMD" data-category="Rede">
-                        <h3><i class="fas fa-link category-icon"></i> NETSTAT</h3>
-                        <div class="command-details">
-                            <p><strong>Tipo:</strong> <span class="type-badge type-cmd">CMD</span></p>
-                            <p><strong>Descrição:</strong> Exibe estatísticas de protocolo e conexões de rede ativas.</p>
-                            <p><strong>Sintaxe:</strong> <code>NETSTAT [-a] [-b] [-e] [-f] [-n] [-o] [-p proto] [-r] [-s] [-x] [-t] [intervalo]</code></p>
-                        </div>
-                        <div class="command-block">
-                            <code>netstat -ano</code>
-                            <button class="copy-btn">Copiar</button>
-                        </div>
-                        <p><strong>Observações:</strong> `-a` mostra todas as conexões e portas de escuta. `-n` mostra endereços e números de porta numericamente. `-o` mostra o ID do processo (PID) para cada conexão.</p>
-                    </div>
+        const psSecurityCommands = [
+            'Get-Acl', 'Set-Acl', 'Get-Credential', 'Get-ExecutionPolicy', 'Set-ExecutionPolicy'
+        ];
 
-                    <div class="command-card" data-type="CMD" data-category="Sistema">
-                        <h3><i class="fas fa-desktop category-icon"></i> SYSTEMINFO</h3>
-                        <div class="command-details">
-                            <p><strong>Tipo:</strong> <span class="type-badge type-cmd">CMD</span></p>
-                            <p><strong>Descrição:</strong> Exibe informações detalhadas sobre a configuração do hardware e do software do computador.</p>
-                            <p><strong>Sintaxe:</strong> <code>SYSTEMINFO [/S sistema [/U usuário [/P [senha]]]] [/FO formato] [/NH]</code></p>
-                        </div>
-                        <div class="command-block">
-                            <code>systeminfo</code>
-                            <button class="copy-btn">Copiar</button>
-                        </div>
-                        <p><strong>Observações:</strong> Útil para auditoria e diagnóstico. Pode levar alguns segundos para coletar todas as informações.</p>
-                    </div>
+        const psNetTCPIPCommands = [
+            'Get-NetIPAddress', 'New-NetIPAddress', 'Set-NetIPAddress', 'Remove-NetIPAddress',
+            'Get-NetIPInterface', 'Get-NetRoute', 'Get-NetAdapter'
+        ];
 
-                    <div class="command-card" data-type="CMD" data-category="Sistema">
-                        <h3><i class="fas fa-tasks category-icon"></i> TASKLIST</h3>
-                        <div class="command-details">
-                            <p><strong>Tipo:</strong> <span class="type-badge type-cmd">CMD</span></p>
-                            <p><strong>Descrição:</strong> Exibe uma lista de todos os processos em execução no momento no sistema local.</p>
-                            <p><strong>Sintaxe:</strong> <code>TASKLIST [/S sistema [/U usuário [/P [senha]]]] [/M [módulo] | /SVC | /V] [/FI filtro] [/FO formato] [/NH]</code></p>
-                        </div>
-                        <div class="command-block">
-                            <code>tasklist /svc</code>
-                            <button class="copy-btn">Copiar</button>
-                        </div>
-                        <p><strong>Observações:</strong> `/svc` exibe os serviços hospedados em cada processo. `/fi "PID eq 1234"` filtra por um PID específico.</p>
-                    </div>
+        const psDismCommands = [
+            'Get-AppxPackage', 'Get-WindowsImage', 'Mount-WindowsImage', 'Dismount-WindowsImage',
+            'Repair-WindowsImage', 'Enable-WindowsOptionalFeature', 'Disable-WindowsOptionalFeature'
+        ];
 
-                    <div class="command-card" data-type="CMD" data-category="Sistema">
-                        <h3><i class="fas fa-ban category-icon"></i> TASKKILL</h3>
-                        <div class="command-details">
-                            <p><strong>Tipo:</strong> <span class="type-badge type-cmd">CMD</span></p>
-                            <p><strong>Descrição:</strong> Encerra uma ou mais tarefas ou processos.</p>
-                            <p><strong>Sintaxe:</strong> <code>TASKKILL [/S sistema [/U usuário [/P [senha]]]] { [/FI filtro] [/PID processid | /IM imagename] } [/T] [/F]</code></p>
-                        </div>
-                        <div class="command-block">
-                            <code>taskkill /F /IM notepad.exe</code>
-                            <button class="copy-btn">Copiar</button>
-                        </div>
-                        <div class="command-block">
-                            <code>taskkill /F /PID 5844</code>
-                            <button class="copy-btn">Copiar</button>
-                        </div>
-                        <p><strong>Observações:</strong> `/F` força o término do processo. Use com cuidado, pois pode causar perda de dados.</p>
-                    </div>
+        const extractCommands = [
+            'where /r C:\\Windows *.exe',
+            'Get-Command | Sort-Object Name | Select-Object Name, Source',
+            'Get-Command -CommandType Cmdlet | Sort-Object Name',
+            'Get-Module -ListAvailable'
+        ];
 
-                    <div class="command-card" data-type="CMD" data-category="Sistema">
-                        <h3><i class="fas fa-hdd category-icon"></i> CHKDSK</h3>
-                        <div class="command-details">
-                            <p><strong>Tipo:</strong> <span class="type-badge type-cmd">CMD</span></p>
-                            <p><strong>Descrição:</strong> Verifica um disco em busca de erros e exibe um relatório de status.</p>
-                            <p><strong>Sintaxe:</strong> <code>CHKDSK [volume[[caminho]nomedoarquivo]] [/F] [/V] [/R] [/X] [/I] [/C] [/L[:tamanho]] [/B
+        // Variáveis globais
+        let currentFilter = 'all';
+        let searchTerm = '';
+
+        // Função para criar um card de comando
+        function createCommandCard(command, category) {
+            const card = document.createElement('div');
+            card.className = `command-card ${category}`;
+            card.dataset.command = command.toLowerCase();
+            card.dataset.category = category;
+
+            const header = document.createElement('div');
+            header.className = 'command-header';
+
+            const name = document.createElement('div');
+            name.className = 'command-name';
+            name.textContent = command;
+
+            const categoryBadge = document.createElement('div');
+            categoryBadge.className = `command-category category-${category}`;
+            categoryBadge.textContent = getCategoryName(category);
+
+            header.appendChild(name);
+            header.appendChild(categoryBadge);
+
+            const actions = document.createElement('div');
+            actions.className = 'command-actions';
+
+            const copyBtn = document.createElement('button');
+            copyBtn.className = 'copy-btn';
+            copyBtn.innerHTML = '<i class="fas fa-copy"></i> Copiar';
+            copyBtn.addEventListener('click', () => copyCommand(command, copyBtn));
+
+            actions.appendChild(copyBtn);
+
+            card.appendChild(header);
+            card.appendChild(actions);
+
+            return card;
+        }
+
+        // Função para obter o nome da categoria
+        function getCategoryName(category) {
+            switch (category) {
+                case 'cmd': return 'CMD';
+                case 'tool': return 'Ferramenta';
+                case 'ps': return 'PowerShell';
+                case 'extract': return 'Extração';
+                default: return '';
+            }
+        }
+
+        // Função para copiar comando
+        function copyCommand(command, button) {
+            navigator.clipboard.writeText(command).then(() => {
+                button.innerHTML = '<i class="fas fa-check"></i> Copiado!';
+                button.classList.add('copied');
+
+                setTimeout(() => {
+                    button.innerHTML = '<i class="fas fa-copy"></i> Copiar';
+                    button.classList.remove('copied');
+                }, 2000);
+            });
+        }
+
+        // Função para renderizar comandos
+        function renderCommands() {
+            // Renderizar comandos CMD
+            const cmdContainer = document.getElementById('cmdCommands');
+            cmdContainer.innerHTML = '';
+            cmdCommands.forEach(command => {
+                if (shouldShowCommand(command, 'cmd')) {
+                    cmdContainer.appendChild(createCommandCard(command, 'cmd'));
+                }
+            });
+
+            // Renderizar ferramentas
+            const toolContainer = document.getElementById('toolCommands');
+            toolContainer.innerHTML = '';
+            toolCommands.forEach(command => {
+                if (shouldShowCommand(command, 'tool')) {
+                    toolContainer.appendChild(createCommandCard(command, 'tool'));
+                }
+            });
+
+            // Renderizar comandos PowerShell Management
+            const psManagementContainer = document.getElementById('psManagementCommands');
+            psManagementContainer.innerHTML = '';
+            psManagementCommands.forEach(command => {
+                if (shouldShowCommand(command, 'ps')) {
+                    psManagementContainer.appendChild(createCommandCard(command, 'ps'));
+                }
+            });
+
+            // Renderizar comandos PowerShell Utility
+            const psUtilityContainer = document.getElementById('psUtilityCommands');
+            psUtilityContainer.innerHTML = '';
+            psUtilityCommands.forEach(command => {
+                if (shouldShowCommand(command, 'ps')) {
+                    psUtilityContainer.appendChild(createCommandCard(command, 'ps'));
+                }
+            });
+
+            // Renderizar comandos PowerShell Security
+            const psSecurityContainer = document.getElementById('psSecurityCommands');
+            psSecurityContainer.innerHTML = '';
+            psSecurityCommands.forEach(command => {
+                if (shouldShowCommand(command, 'ps')) {
+                    psSecurityContainer.appendChild(createCommandCard(command, 'ps'));
+                }
+            });
+
+            // Renderizar comandos PowerShell NetTCPIP
+            const psNetTCPIPContainer = document.getElementById('psNetTCPIPCommands');
+            psNetTCPIPContainer.innerHTML = '';
+            psNetTCPIPCommands.forEach(command => {
+                if (shouldShowCommand(command, 'ps')) {
+                    psNetTCPIPContainer.appendChild(createCommandCard(command, 'ps'));
+                }
+            });
+
+            // Renderizar comandos PowerShell DISM
+            const psDismContainer = document.getElementById('psDismCommands');
+            psDismContainer.innerHTML = '';
+            psDismCommands.forEach(command => {
+                if (shouldShowCommand(command, 'ps')) {
+                    psDismContainer.appendChild(createCommandCard(command, 'ps'));
+                }
+            });
+
+            // Renderizar comandos de extração
+            const extractContainer = document.getElementById('extractCommands');
+            extractContainer.innerHTML = '';
+            extractCommands.forEach(command => {
+                if (shouldShowCommand(command, 'extract')) {
+                    extractContainer.appendChild(createCommandCard(command, 'extract'));
+                }
+            });
+
+            // Atualizar estatísticas
+            updateStats();
+        }
+
+        // Função para verificar se um comando deve ser exibido
+        function shouldShowCommand(command, category) {
+            const matchesFilter = currentFilter === 'all' || currentFilter === category;
+            const matchesSearch = searchTerm === '' || command.toLowerCase().includes(searchTerm.toLowerCase());
+            return matchesFilter && matchesSearch;
+        }
+
+        // Função para atualizar estatísticas
+        function updateStats() {
+            const totalCommands = document.querySelectorAll('.command-card').length;
+            const visibleCommands = document.querySelectorAll('.command-card:not([style*="display: none"])').length;
+            
+            document.getElementById('totalCommands').textContent = totalCommands;
+            document.getElementById('visibleCommands').textContent = visibleCommands;
+        }
+
+        // Função para inicializar o tema
+        function initTheme() {
+            const savedTheme = localStorage.getItem('theme') || 'light';
+            document.documentElement.setAttribute('data-theme', savedTheme);
+            updateThemeToggle(savedTheme);
+        }
+
+        // Função para atualizar o botão de tema
+        function updateThemeToggle(theme) {
+            const themeToggle = document.getElementById('themeToggle');
+            const icon = themeToggle.querySelector('i');
+            
+            if (theme === 'dark') {
+                icon.className = 'fas fa-sun';
+            } else {
+                icon.className = 'fas fa-moon';
+            }
+        }
+
+        // Função para alternar o tema
+        function toggleTheme() {
+            const currentTheme = document.documentElement.getAttribute('data-theme');
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            
+            document.documentElement.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+            updateThemeToggle(newTheme);
+        }
+
+        // Função para configurar os filtros
+        function setupFilters() {
+            const filterButtons = document.querySelectorAll('.filter-btn');
+            
+            filterButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    // Remover classe active de todos os botões
+                    filterButtons.forEach(btn => btn.classList.remove('active'));
+                    
+                    // Adicionar classe active ao botão clicado
+                    button.classList.add('active');
+                    
+                    // Atualizar filtro atual
+                    currentFilter = button.dataset.filter;
+                    
+                    // Re-renderizar comandos
+                    renderCommands();
+                });
+            });
+        }
+
+        // Função para configurar a busca
+        function setupSearch() {
+            const searchInput = document.getElementById('searchInput');
+            
+            searchInput.addEventListener('input', (e) => {
+                searchTerm = e.target.value;
+                renderCommands();
+            });
+        }
+
+        // Função para configurar os accordions
+        function setupAccordions() {
+            const accordionItems = document.querySelectorAll('.accordion-item');
+            
+            accordionItems.forEach(item => {
+                const header = item.querySelector('.accordion-header');
+                
+                header.addEventListener('click', () => {
+                    // Alternar classe active
+                    item.classList.toggle('active');
+                });
+            });
+        }
+
+        // Inicialização quando o DOM estiver carregado
+        document.addEventListener('DOMContentLoaded', () => {
+            // Inicializar tema
+            initTheme();
+            
+            // Configurar botão de tema
+            document.getElementById('themeToggle').addEventListener('click', toggleTheme);
+            
+            // Configurar filtros
+            setupFilters();
+            
+            // Configurar busca
+            setupSearch();
+            
+            // Configurar accordions
+            setupAccordions();
+            
+            // Renderizar comandos iniciais
+            renderCommands();
+        });
+    </script>
+</body>
+</html>
