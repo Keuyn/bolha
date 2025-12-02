@@ -1,0 +1,571 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Comandos Windows - Guia Definitivo (CMD & PowerShell)</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --bg-color: #f4f7f6;
+            --text-color: #333;
+            --card-bg: #ffffff;
+            --header-bg: #2c3e50;
+            --header-text: #ecf0f1;
+            --primary-color: #3498db;
+            --primary-hover: #2980b9;
+            --border-color: #ddd;
+            --code-bg: #2d2d2d;
+            --code-color: #f8f8f2;
+            --sidebar-bg: #34495e;
+            --sidebar-text: #bdc3c7;
+            --sidebar-hover: #4a627a;
+            --shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+
+        [data-theme="dark"] {
+            --bg-color: #1a1a1a;
+            --text-color: #e0e0e0;
+            --card-bg: #2c2c2c;
+            --header-bg: #1f1f1f;
+            --header-text: #e0e0e0;
+            --primary-color: #5dade2;
+            --primary-hover: #3498db;
+            --border-color: #444;
+            --code-bg: #1e1e1e;
+            --code-color: #d4d4d4;
+            --sidebar-bg: #252526;
+            --sidebar-text: #cccccc;
+            --sidebar-hover: #3e3e42;
+            --shadow: 0 4px 8px rgba(0,0,0,0.3);
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            line-height: 1.6;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        .container {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Header */
+        .header {
+            background-color: var(--header-bg);
+            color: var(--header-text);
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            box-shadow: var(--shadow);
+        }
+        .header h1 {
+            margin: 0;
+            font-size: 1.5rem;
+        }
+        .theme-toggle {
+            background: none;
+            border: 2px solid var(--header-text);
+            color: var(--header-text);
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: background-color 0.3s, color 0.3s;
+        }
+        .theme-toggle:hover {
+            background-color: var(--header-text);
+            color: var(--header-bg);
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 250px;
+            background-color: var(--sidebar-bg);
+            color: var(--sidebar-text);
+            padding: 1.5rem;
+            position: sticky;
+            top: 80px; /* Height of header */
+            height: calc(100vh - 80px);
+            overflow-y: auto;
+            transition: transform 0.3s ease-in-out;
+        }
+        .sidebar h2 {
+            margin-top: 0;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 0.5rem;
+            font-size: 1.2rem;
+        }
+        .sidebar ul {
+            list-style-type: none;
+            padding: 0;
+        }
+        .sidebar li {
+            margin-bottom: 0.5rem;
+        }
+        .sidebar a {
+            color: var(--sidebar-text);
+            text-decoration: none;
+            display: block;
+            padding: 0.5rem;
+            border-radius: 5px;
+            transition: background-color 0.2s;
+        }
+        .sidebar a:hover, .sidebar a.active {
+            background-color: var(--sidebar-hover);
+        }
+
+        /* Main Content */
+        .main-content {
+            flex-grow: 1;
+            padding: 2rem;
+            padding-top: 0;
+        }
+
+        /* Search and Filters */
+        .controls {
+            background-color: var(--card-bg);
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin-bottom: 2rem;
+            box-shadow: var(--shadow);
+        }
+        .search-bar {
+            width: 100%;
+            padding: 0.8rem;
+            font-size: 1rem;
+            border: 1px solid var(--border-color);
+            border-radius: 5px;
+            box-sizing: border-box;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+        }
+        .filters {
+            margin-top: 1rem;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+        .filter-group {
+            display: flex;
+            align-items: center;
+        }
+        .filter-group input[type="checkbox"] {
+            margin-right: 0.5rem;
+        }
+
+        /* Command Cards */
+        .command-list {
+            display: grid;
+            gap: 2rem;
+        }
+        .command-card {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 1.5rem;
+            box-shadow: var(--shadow);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .command-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 16px rgba(0,0,0,0.15);
+        }
+        .command-card h3 {
+            margin-top: 0;
+            color: var(--primary-color);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .command-card .category-icon {
+            font-size: 1.2rem;
+        }
+        .type-badge {
+            font-size: 0.8rem;
+            padding: 0.2rem 0.5rem;
+            border-radius: 12px;
+            color: white;
+            font-weight: bold;
+        }
+        .type-cmd { background-color: #e74c3c; }
+        .type-powershell { background-color: #9b59b6; }
+        .type-ambos { background-color: #1abc9c; }
+
+        .command-details p {
+            margin-bottom: 0.5rem;
+        }
+        .command-details strong {
+            color: var(--primary-color);
+        }
+        .command-block {
+            display: flex;
+            align-items: center;
+            background-color: var(--code-bg);
+            color: var(--code-color);
+            padding: 1rem;
+            border-radius: 5px;
+            margin-top: 1rem;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 0.9rem;
+            white-space: pre-wrap;
+            word-break: break-all;
+            position: relative;
+        }
+        .command-block code {
+            flex-grow: 1;
+        }
+        .copy-btn {
+            background: var(--primary-color);
+            border: none;
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            margin-left: 1rem;
+            transition: background-color 0.2s;
+        }
+        .copy-btn:hover {
+            background: var(--primary-hover);
+        }
+
+        /* Tooltip */
+        .tooltip {
+            position: absolute;
+            background-color: #333;
+            color: #fff;
+            text-align: center;
+            padding: 5px 10px;
+            border-radius: 6px;
+            z-index: 1001;
+            font-size: 0.8rem;
+            top: -30px;
+            left: 50%;
+            transform: translateX(-50%);
+            white-space: nowrap;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        .tooltip.show {
+            opacity: 1;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .container {
+                flex-direction: column;
+            }
+            .sidebar {
+                width: 100%;
+                position: static;
+                height: auto;
+                transform: translateX(-100%);
+                position: fixed;
+                top: 0;
+                left: 0;
+                z-index: 999;
+                padding-top: 4rem;
+            }
+            .sidebar.open {
+                transform: translateX(0);
+            }
+            .main-content {
+                padding: 1rem;
+            }
+            .header {
+                padding: 1rem;
+            }
+            .menu-toggle {
+                display: block;
+            }
+        }
+        .menu-toggle {
+            display: none;
+            background: none;
+            border: none;
+            color: var(--header-text);
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body data-theme="light">
+    <header class="header">
+        <div style="display: flex; align-items: center;">
+            <button class="menu-toggle" id="menuToggle"><i class="fas fa-bars"></i></button>
+            <h1><i class="fas fa-terminal"></i> Guia de Comandos Windows</h1>
+        </div>
+        <button class="theme-toggle" id="themeToggle"><i class="fas fa-moon"></i> Dark Mode</button>
+    </header>
+
+    <div class="container">
+        <aside class="sidebar" id="sidebar">
+            <h2>Índice</h2>
+            <ul>
+                <li><a href="#cmd-section"><i class="fas fa-keyboard"></i> Prompt de Comando (CMD)</a></li>
+                <li><a href="#powershell-section"><i class="fas fa-code"></i> PowerShell</a></li>
+                <li><a href="#administrative-section"><i class="fas fa-tools"></i> Ferramentas Administrativas</a></li>
+            </ul>
+        </aside>
+
+        <main class="main-content">
+            <div class="controls">
+                <input type="search" class="search-bar" id="searchBar" placeholder="Buscar por comando ou descrição...">
+                <div class="filters" id="categoryFilters">
+                    <div class="filter-group">
+                        <input type="checkbox" id="filterArquivos" value="Arquivos" checked>
+                        <label for="filterArquivos">Arquivos</label>
+                    </div>
+                    <div class="filter-group">
+                        <input type="checkbox" id="filterRede" value="Rede" checked>
+                        <label for="filterRede">Rede</label>
+                    </div>
+                    <div class="filter-group">
+                        <input type="checkbox" id="filterSistema" value="Sistema" checked>
+                        <label for="filterSistema">Sistema</label>
+                    </div>
+                    <div class="filter-group">
+                        <input type="checkbox" id="filterSeguranca" value="Segurança" checked>
+                        <label for="filterSeguranca">Segurança</label>
+                    </div>
+                    <div class="filter-group">
+                        <input type="checkbox" id="filterAdministracao" value="Administração" checked>
+                        <label for="filterAdministracao">Administração</label>
+                    </div>
+                    <div class="filter-group">
+                        <input type="checkbox" id="filterInformacoes" value="Informações" checked>
+                        <label for="filterInformacoes">Informações</label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="command-list" id="commandList">
+                <!-- CMD Commands -->
+                <section id="cmd-section">
+                    <div class="command-card" data-type="CMD" data-category="Arquivos">
+                        <h3><i class="fas fa-folder category-icon"></i> DIR</h3>
+                        <div class="command-details">
+                            <p><strong>Tipo:</strong> <span class="type-badge type-cmd">CMD</span></p>
+                            <p><strong>Descrição:</strong> Lista os arquivos e subdiretórios de um diretório.</p>
+                            <p><strong>Sintaxe:</strong> <code>DIR [unidade:][caminho][arquivo] [/A[[:]atributos]] [/B] [/C] [/D] [/L] [/N] [/O[[:]ordem]] [/P] [/Q] [/R] [/S] [/T[[:]campo]] [/W] [/X] [/4]</p>
+                        </div>
+                        <div class="command-block">
+                            <code>dir C:\Users\SeuUsuario\Documents</code>
+                            <button class="copy-btn">Copiar</button>
+                        </div>
+                        <div class="command-block">
+                            <code>dir /b /s *.txt</code>
+                            <button class="copy-btn">Copiar</button>
+                        </div>
+                        <p><strong>Observações:</strong> O parâmetro `/B` exibe os nomes sem cabeçalho ou resumo. O `/S` lista os arquivos em subdiretórios.</p>
+                    </div>
+
+                    <div class="command-card" data-type="CMD" data-category="Arquivos">
+                        <h3><i class="fas fa-copy category-icon"></i> COPY</h3>
+                        <div class="command-details">
+                            <p><strong>Tipo:</strong> <span class="type-badge type-cmd">CMD</span></p>
+                            <p><strong>Descrição:</strong> Copia um ou mais arquivos para outro local.</p>
+                            <p><strong>Sintaxe:</strong> <code>COPY [/D] [/V] [/N] [/Y | /-Y] [/Z] [/L] [/A | /B ] origem [/A | /B] [+ origem [/A | /B] [+ ...]] [destino [/A | /B]]</code></p>
+                        </div>
+                        <div class="command-block">
+                            <code>copy "C:\caminho\arquivo.txt" "D:\backup\"</code>
+                            <button class="copy-btn">Copiar</button>
+                        </div>
+                        <p><strong>Observações:</strong> Use `/Y` para suprimir o prompt de confirmação de sobrescrita.</p>
+                    </div>
+
+                    <div class="command-card" data-type="CMD" data-category="Arquivos">
+                        <h3><i class="fas fa-arrows-alt category-icon"></i> MOVE</h3>
+                        <div class="command-details">
+                            <p><strong>Tipo:</strong> <span class="type-badge type-cmd">CMD</span></p>
+                            <p><strong>Descrição:</strong> Move um ou mais arquivos de um diretório para outro. Também pode renomear arquivos.</p>
+                            <p><strong>Sintaxe:</strong> <code>MOVE [/Y | /-Y] [unidade:][caminho]nomearquivo1[, ...] destino</code></p>
+                        </div>
+                        <div class="command-block">
+                            <code>move "C:\temp\relatorio.docx" "C:\Documentos\Relatorios\"</code>
+                            <button class="copy-btn">Copiar</button>
+                        </div>
+                        <p><strong>Observações:</strong> Para renomear, use `move nome_antigo.txt nome_novo.txt`.</p>
+                    </div>
+
+                    <div class="command-card" data-type="CMD" data-category="Arquivos">
+                        <h3><i class="fas fa-trash-alt category-icon"></i> DEL / ERASE</h3>
+                        <div class="command-details">
+                            <p><strong>Tipo:</strong> <span class="type-badge type-cmd">CMD</span></p>
+                            <p><strong>Descrição:</strong> Exclui um ou mais arquivos.</p>
+                            <p><strong>Sintaxe:</strong> <code>DEL [/P] [/F] [/S] [/Q] [/A[[:]atributos]] nomes</code></p>
+                        </div>
+                        <div class="command-block">
+                            <code>del /S /Q C:\Temp\*.log</code>
+                            <button class="copy-btn">Copiar</button>
+                        </div>
+                        <p><strong>Observações:</strong> `/S` exclui de subdiretórios. `/Q` não pede confirmação. Use com extrema cautela.</p>
+                    </div>
+
+                    <div class="command-card" data-type="CMD" data-category="Arquivos">
+                        <h3><i class="fas fa-folder-plus category-icon"></i> MKDIR / MD</h3>
+                        <div class="command-details">
+                            <p><strong>Tipo:</strong> <span class="type-badge type-cmd">CMD</span></p>
+                            <p><strong>Descrição:</strong> Cria um novo diretório.</p>
+                            <p><strong>Sintaxe:</strong> <code>MKDIR [unidade:]caminho</code> ou <code>MD [unidade:]caminho</code></p>
+                        </div>
+                        <div class="command-block">
+                            <code>mkdir "C:\Novos Projetos\Projeto Alpha"</code>
+                            <button class="copy-btn">Copiar</button>
+                        </div>
+                        <p><strong>Observações:</strong> Cria diretórios pai se não existirem.</p>
+                    </div>
+
+                    <div class="command-card" data-type="CMD" data-category="Arquivos">
+                        <h3><i class="fas fa-folder-minus category-icon"></i> RMDIR / RD</h3>
+                        <div class="command-details">
+                            <p><strong>Tipo:</strong> <span class="type-badge type-cmd">CMD</span></p>
+                            <p><strong>Descrição:</strong> Exclui um diretório.</p>
+                            <p><strong>Sintaxe:</strong> <code>RMDIR [/S] [/Q] [unidade:]caminho</code> ou <code>RD [/S] [/Q] [unidade:]caminho</code></p>
+                        </div>
+                        <div class="command-block">
+                            <code>rmdir /S /Q "C:\Temp\PastaAntiga"</code>
+                            <button class="copy-btn">Copiar</button>
+                        </div>
+                        <p><strong>Observações:</strong> `/S` remove a árvore de diretórios inteira (todos os arquivos e subpastas). `/Q` modo silencioso.</p>
+                    </div>
+
+                    <div class="command-card" data-type="CMD" data-category="Arquivos">
+                        <h3><i class="fas fa-file-alt category-icon"></i> TYPE</h3>
+                        <div class="command-details">
+                            <p><strong>Tipo:</strong> <span class="type-badge type-cmd">CMD</span></p>
+                            <p><strong>Descrição:</strong> Exibe o conteúdo de um arquivo de texto na tela.</p>
+                            <p><strong>Sintaxe:</strong> <code>TYPE [unidade:][caminho]nomedoarquivo</code></p>
+                        </div>
+                        <div class="command-block">
+                            <code>type C:\logs\app.log</code>
+                            <button class="copy-btn">Copiar</button>
+                        </div>
+                        <p><strong>Observações:</strong> Ideal para visualizar arquivos de configuração ou log rapidamente.</p>
+                    </div>
+
+                    <div class="command-card" data-type="CMD" data-category="Rede">
+                        <h3><i class="fas fa-network-wired category-icon"></i> PING</h3>
+                        <div class="command-details">
+                            <p><strong>Tipo:</strong> <span class="type-badge type-cmd">CMD</span></p>
+                            <p><strong>Descrição:</strong> Verifica a conectividade de rede com outro dispositivo (IP ou domínio).</p>
+                            <p><strong>Sintaxe:</strong> <code>PING [-t] [-a] [-n contagem] [-l tamanho] [-f] [-i TTL] [-v TOS] [-r contagem] [-s contagem] [[-j listaHost] | [-k listaHost]] [-w tempoLimite] nomeDestino</code></p>
+                        </div>
+                        <div class="command-block">
+                            <code>ping google.com</code>
+                            <button class="copy-btn">Copiar</button>
+                        </div>
+                        <div class="command-block">
+                            <code>ping -t 192.168.1.1</code>
+                            <button class="copy-btn">Copiar</button>
+                        </div>
+                        <p><strong>Observações:</strong> `-t` faz o ping contínuo até ser interrompido (Ctrl+C).</p>
+                    </div>
+
+                    <div class="command-card" data-type="CMD" data-category="Rede">
+                        <h3><i class="fas fa-wifi category-icon"></i> IPCONFIG</h3>
+                        <div class="command-details">
+                            <p><strong>Tipo:</strong> <span class="type-badge type-cmd">CMD</span></p>
+                            <p><strong>Descrição:</strong> Exibe a configuração do protocolo IP (TCP/IP) dos adaptadores de rede.</p>
+                            <p><strong>Sintaxe:</strong> <code>IPCONFIG [/allcompartments] [/all] [/renew [adaptador]] [/release [adaptador]] [/renew6 [adaptador]] [/release6 [adaptador]] [/flushdns] [/displaydns] [/registerdns] [/showclassid adaptador] [/setclassid adaptador [IDClasse]]</code></p>
+                        </div>
+                        <div class="command-block">
+                            <code>ipconfig /all</code>
+                            <button class="copy-btn">Copiar</button>
+                        </div>
+                        <div class="command-block">
+                            <code>ipconfig /flushdns</code>
+                            <button class="copy-btn">Copiar</button>
+                        </div>
+                        <p><strong>Observações:</strong> `/all` mostra informações detalhadas. `/flushdns` limpa o cache de resolução de DNS.</p>
+                    </div>
+
+                    <div class="command-card" data-type="CMD" data-category="Rede">
+                        <h3><i class="fas fa-sitemap category-icon"></i> TRACERT</h3>
+                        <div class="command-details">
+                            <p><strong>Tipo:</strong> <span class="type-badge type-cmd">CMD</span></p>
+                            <p><strong>Descrição:</strong> Determina a rota até um destino, mostrando os saltos (routers) intermediários.</p>
+                            <p><strong>Sintaxe:</strong> <code>TRACERT [-d] [-h saltos_máximos] [-j listaHost] [-w tempoLimite] nomeDestino</code></p>
+                        </div>
+                        <div class="command-block">
+                            <code>tracert -d microsoft.com</code>
+                            <button class="copy-btn">Copiar</button>
+                        </div>
+                        <p><strong>Observações:</strong> `-d` impede a resolução de nomes para endereços IP, acelerando o processo.</p>
+                    </div>
+
+                    <div class="command-card" data-type="CMD" data-category="Rede">
+                        <h3><i class="fas fa-link category-icon"></i> NETSTAT</h3>
+                        <div class="command-details">
+                            <p><strong>Tipo:</strong> <span class="type-badge type-cmd">CMD</span></p>
+                            <p><strong>Descrição:</strong> Exibe estatísticas de protocolo e conexões de rede ativas.</p>
+                            <p><strong>Sintaxe:</strong> <code>NETSTAT [-a] [-b] [-e] [-f] [-n] [-o] [-p proto] [-r] [-s] [-x] [-t] [intervalo]</code></p>
+                        </div>
+                        <div class="command-block">
+                            <code>netstat -ano</code>
+                            <button class="copy-btn">Copiar</button>
+                        </div>
+                        <p><strong>Observações:</strong> `-a` mostra todas as conexões e portas de escuta. `-n` mostra endereços e números de porta numericamente. `-o` mostra o ID do processo (PID) para cada conexão.</p>
+                    </div>
+
+                    <div class="command-card" data-type="CMD" data-category="Sistema">
+                        <h3><i class="fas fa-desktop category-icon"></i> SYSTEMINFO</h3>
+                        <div class="command-details">
+                            <p><strong>Tipo:</strong> <span class="type-badge type-cmd">CMD</span></p>
+                            <p><strong>Descrição:</strong> Exibe informações detalhadas sobre a configuração do hardware e do software do computador.</p>
+                            <p><strong>Sintaxe:</strong> <code>SYSTEMINFO [/S sistema [/U usuário [/P [senha]]]] [/FO formato] [/NH]</code></p>
+                        </div>
+                        <div class="command-block">
+                            <code>systeminfo</code>
+                            <button class="copy-btn">Copiar</button>
+                        </div>
+                        <p><strong>Observações:</strong> Útil para auditoria e diagnóstico. Pode levar alguns segundos para coletar todas as informações.</p>
+                    </div>
+
+                    <div class="command-card" data-type="CMD" data-category="Sistema">
+                        <h3><i class="fas fa-tasks category-icon"></i> TASKLIST</h3>
+                        <div class="command-details">
+                            <p><strong>Tipo:</strong> <span class="type-badge type-cmd">CMD</span></p>
+                            <p><strong>Descrição:</strong> Exibe uma lista de todos os processos em execução no momento no sistema local.</p>
+                            <p><strong>Sintaxe:</strong> <code>TASKLIST [/S sistema [/U usuário [/P [senha]]]] [/M [módulo] | /SVC | /V] [/FI filtro] [/FO formato] [/NH]</code></p>
+                        </div>
+                        <div class="command-block">
+                            <code>tasklist /svc</code>
+                            <button class="copy-btn">Copiar</button>
+                        </div>
+                        <p><strong>Observações:</strong> `/svc` exibe os serviços hospedados em cada processo. `/fi "PID eq 1234"` filtra por um PID específico.</p>
+                    </div>
+
+                    <div class="command-card" data-type="CMD" data-category="Sistema">
+                        <h3><i class="fas fa-ban category-icon"></i> TASKKILL</h3>
+                        <div class="command-details">
+                            <p><strong>Tipo:</strong> <span class="type-badge type-cmd">CMD</span></p>
+                            <p><strong>Descrição:</strong> Encerra uma ou mais tarefas ou processos.</p>
+                            <p><strong>Sintaxe:</strong> <code>TASKKILL [/S sistema [/U usuário [/P [senha]]]] { [/FI filtro] [/PID processid | /IM imagename] } [/T] [/F]</code></p>
+                        </div>
+                        <div class="command-block">
+                            <code>taskkill /F /IM notepad.exe</code>
+                            <button class="copy-btn">Copiar</button>
+                        </div>
+                        <div class="command-block">
+                            <code>taskkill /F /PID 5844</code>
+                            <button class="copy-btn">Copiar</button>
+                        </div>
+                        <p><strong>Observações:</strong> `/F` força o término do processo. Use com cuidado, pois pode causar perda de dados.</p>
+                    </div>
+
+                    <div class="command-card" data-type="CMD" data-category="Sistema">
+                        <h3><i class="fas fa-hdd category-icon"></i> CHKDSK</h3>
+                        <div class="command-details">
+                            <p><strong>Tipo:</strong> <span class="type-badge type-cmd">CMD</span></p>
+                            <p><strong>Descrição:</strong> Verifica um disco em busca de erros e exibe um relatório de status.</p>
+                            <p><strong>Sintaxe:</strong> <code>CHKDSK [volume[[caminho]nomedoarquivo]] [/F] [/V] [/R] [/X] [/I] [/C] [/L[:tamanho]] [/B
