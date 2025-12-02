@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Comandos Essenciais do macOS</title>
+    <style>
+        /* --- Estilos Gerais e Variáveis de Cor --- */
+        :root {
+            --bg-color: #f5f5f7;
+            --card-bg-color: #ffffff;
+            --text-color: #1d1d1f;
+            --primary-color: #007aff;
+            --secondary-color: #5856d6;
+            --border-color: #d2d2d7;
+            --code-bg-color: #f2f2f7;
+            --success-color: #34c759;
+        }
+
+        [data-theme="dark"] {
+            --bg-color: #000000;
+            --card-bg-color: #1c1c1e;
+            --text-color: #f5f5f7;
+            --primary-color: #0a84ff;
+            --secondary-color: #5e5ce6;
+            --border-color: #38383a;
+            --code-bg-color: #2c2c2e;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.6;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        /* --- Cabeçalho e Busca --- */
+        header {
+            text-align: center;
+            padding: 40px 20px;
+            border-bottom: 1px solid var(--border-color);
+            margin-bottom: 40px;
+        }
+
+        h1 {
+            font-size: 2.8rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+            background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .subtitle {
+            font-size: 1.2rem;
+            color: #86868b;
+        }
+
+        .search-container {
+            margin-top: 30px;
+            display: flex;
+            justify-content: center;
+        }
+
+        #searchInput {
+            width: 100%;
+            max-width: 500px;
+            padding: 12px 20px;
+            font-size: 1rem;
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            background-color: var(--card-bg-color);
+            color: var(--text-color);
+            transition: border-color 0.3s, box-shadow 0.3s;
+        }
+
+        #searchInput:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 4px rgba(0, 122, 255, 0.1);
+        }
+
+        /* --- Seções de Comandos --- */
+        .category-section {
+            margin-bottom: 60px;
+        }
+
+        .category-section h2 {
+            font-size: 1.8rem;
+            font-weight: 600;
+            padding-bottom: 10px;
+            margin-bottom: 25px;
+            border-bottom: 2px solid var(--border-color);
+            letter-spacing: -0.5px;
+        }
+
+        .command-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: 15px;
+        }
+
+        .command-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 18px;
+            background-color: var(--card-bg-color);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s;
+            cursor: pointer;
+        }
+
+        .command-item:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+            border-color: var(--primary-color);
+        }
+
+        .command-name {
+            font-family: "SF Mono", Monaco, "Cascadia Code", "Roboto Mono", Consolas, "Courier New", monospace;
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: var(--primary-color);
+            flex-grow: 1;
+        }
+
+        .copy-btn {
+            padding: 6px 12px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: #fff;
+            background-color: var(--secondary-color);
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            opacity: 0.8;
+            transition: opacity 0.2s, transform 0.2s;
+        }
+
+        .command-item:hover .copy-btn {
+            opacity: 1;
+        }
+        
+        .copy-btn:active {
+            transform: scale(0.95);
+        }
+
+        .copy-btn.copied {
+            background-color: var(--success-color);
+        }
+
+        /* --- Esconder itens da busca --- */
+        .command-item.hidden {
+            display: none;
+        }
+
+        /* --- Responsividade --- */
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2.2rem;
+            }
+            .command-grid {
+                grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="container">
+            <h1>Comandos Essenciais do macOS</h1>
+            <p class="subtitle">Uma referência interativa para o terminal do Mac</p>
+            <div class="search-container">
+                <input type="search" id="searchInput" placeholder="Buscar por um comando (ex: git, ls, diskutil)...">
+            </div>
+        </div>
+    </header>
+
+    <main class="container">
+        
+        <!-- 1) UNIX ESSENCIAIS -->
+        <section class="category-section">
+            <h2>1) UNIX ESSENCIAIS (/bin)</h2>
+            <div class="command-grid">
+                <div class="command-item"><code class="command-name">bash</code><button class="copy-btn">Copiar</button></div>
+                <div class="command-item"><code class="command-name">cat</code><button class="copy-btn">Copiar</button></div>
+                <div class="command-item"><code class="command-name">chmod</code><button class="copy-btn">Copiar</button></div>
+                <div class="command-item"><code class="command-name">chown</code><button class="copy-btn">Copiar</button></div>
+                <div class="command-item"><code class="command-name">cp</code><button class="copy-btn">Copiar</button></div>
+                <div class="command-item"><code class="command-name">csh</code><button class="copy-btn">Copiar</button></div>
+                <div class="command-item"><code class="command-name">date</code><button class="copy-btn">Copiar</button></div>
+                <div class="command-item"><code class="command-name">dd</code><button class="copy-btn">Copiar</button></div>
+                <div class="command-item"><code class="command-name">df</code><button class="copy-btn">Copiar</button></div>
+                <div class="command-item"><code class="command-name">echo</code><button class="copy-btn">Copiar</button></div>
+                <div class="command-item"><code class="command-name">ed</code><button class="copy-btn">Copiar</button></div>
+                <div class="command-item"><code class="command-name">expr</code><button class="copy-btn">Copiar</button></div>
+                <div class="command-item"><code class="command-name">hostname</code><button class="copy-btn">Copiar</button></div>
+                <div class="command-item"><code class="command-name">kill</code><button class="copy-btn">Copiar</button></div>
+                <div class="command-item"><code class="command-name">ln</code><button class="copy-btn">Copiar</button></div>
+                <div class="command-item"><code class="command-name">ls</code><button class="copy-btn">Copiar</button></div>
+                <div class="command-item"><code class="command-name">mkdir</code><button class="copy-btn">Copiar</button></div>
+                <div class="command-item"><code class="command-name">mv</code><button class="copy-btn">Copiar</button></div>
+                <div class="command-item"><code class="command-name">ps</code><button class="copy-btn">Copiar</button></div>
+                <div class="command-item"><code class="command-name">pwd</code><button class="copy-btn">Copiar</button></div>
+                <div class="command-item"><code class="command-name">rm</code><button class="copy-btn">Copiar</button></div>
+                <div class="command-item"><code class="command-name">rmdir</code><button class="copy-btn">Copiar</button></div>
+                <div class="command-item"><code class="command-name">sh</code><button class="copy-btn">Copiar</button></div>
+                <div class="command-item"><code class="command-name">sleep</code><button class="copy-btn">Copiar</button></div>
+                <div class="command-item"><code class="command-name">stty</code><button class="copy-btn">Copiar</button></div>
+                <div class="command-item"><code class="command-name">sync</code><button class="copy-btn">Copiar</button></div>
+                <div class="command-item"><code class="command-name">tcsh</code><button class="copy-btn">Copiar</button></div>
+                <div class="command-item"><code class="command-name">test</code><button class="copy-btn">Copiar</button></div>
+                <div class="command-item"><code class="command-name">zsh</code><button class="copy-btn">Copiar</button></div>
+                <div class="command-item"><code class="command-name">awk</code><button class="copy-btn">Copiar</button></div>
+                <div class="command-item"><code class="command-name">sed</code><button class="copy-btn">Copiar</button></div>
+                <div class="command-item"><code class="command-name">grep</code><button class="copy-btn">Copiar</button></div>
+                <div class="command-item"><code class="command-name">cut</code><button class="copy-btn">Copiar</button></div>
+                <div class="command-item"><code class="command-name">tr</code><button class="copy-btn">Copiar</button></div>
+                <div class="command-item"><code class="command-name">sort</code><button class="copy-btn">Copiar</button></div>
+                <div class="command-item"><code class="command-name">uniq</code><button class="copy-btn">Copiar</button></div>
+                <div class="command-item"><code class="command-name">head</code><button class="copy-btn">Copiar</button></div>
+                <div class="command-item"><code class="command-name">tail</code><button class="copy-btn">Copiar</button></div>
+                <div class="command-item"><code class="command-name">more</code><button class="copy-btn">Copiar</button></div>
+                <div class="command-item"><code class="command-name">less</code><button class="copy-btn">Copiar</button></div>
+                <div class="command-item"><code class="command-name">env</code><button class="copy-btn">Copiar</button></div>
+                <div class="command-item"><code class="command-name">who</code><button class="copy-btn">Copiar</button></div>
+                <div class="command-item"><code class="command-name">whoami</code><button class="copy-btn">Copiar</button></div>
+                <div class="command-item"><code class="command-name">id</code><button class="copy-btn">Copiar</button></div>
+                <div class="command-item"><code class="command-name">groups</code><button class="copy-btn">Copiar</button></div>
+                <div class="command-item"><code class="command-name">tty</code><button class="copy-btn">Copiar</button></div>
+                <div class="command-item"><code class="command-name">uname</code><button class="copy-btn">Copiar</button></div>
+                <div class="command-item"><code class="command-name">uptime</code><button class="copy-btn">Copiar</button></div>
+                <div class="command-item"><code class="command-name">w</code><button class="copy-btn">Copiar</button></div>
+            </div>
+        </section>
+
+        <!-- 2) BSD / SISTEMA / ADMIN -->
+        <section class="category-section">
+            <h2>2) BSD / SISTEMA / ADMIN (/sbin + utilitários)</h2>
+            <div class="command-grid">
+                <div class="command-item"><code class="command-name">diskutil</code><button class="copy-btn">Copiar</button></div>
+                <div class="command-item"><code class="command-name">fsck</code><button class="copy-btn">Copiar</button></div>
+                <div class="command-item"><code class="command-name">fsck_hfs</code><button class="copy-btn">Copiar</button></div>
+                <div class="command-item"><code class="command-name">fsck_apfs</code><button class="copy-btn">Copiar</button></div>
+                <div class="command-item"><code class="command-name">ifconfig</code><button class="copy-btn">Copiar</button></div>
+                <div class="command-item"><code class="command-name">init</code><button class="copy-btn">Copiar</button></div>
+                <div class="command-item"><code class="command-name">kextload</code><button class="copy-btn">Copiar</button></div>
+                <div class="command-item"><code class="command-name">kextunload</code><button class="copy-btn">Copiar</button></div>
+                <div class="command-item"><code class="command-name">kextstat</code><button class="copy-btn">Copiar</button></div>
+                <div class="command-item"><code class="command-name">mount</code><button class="copy-btn">Copiar</button></div>
+                <div class="command-item"><code class="command-name">mount_apfs</code><button class="copy-btn">Copiar</button></div>
+                <div class="command-item"><code class="command-name">mount_hfs</code><button class="copy-btn">Copiar</button></div>
+                <div class="command-item"><code class="command-name">mount_nfs</code><button class="copy-btn">Copiar</button></div>
+                <div class="command-item"><code class="command-name">newfs_hfs</code><button class="copy-btn">Copiar</button></div>
+                <div class="command-item"><code class="command-name">newfs_apfs</code><button class="copy-btn">Copiar</button></div>
+                <div class="command-item"><code class="command-name">reboot</code><button class="copy-btn">Copiar</button></div>
+                <div class="command-item"><code class="command-name">route</code><button class="copy-btn">Copiar</button></div>
+                <div class="command-item"><code class="command-name">shutdown</code><button class="copy-btn">Copiar</button></div>
+                <div class="command-item"><code class="command-name">umount</code><button class="copy-btn">Copiar</button></div>
+                <div class="command-item"><code class="command-name">sysctl</code><button class="copy-btn">Copiar</button></div>
+                <div class="command-item"><code class="command-name">launchctl</code><button class="copy-btn">Copiar</button></div>
+                <div class="command-item"><code class="command-name">csrutil</code><button class="copy-btn">Copiar</button></div>
+                <div class="command-item"><code class="command-name">spctl</code><button class="copy-btn">Copiar</button></div>
+            </div>
+        </section>
+
+        <!-- 3) REDE E INTERNET -->
+        <section class="category-section">
+            <h2>3) REDE E INTERNET</h2>
+            <div class="command-grid">
+                <div class="command-item"><code class="command-name">arp</code><button class="copy-btn">Copiar</button></div>
+                <div class="command-item"><code class="command-name">dig</code><button class="copy-btn">Copiar</button></div>
+                <div class="command-item"><code class="command-name">ftp</code><button class="copy-btn">Copiar</button></div>
+                <div class="command-item"><code class="command-name">host</code><button class="copy-btn">Copiar</button></div>
+                <div class="command-item"><code class="command-name">ifconfig</code><button class="copy-btn">Copiar</button></div>
+                <div class="command-item"><code class="command-name">ipconfig</code><button class="copy-btn">Copiar</button></div>
+                <div class="command-item"><code class="command-name">netstat</code><button class="copy-btn">Copiar</button></div>
+                <div class="command-item"><code class="command-name">ping</code><button class="copy-btn">Copiar</button></div>
+                <div class="command-item"><code class="command-name">scp</code><button class="copy-btn">Copiar</button></div>
+                <div class="command-item"><code class="command-name">sftp</code><button class="copy-btn">Copiar</button></div>
+                <div class="command-item"><code class="command-name">ssh</code><button class="copy-btn">Copiar</button></div>
+                <div class="command-item"><code class="command-name">telnet</code><button class="copy-btn">Copiar</button></div>
+                <div class="command-item"><code class="command-name">traceroute</code><button class="copy-btn">Copiar</button></div>
+                <div class="command-item"><code class="command-name">who</code><button class="copy-btn">Copiar</button></div>
+                <div class="command-item"><code class="command-name">whoami</code><button class="copy-btn">Copiar</button></div>
+                <div class="command-item"><code class="command-name">curl</code><button class="copy-btn">Copiar</button></div>
+                <div class="command-item"><code class="command-name">wget</code><button class="copy-btn">Copiar</button></div>
+                <div class="command-item"><code class="command-name">nc</code><button class="copy-btn">Copiar</button></div>
+                <div class="command-item"><code class="command-name">nmap</code><button class="copy-btn">Copiar</button></div>
+                <div class="command-item"><code class="command-name">nslookup</code><button class="copy-btn">Copiar</button></div>
+            </div>
+        </section>
+
+        <!-- 4) DISCO E ARQUIVOS -->
+        <section class="category-section">
+            <h2>4) DISCO E ARQUIVOS</h2>
+            <div class="command-grid">
+                <div class="command-item"><code class="command-name">df</code><button class="copy-btn">Copiar</button></div>
+                <div class="command-item"><code class="command-name">du</code><button class="copy-btn">Copiar</button></div>
+                <div class="command-item"><code class="command-name">diskutil</code><button class="copy-btn">Copiar</button></div>
+                <div class="command-item"><code class="command-name">mount</code><button class="copy-btn">Copiar</button></div>
+                <div class="command-item"><code class="command-name">umount</code><button class="copy-btn">Copiar</button></div>
+                <div class="command-item"><code class="command-name">hdiutil</code><button class="copy-btn">Copiar</button></div>
+                <div class="command-item"><code class="command-name">cp</code><button class="copy-btn">Copiar</button></div>
+                <div class="command-item"><code class="command-name">mv</code><button class="copy-btn">Copiar</button></div>
+                <div class="command-item"><code class="command-name">rm</code><button class="copy-btn">Copiar</button></div>
+                <div class="command-item"><code class="command-name">rsync</code><button class="copy-btn">Copiar</button></div>
+                <div class="command-item"><code class="command-name">tar</code><button class="copy-btn">Copiar</button></div>
+                <div class="command-item"><code class="command-name">zip</code><button class="copy-btn">Copiar</button></div>
+                <div class="command-item"><code class="command-name">unzip</code><button class="copy-btn">Copiar</button></div>
+                <div class="command-item"><code class="command-name">ditto</code><button class="copy-btn">Copiar</button></div>
+                <div class="command-item"><code class="command-name">lsbom</code><button class="copy-btn">Copiar</button></div>
+                <div class="command-item"><code class="command-name">mdls</code><button class="copy-btn">Copiar</button></div>
+                <div class="command-item"><code class="command-name">mdfind</code><button class="copy-btn">Copiar</button></div>
+                <div class="command-item"><code class="command-name">plutil</code><button class="copy-btn">Copiar</button></div>
+            </div>
+        </section>
+
+        <!-- 5) FERRAMENTAS XCODE / LLVM / SWIFT -->
+        <section class="category-section">
+            <h2>5) FERRAMENTAS XCODE / LLVM / SWIFT</h2>
+            <div class="command-grid">
+                <div class="command-item"><code class="command-name">xcodebuild</code><button class="copy-btn">Copiar</button></div>
+                <div class="command-item"><code class="command-name">xcode-select</code><button class="copy-btn">Copiar</button></div>
+                <div class="command-item"><code class="command-name">clang</code><button class="copy-btn">Copiar</button></div>
+                <div class="command-item"><code class="command-name">clang++</code><button class="copy-btn">Copiar</button></div>
+                <div class="command-item"><code class="command-name">swift</code><button class="copy-btn">Copiar</button></div>
+                <div class="command-item"><code class="command-name">swiftc</code><button class="copy-btn">Copiar</button></div>
+                <div class="command-item"><code class="command-name">swift-package</code><button class="copy-btn">Copiar</button></div>
+                <div class="command-item"><code class="command-name">lldb</code><button class="copy-btn">Copiar</button></div>
+                <div class="command-item"><code class="command-name">llvm-ar</code><button class="copy-btn">Copiar</button></div>
+                <div class="command-item"><code class="command-name">llvm-as</code><button class="copy-btn">Copiar</button></div>
+                <div class="command-item"><code class="command-name">llvm-dis</code><button class="copy-btn">Copiar</button></div>
+                <div class="command-item"><code class="command-name">llvm-link</code><button class="copy-btn">Copiar</button></div>
+                <div class="command-item"><code class="command-name">llvm-nm</code><button class="copy-btn">Copiar</button></div>
+                <div class="command-item"><code class="command-name">llvm-objdump</code><button class="copy-btn">Copiar</button></div>
+                <div class="command-item"><code class="command-name">llvm-ranlib</code><button class="copy-btn">Copiar</button></div>
+                <div class="command-item"><code class="command-name">llvm-readobj</code><button class="copy-btn">Copiar</button></div>
+                <div class="command-item"><code class="command-name">llvm-size</code><button class="copy-btn">Copiar</button></div>
+                <div class="command-item"><code class="command-name">llvm-strip</code><button class="copy-btn">Copiar</button></div>
+                <div class="command-item"><code class="command-name">otool</code><button class="copy-btn">Copiar</button></div>
+                <div class="command-item"><code class="command-name">codesign</code><button class="copy-btn">Copiar</button></div>
+                <div class="command-item"><code class="command-name">codesign_allocate</code><button class="copy-btn">Copiar</button></div>
+                <div class="command-item"><code class="command-name">dsymutil</code><button class="copy-btn">Copiar</button></div>
+                <div class="command-item"><code class="command-name">pgsql</code><button class="copy-btn">Copiar</button></div>
+            </div>
+        </section>
+
+        <!-- 6) GIT E VERSIONAMENTO -->
+        <section class="category-section">
+            <h2>6) GIT E VERSIONAMENTO</h2>
+            <div class="command-grid">
+                <div class="command-item"><code class="command-name">git</code><button class="copy-btn">Copiar</button></div>
+                <div class="command-item"><code class="command-name">git-add</code><button class="copy-btn">Copiar</button></div>
+                <div class="command-item"><code class="command-name">git-branch</code><button class="copy-btn">Copiar</button></div>
+                <div class="command-item"><code class="command-name">git-checkout</code><button class="copy-btn">Copiar</button></div>
+                <div class="command-item"><code class="command-name">git-clone</code><button class="copy-btn">Copiar</button></div>
+                <div class="command-item"><code class="command-name">git-commit</code><button class="copy-btn">Copiar</button></div>
+                <div class="command-item"><code class="command-name">git-diff</code><button class="copy-btn">Copiar</button></div>
+                <div class="command-item"><code class="command-name">git-fetch</code><button class="copy-btn">Copiar</button></div>
+                <div class="command-item"><code class="command-name">git-log</code><button class="copy-btn">Copiar</button></div>
+                <div class="command-item"><code class="command-name">git-merge</code><button class="copy-btn">Copiar</button></div>
+                <div class="command-item"><code class="command-name">git-pull</code><button class="copy-btn">Copiar</button></div>
+                <div class="command-item"><code class="command-name">git-push</code><button class="copy-btn">Copiar</button></div>
+                <div class="command-item"><code class="command-name">git-rebase</code><button class="copy-btn">Copiar</button></div>
+                <div class="command-item"><code class="command-name">git-reset</code><button class="copy-btn">Copiar</button></div>
+                <div class="command-item"><code class="command-name">git-status</code><button class="copy-btn">Copiar</button></div>
+                <div class="command-item"><code class="command-name">git-tag</code><button class="copy-btn">Copiar</button></div>
+                <div class="command-item"><code class="command-name">perl</code><button class="copy-btn">Copiar</button></div>
+            </div>
+        </section>
+
+        <!-- 7) OUTROS UTILITÁRIOS DO MACOS -->
+        <section class="category-section">
+            <h2>7) OUTROS UTILITÁRIOS DO MACOS (/usr/bin, /usr/sbin, CoreServices)</h2>
+            <div class="command-grid">
+                <div class="command-item"><code class="command-name">afplay</code><button class="copy-btn">Copiar</button></div>
+                <div class="command-item"><code class="command-name">diskimage</code><button class="copy-btn">Copiar</button></div>
+                <div class="command-item"><code class="command-name">hdiutil</code><button class="copy-btn">Copiar</button></div>
+                <div class="command-item"><code class="command-name">iconutil</code><button class="copy-btn">Copiar</button></div>
+                <div class="command-item"><code class="command-name">mdfind</code><button class="copy-btn">Copiar</button></div>
+                <div class="command-item"><code class="command-name">open</code><button class="copy-btn">Copiar</button></div>
+                <div class="command-item"><code class="command-name">plutil</code><button class="copy-btn">Copiar</button></div>
+                <div class="command-item"><code class="command-name">say</code><button class="copy-btn">Copiar</button></div>
+                <div class="command-item"><code class="command-name">system_profiler</code><button class="copy-btn">Copiar</button></div>
+                <div class="command-item"><code class="command-name">tmutil</code><button class="copy-btn">Copiar</button></div>
+                <div class="command-item"><code class="command-name">uuidgen</code><button class="copy-btn">Copiar</button></div>
+                <div class="command-item"><code class="command-name">sips</code><button class="copy-btn">Copiar</button></div>
+                <div class="command-item"><code class="command-name">textutil</code><button class="copy-btn">Copiar</button></div>
+                <div class="command-item"><code class="command-name">sw_vers</code><button class="copy-btn">Copiar</button></div>
+                <div class="command-item"><code class="command-name">networksetup</code><button class="copy-btn">Copiar</button></div>
+                <div class="command-item"><code class="command-name">softwareupdate</code><button class="copy-btn">Copiar</button></div>
+                <div class="command-item"><code class="command-name">systemsetup</code><button class="copy-btn">Copiar</button></div>
+                <div class="command-item"><code class="command-name">bash</code><button class="copy-btn">Copiar</button></div>
+            </div>
+        </section>
+        
+        <!-- 8) COMANDOS PARA EXTRAÇÃO DE COMANDOS DO SEU MAC -->
+        <section class="category-section">
+            <h2>8) COMANDOS PARA EXTRAÇÃO DE COMANDOS DO SEU MAC</h2>
+            <div class="command-grid">
+                <div class="command-item"><code class="command-name">ls -1 /bin /sbin /usr/bin /usr/sbin /usr/local/bin 2>/dev/null</code><button class="copy-btn">Copiar</button></div>
+                <div class="command-item"><code class="command-name">find /System -type f -perm +111 2>/dev/null</code><button class="copy-btn">Copiar</button></div>
+                <div class="command-item"><code class="command-name">compgen -c | sort | uniq</code><button class="copy-btn">Copiar</button></div>
+                <div class="command-item"><code class="command-name">xcode-select -p</code><button class="copy-btn">Copiar</button></div>
+            </div>
+        </section>
+
+    </main>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const searchInput = document.getElementById('searchInput');
+            const commandItems = document.querySelectorAll('.command-item');
+            const categorySections = document.querySelectorAll('.category-section');
+
+            // Função para copiar texto para a área de transferência
+            const copyToClipboard = async (text, buttonElement) => {
+                try {
+                    await navigator.clipboard.writeText(text);
+                    // Feedback visual
+                    const originalText = buttonElement.textContent;
+                    buttonElement.textContent = 'Copiado!';
+                    buttonElement.classList.add('copied');
+                    
+                    setTimeout(() => {
+                        buttonElement.textContent = originalText;
+                        buttonElement.classList.remove('copied');
+                    }, 2000);
+
+                } catch (err) {
+                    console.error('Falha ao copiar o texto: ', err);
+                    // Fallback para navegadores antigos
+                    const textArea = document.createElement("textarea");
+                    textArea.value = text;
+                    document.body.appendChild(textArea);
+                    textArea.focus();
+                    textArea.select();
+                    try {
+                        document.execCommand('copy');
+                    } catch (err) {
+                        console.error('Fallback: Falha ao copiar', err);
+                    }
+                    document.body.removeChild(textArea);
+                }
+            };
+
+            // Event delegation para cliques nos comandos ou botões
+            document.body.addEventListener('click', (event) => {
+                const commandItem = event.target.closest('.command-item');
+                if (!commandItem) return;
+
+                const commandNameElement = commandItem.querySelector('.command-name');
+                const commandText = commandNameElement.textContent;
+
+                if (event.target.classList.contains('copy-btn') || event.target.classList.contains('command-name')) {
+                    const button = commandItem.querySelector('.copy-btn');
+                    copyToClipboard(commandText, button);
+                }
+            });
+
+            // Funcionalidade de busca
+            searchInput.addEventListener('input', (event) => {
+                const searchTerm = event.target.value.toLowerCase();
+
+                commandItems.forEach(item => {
+                    const commandName = item.querySelector('.command-name').textContent.toLowerCase();
+                    if (commandName.includes(searchTerm)) {
+                        item.classList.remove('hidden');
+                    } else {
+                        item.classList.add('hidden');
+                    }
+                });
+
+                // Opcional: esconder categorias vazias
+                categorySections.forEach(section => {
+                    const visibleItems = section.querySelectorAll('.command-item:not(.hidden)');
+                    if (visibleItems.length === 0) {
+                        section.style.display = 'none';
+                    } else {
+                        section.style.display = 'block';
+                    }
+                });
+            });
+        });
+    </script>
+
+</body>
+</html>
