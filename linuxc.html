@@ -1,0 +1,564 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Catálogo de Comandos Linux</title>
+    <style>
+        /* --- Google Fonts --- */
+        @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap');
+
+        /* --- Variáveis CSS para Cores e Fontes --- */
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #3498db;
+            --background-color: #f4f7f6;
+            --card-background: #ffffff;
+            --text-color: #333333;
+            --border-color: #e0e0e0;
+            --font-family: 'Roboto', sans-serif;
+        }
+
+        /* --- Estilos Gerais e Reset --- */
+        body {
+            margin: 0;
+            font-family: var(--font-family);
+            background-color: var(--background-color);
+            color: var(--text-color);
+            line-height: 1.6;
+        }
+
+        /* --- Container Principal --- */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        /* --- Cabeçalho --- */
+        header {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 20px 0;
+            text-align: center;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        header h1 {
+            margin: 0;
+            font-size: 2.5em;
+        }
+
+        header p {
+            margin: 5px 0 0;
+            opacity: 0.8;
+        }
+
+        /* --- Barra de Pesquisa --- */
+        .search-container {
+            margin-top: 20px;
+            display: flex;
+            justify-content: center;
+        }
+
+        #searchInput {
+            width: 80%;
+            max-width: 500px;
+            padding: 12px 15px;
+            font-size: 1em;
+            border: 1px solid var(--border-color);
+            border-radius: 25px;
+            outline: none;
+            transition: box-shadow 0.3s ease;
+        }
+
+        #searchInput:focus {
+            box-shadow: 0 0 8px rgba(52, 152, 219, 0.5);
+        }
+
+        /* --- Categorias e Comandos --- */
+        .category {
+            margin-bottom: 40px;
+        }
+
+        .category h2 {
+            font-size: 1.8em;
+            color: var(--primary-color);
+            border-bottom: 2px solid var(--secondary-color);
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+        }
+
+        .command-list {
+            list-style: none;
+            padding: 0;
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 15px;
+        }
+
+        .command-item {
+            background-color: var(--card-background);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .command-item:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+
+        .command-text {
+            font-family: 'Courier New', Courier, monospace;
+            font-weight: 500;
+            color: var(--secondary-color);
+            flex-grow: 1;
+        }
+
+        .copy-btn {
+            background-color: var(--secondary-color);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            padding: 5px 10px;
+            cursor: pointer;
+            font-size: 0.9em;
+            transition: background-color 0.2s ease;
+        }
+
+        .copy-btn:hover {
+            background-color: #2980b9;
+        }
+
+        .copy-btn.copied {
+            background-color: #27ae60;
+        }
+
+        /* --- Classe para ocultar itens durante a pesquisa --- */
+        .hidden {
+            display: none;
+        }
+
+        /* --- Responsividade --- */
+        @media (max-width: 768px) {
+            header h1 {
+                font-size: 2em;
+            }
+            .command-list {
+                grid-template-columns: 1fr;
+            }
+            #searchInput {
+                width: 95%;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="container">
+            <h1>Catálogo de Comandos Linux</h1>
+            <p>Referência interativa e organizada</p>
+            <div class="search-container">
+                <input type="text" id="searchInput" placeholder="Pesquisar por comando...">
+            </div>
+        </div>
+    </header>
+
+    <main class="container">
+        <!-- 1) Comandos básicos do sistema (coreutils) -->
+        <section class="category">
+            <h2>1) Comandos básicos do sistema (coreutils)</h2>
+            <ul class="command-list">
+                <li class="command-item"><span class="command-text">ls</span><button class="copy-btn">Copiar</button></li>
+                <li class="command-item"><span class="command-text">cp</span><button class="copy-btn">Copiar</button></li>
+                <li class="command-item"><span class="command-text">mv</span><button class="copy-btn">Copiar</button></li>
+                <li class="command-item"><span class="command-text">rm</span><button class="copy-btn">Copiar</button></li>
+                <li class="command-item"><span class="command-text">rmdir</span><button class="copy-btn">Copiar</button></li>
+                <li class="command-item"><span class="command-text">touch</span><button class="copy-btn">Copiar</button></li>
+                <li class="command-item"><span class="command-text">mkdir</span><button class="copy-btn">Copiar</button></li>
+                <li class="command-item"><span class="command-text">cat</span><button class="copy-btn">Copiar</button></li>
+                <li class="command-item"><span class="command-text">more</span><button class="copy-btn">Copiar</button></li>
+                <li class="command-item"><span class="command-text">less</span><button class="copy-btn">Copiar</button></li>
+                <li class="command-item"><span class="command-text">head</span><button class="copy-btn">Copiar</button></li>
+                <li class="command-item"><span class="command-text">tail</span><button class="copy-btn">Copiar</button></li>
+                <li class="command-item"><span class="command-text">echo</span><button class="copy-btn">Copiar</button></li>
+                <li class="command-item"><span class="command-text">date</span><button class="copy-btn">Copiar</button></li>
+                <li class="command-item"><span class="command-text">pwd</span><button class="copy-btn">Copiar</button></li>
+                <li class="command-item"><span class="command-text">basename</span><button class="copy-btn">Copiar</button></li>
+                <li class="command-item"><span class="command-text">dirname</span><button class="copy-btn">Copiar</button></li>
+                <li class="command-item"><span class="command-text">readlink</span><button class="copy-btn">Copiar</button></li>
+                <li class="command-item"><span class="command-text">stat</span><button class="copy-btn">Copiar</button></li>
+                <li class="command-item"><span class="command-text">uname</span><button class="copy-btn">Copiar</button></li>
+                <li class="command-item"><span class="command-text">whoami</span><button class="copy-btn">Copiar</button></li>
+                <li class="command-item"><span class="command-text">who</span><button class="copy-btn">Copiar</button></li>
+                <li class="command-item"><span class="command-text">id</span><button class="copy-btn">Copiar</button></li>
+                <li class="command-item"><span class="command-text">groups</span><button class="copy-btn">Copiar</button></li>
+                <li class="command-item"><span class="command-text">tty</span><button class="copy-btn">Copiar</button></li>
+                <li class="command-item"><span class="command-text">env</span><button class="copy-btn">Copiar</button></li>
+                <li class="command-item"><span class="command-text">printenv</span><button class="copy-btn">Copiar</button></li>
+                <li class="command-item"><span class="command-text">clear</span><button class="copy-btn">Copiar</button></li>
+            </ul>
+        </section>
+
+        <!-- 2) Administração e gerenciamento de pacotes -->
+        <section class="category">
+            <h2>2) Administração e gerenciamento de pacotes</h2>
+            <ul class="command-list">
+                <li class="command-item"><span class="command-text">sudo</span><button class="copy-btn">Copiar</button></li>
+                <li class="command-item"><span class="command-text">su</span><button class="copy-btn">Copiar</button></li>
+                <li class="command-item"><span class="command-text">adduser</span><button class="copy-btn">Copiar</button></li>
+                <li class="command-item"><span class="command-text">useradd</span><button class="copy-btn">Copiar</button></li>
+                <li class="command-item"><span class="command-text">usermod</span><button class="copy-btn">Copiar</button></li>
+                <li class="command-item"><span class="command-text">deluser</span><button class="copy-btn">Copiar</button></li>
+                <li class="command-item"><span class="command-text">userdel</span><button class="copy-btn">Copiar</button></li>
+                <li class="command-item"><span class="command-text">groupadd</span><button class="copy-btn">Copiar</button></li>
+                <li class="command-item"><span class="command-text">groupdel</span><button class="copy-btn">Copiar</button></li>
+                <li class="command-item"><span class="command-text">passwd</span><button class="copy-btn">Copiar</button></li>
+                <li class="command-item"><span class="command-text">chage</span><button class="copy-btn">Copiar</button></li>
+                <li class="command-item"><span class="command-text">chown</span><button class="copy-btn">Copiar</button></li>
+                <li class="command-item"><span class="command-text">chmod</span><button class="copy-btn">Copiar</button></li>
+                <li class="command-item"><span class="command-text">chgrp</span><button class="copy-btn">Copiar</button></li>
+                <li class="command-item"><span class="command-text">visudo</span><button class="copy-btn">Copiar</button></li>
+                <li class="command-item"><span class="command-text">systemctl</span><button class="copy-btn">Copiar</button></li>
+                <li class="command-item"><span class="command-text">service</span><button class="copy-btn">Copiar</button></li>
+                <li class="command-item"><span class="command-text">journalctl</span><button class="copy-btn">Copiar</button></li>
+                <li class="command-item"><span class="command-text">init</span><button class="copy-btn">Copiar</button></li>
+                <li class="command-item"><span class="command-text">shutdown</span><button class="copy-btn">Copiar</button></li>
+                <li class="command-item"><span class="command-text">reboot</span><button class="copy-btn">Copiar</button></li>
+                <li class="command-item"><span class="command-text">uptime</span><button class="copy-btn">Copiar</button></li>
+                <li class="command-item"><span class="command-text">df</span><button class="copy-btn">Copiar</button></li>
+                <li class="command-item"><span class="command-text">free</span><button class="copy-btn">Copiar</button></li>
+                <li class="command-item"><span class="command-text">mount</span><button class="copy-btn">Copiar</button></li>
+                <li class="command-item"><span class="command-text">umount</span><button class="copy-btn">Copiar</button></li>
+                <li class="command-item"><span class="command-text">blkid</span><button class="copy-btn">Copiar</button></li>
+                <li class="command-item"><span class="command-text">lsblk</span><button class="copy-btn">Copiar</button></li>
+                <li class="command-item"><span class="command-text">fdisk</span><button class="copy-btn">Copiar</button></li>
+                <li class="command-item"><span class="command-text">parted</span><button class="copy-btn">Copiar</button></li>
+                <li class="command-item"><span class="command-text">apt</span><button class="copy-btn">Copiar</button></li>
+                <li class="command-item"><span class="command-text">apt-get</span><button class="copy-btn">Copiar</button></li>
+                <li class="command-item"><span class="command-text">dpkg</span><button class="copy-btn">Copiar</button></li>
+                <li class="command-item"><span class="command-text">yum</span><button class="copy-btn">Copiar</button></li>
+                <li class="command-item"><span class="command-text">dnf</span><button class="copy-btn">Copiar</button></li>
+                <li class="command-item"><span class="command-text">zypper</span><button class="copy-btn">Copiar</button></li>
+                <li class="command-item"><span class="command-text">pacman</span><button class="copy-btn">Copiar</button></li>
+                <li class="command-item"><span class="command-text">rpm</span><button class="copy-btn">Copiar</button></li>
+                <li class="command-item"><span class="command-text">snap</span><button class="copy-btn">Copiar</button></li>
+                <li class="command-item"><span class="command-text">flatpak</span><button class="copy-btn">Copiar</button></li>
+            </ul>
+        </section>
+
+        <!-- 3) Rede e Internet -->
+        <section class="category">
+            <h2>3) Rede e Internet</h2>
+            <ul class="command-list">
+                <li class="command-item"><span class="command-text">ping</span><button class="copy-btn">Copiar</button></li>
+                <li class="command-item"><span class="command-text">ping6</span><button class="copy-btn">Copiar</button></li>
+                <li class="command-item"><span class="command-text">traceroute</span><button class="copy-btn">Copiar</button></li>
+                <li class="command-item"><span class="command-text">tracepath</span><button class="copy-btn">Copiar</button></li>
+                <li class="command-item"><span class="command-text">curl</span><button class="copy-btn">Copiar</button></li>
+                <li class="command-item"><span class="command-text">wget</span><button class="copy-btn">Copiar</button></li>
+                <li class="command-item"><span class="command-text">ftp</span><button class="copy-btn">Copiar</button></li>
+                <li class="command-item"><span class="command-text">scp</span><button class="copy-btn">Copiar</button></li>
+                <li class="command-item"><span class="command-text">sftp</span><button class="copy-btn">Copiar</button></li>
+                <li class="command-item"><span class="command-text">ssh</span><button class="copy-btn">Copiar</button></li>
+                <li class="command-item"><span class="command-text">telnet</span><button class="copy-btn">Copiar</button></li>
+                <li class="command-item"><span class="command-text">netstat</span><button class="copy-btn">Copiar</button></li>
+                <li class="command-item"><span class="command-text">ss</span><button class="copy-btn">Copiar</button></li>
+                <li class="command-item"><span class="command-text">ip</span><button class="copy-btn">Copiar</button></li>
+                <li class="command-item"><span class="command-text">ifconfig</span><button class="copy-btn">Copiar</button></li>
+                <li class="command-item"><span class="command-text">route</span><button class="copy-btn">Copiar</button></li>
+                <li class="command-item"><span class="command-text">iptables</span><button class="copy-btn">Copiar</button></li>
+                <li class="command-item"><span class="command-text">nmap</span><button class="copy-btn">Copiar</button></li>
+                <li class="command-item"><span class="command-text">dig</span><button class="copy-btn">Copiar</button></li>
+                <li class="command-item"><span class="command-text">nslookup</span><button class="copy-btn">Copiar</button></li>
+                <li class="command-item"><span class="command-text">host</span><button class="copy-btn">Copiar</button></li>
+                <li class="command-item"><span class="command-text">whois</span><button class="copy-btn">Copiar</button></li>
+                <li class="command-item"><span class="command-text">arp</span><button class="copy-btn">Copiar</button></li>
+                <li class="command-item"><span class="command-text">tcpdump</span><button class="copy-btn">Copiar</button></li>
+                <li class="command-item"><span class="command-text">ethtool</span><button class="copy-btn">Copiar</button></li>
+                <li class="command-item"><span class="command-text">nmcli</span><button class="copy-btn">Copiar</button></li>
+            </ul>
+        </section>
+
+        <!-- 4) Disco, arquivos e sistemas de arquivos -->
+        <section class="category">
+            <h2>4) Disco, arquivos e sistemas de arquivos</h2>
+            <ul class="command-list">
+                <li class="command-item"><span class="command-text">df</span><button class="copy-btn">Copiar</button></li>
+                <li class="command-item"><span class="command-text">du</span><button class="copy-btn">Copiar</button></li>
+                <li class="command-item"><span class="command-text">lsblk</span><button class="copy-btn">Copiar</button></li>
+                <li class="command-item"><span class="command-text">mount</span><button class="copy-btn">Copiar</button></li>
+                <li class="command-item"><span class="command-text">umount</span><button class="copy-btn">Copiar</button></li>
+                <li class="command-item"><span class="command-text">blkid</span><button class="copy-btn">Copiar</button></li>
+                <li class="command-item"><span class="command-text">fsck</span><button class="copy-btn">Copiar</button></li>
+                <li class="command-item"><span class="command-text">mkfs</span><button class="copy-btn">Copiar</button></li>
+                <li class="command-item"><span class="command-text">mkfs.ext4</span><button class="copy-btn">Copiar</button></li>
+                <li class="command-item"><span class="command-text">mkfs.xfs</span><button class="copy-btn">Copiar</button></li>
+                <li class="command-item"><span class="command-text">tune2fs</span><button class="copy-btn">Copiar</button></li>
+                <li class="command-item"><span class="command-text">xfs_info</span><button class="copy-btn">Copiar</button></li>
+                <li class="command-item"><span class="command-text">xfs_repair</span><button class="copy-btn">Copiar</button></li>
+                <li class="command-item"><span class="command-text">resize2fs</span><button class="copy-btn">Copiar</button></li>
+                <li class="command-item"><span class="command-text">ls</span><button class="copy-btn">Copiar</button></li>
+                <li class="command-item"><span class="command-text">cp</span><button class="copy-btn">Copiar</button></li>
+                <li class="command-item"><span class="command-text">mv</span><button class="copy-btn">Copiar</button></li>
+                <li class="command-item"><span class="command-text">rm</span><button class="copy-btn">Copiar</button></li>
+                <li class="command-item"><span class="command-text">rmdir</span><button class="copy-btn">Copiar</button></li>
+                <li class="command-item"><span class="command-text">tar</span><button class="copy-btn">Copiar</button></li>
+                <li class="command-item"><span class="command-text">gzip</span><button class="copy-btn">Copiar</button></li>
+                <li class="command-item"><span class="command-text">gunzip</span><button class="copy-btn">Copiar</button></li>
+                <li class="command-item"><span class="command-text">bzip2</span><button class="copy-btn">Copiar</button></li>
+                <li class="command-item"><span class="command-text">bunzip2</span><button class="copy-btn">Copiar</button></li>
+                <li class="command-item"><span class="command-text">zip</span><button class="copy-btn">Copiar</button></li>
+                <li class="command-item"><span class="command-text">unzip</span><button class="copy-btn">Copiar</button></li>
+                <li class="command-item"><span class="command-text">rsync</span><button class="copy-btn">Copiar</button></li>
+                <li class="command-item"><span class="command-text">find</span><button class="copy-btn">Copiar</button></li>
+                <li class="command-item"><span class="command-text">locate</span><button class="copy-btn">Copiar</button></li>
+                <li class="command-item"><span class="command-text">updatedb</span><button class="copy-btn">Copiar</button></li>
+            </ul>
+        </section>
+
+        <!-- 5) Processos e monitoramento -->
+        <section class="category">
+            <h2>5) Processos e monitoramento</h2>
+            <ul class="command-list">
+                <li class="command-item"><span class="command-text">ps</span><button class="copy-btn">Copiar</button></li>
+                <li class="command-item"><span class="command-text">top</span><button class="copy-btn">Copiar</button></li>
+                <li class="command-item"><span class="command-text">htop</span><button class="copy-btn">Copiar</button></li>
+                <li class="command-item"><span class="command-text">pgrep</span><button class="copy-btn">Copiar</button></li>
+                <li class="command-item"><span class="command-text">pkill</span><button class="copy-btn">Copiar</button></li>
+                <li class="command-item"><span class="command-text">jobs</span><button class="copy-btn">Copiar</button></li>
+                <li class="command-item"><span class="command-text">bg</span><button class="copy-btn">Copiar</button></li>
+                <li class="command-item"><span class="command-text">fg</span><button class="copy-btn">Copiar</button></li>
+                <li class="command-item"><span class="command-text">kill</span><button class="copy-btn">Copiar</button></li>
+                <li class="command-item"><span class="command-text">killall</span><button class="copy-btn">Copiar</button></li>
+                <li class="command-item"><span class="command-text">nice</span><button class="copy-btn">Copiar</button></li>
+                <li class="command-item"><span class="command-text">renice</span><button class="copy-btn">Copiar</button></li>
+                <li class="command-item"><span class="command-text">uptime</span><button class="copy-btn">Copiar</button></li>
+                <li class="command-item"><span class="command-text">free</span><button class="copy-btn">Copiar</button></li>
+                <li class="command-item"><span class="command-text">vmstat</span><button class="copy-btn">Copiar</button></li>
+                <li class="command-item"><span class="command-text">iostat</span><button class="copy-btn">Copiar</button></li>
+                <li class="command-item"><span class="command-text">iotop</span><button class="copy-btn">Copiar</button></li>
+                <li class="command-item"><span class="command-text">dmesg</span><button class="copy-btn">Copiar</button></li>
+                <li class="command-item"><span class="command-text">watch</span><button class="copy-btn">Copiar</button></li>
+                <li class="command-item"><span class="command-text">lsof</span><button class="copy-btn">Copiar</button></li>
+            </ul>
+        </section>
+
+        <!-- 6) Compilação, desenvolvimento e build tools -->
+        <section class="category">
+            <h2>6) Compilação, desenvolvimento e build tools</h2>
+            <ul class="command-list">
+                <li class="command-item"><span class="command-text">gcc</span><button class="copy-btn">Copiar</button></li>
+                <li class="command-item"><span class="command-text">g++</span><button class="copy-btn">Copiar</button></li>
+                <li class="command-item"><span class="command-text">make</span><button class="copy-btn">Copiar</button></li>
+                <li class="command-item"><span class="command-text">cmake</span><button class="copy-btn">Copiar</button></li>
+                <li class="command-item"><span class="command-text">autoconf</span><button class="copy-btn">Copiar</button></li>
+                <li class="command-item"><span class="command-text">automake</span><button class="copy-btn">Copiar</button></li>
+                <li class="command-item"><span class="command-text">ld</span><button class="copy-btn">Copiar</button></li>
+                <li class="command-item"><span class="command-text">ar</span><button class="copy-btn">Copiar</button></li>
+                <li class="command-item"><span class="command-text">nm</span><button class="copy-btn">Copiar</button></li>
+                <li class="command-item"><span class="command-text">objdump</span><button class="copy-btn">Copiar</button></li>
+                <li class="command-item"><span class="command-text">readelf</span><button class="copy-btn">Copiar</button></li>
+                <li class="command-item"><span class="command-text">gdb</span><button class="copy-btn">Copiar</button></li>
+                <li class="command-item"><span class="command-text">valgrind</span><button class="copy-btn">Copiar</button></li>
+                <li class="command-item"><span class="command-text">strace</span><button class="copy-btn">Copiar</button></li>
+                <li class="command-item"><span class="command-text">ltrace</span><button class="copy-btn">Copiar</button></li>
+                <li class="command-item"><span class="command-text">perf</span><button class="copy-btn">Copiar</button></li>
+                <li class="command-item"><span class="command-text">git</span><button class="copy-btn">Copiar</button></li>
+                <li class="command-item"><span class="command-text">svn</span><button class="copy-btn">Copiar</button></li>
+                <li class="command-item"><span class="command-text">hg</span><button class="copy-btn">Copiar</button></li>
+                <li class="command-item"><span class="command-text">diff</span><button class="copy-btn">Copiar</button></li>
+                <li class="command-item"><span class="command-text">diff3</span><button class="copy-btn">Copiar</button></li>
+                <li class="command-item"><span class="command-text">patch</span><button class="copy-btn">Copiar</button></li>
+            </ul>
+        </section>
+
+        <!-- 7) Shells e scripting -->
+        <section class="category">
+            <h2>7) Shells e scripting</h2>
+            <ul class="command-list">
+                <li class="command-item"><span class="command-text">bash</span><button class="copy-btn">Copiar</button></li>
+                <li class="command-item"><span class="command-text">sh</span><button class="copy-btn">Copiar</button></li>
+                <li class="command-item"><span class="command-text">zsh</span><button class="copy-btn">Copiar</button></li>
+                <li class="command-item"><span class="command-text">csh</span><button class="copy-btn">Copiar</button></li>
+                <li class="command-item"><span class="command-text">tcsh</span><button class="copy-btn">Copiar</button></li>
+                <li class="command-item"><span class="command-text">ksh</span><button class="copy-btn">Copiar</button></li>
+                <li class="command-item"><span class="command-text">dash</span><button class="copy-btn">Copiar</button></li>
+                <li class="command-item"><span class="command-text">fish</span><button class="copy-btn">Copiar</button></li>
+                <li class="command-item"><span class="command-text">awk</span><button class="copy-btn">Copiar</button></li>
+                <li class="command-item"><span class="command-text">sed</span><button class="copy-btn">Copiar</button></li>
+                <li class="command-item"><span class="command-text">grep</span><button class="copy-btn">Copiar</button></li>
+                <li class="command-item"><span class="command-text">egrep</span><button class="copy-btn">Copiar</button></li>
+                <li class="command-item"><span class="command-text">fgrep</span><button class="copy-btn">Copiar</button></li>
+                <li class="command-item"><span class="command-text">cut</span><button class="copy-btn">Copiar</button></li>
+                <li class="command-item"><span class="command-text">tr</span><button class="copy-btn">Copiar</button></li>
+                <li class="command-item"><span class="command-text">sort</span><button class="copy-btn">Copiar</button></li>
+                <li class="command-item"><span class="command-text">uniq</span><button class="copy-btn">Copiar</button></li>
+                <li class="command-item"><span class="command-text">xargs</span><button class="copy-btn">Copiar</button></li>
+                <li class="command-item"><span class="command-text">expr</span><button class="copy-btn">Copiar</button></li>
+                <li class="command-item"><span class="command-text">test</span><button class="copy-btn">Copiar</button></li>
+                <li class="command-item"><span class="command-text">[ ]</span><button class="copy-btn">Copiar</button></li>
+            </ul>
+        </section>
+
+        <!-- 8) Segurança e usuários -->
+        <section class="category">
+            <h2>8) Segurança e usuários</h2>
+            <ul class="command-list">
+                <li class="command-item"><span class="command-text">sudo</span><button class="copy-btn">Copiar</button></li>
+                <li class="command-item"><span class="command-text">su</span><button class="copy-btn">Copiar</button></li>
+                <li class="command-item"><span class="command-text">passwd</span><button class="copy-btn">Copiar</button></li>
+                <li class="command-item"><span class="command-text">chage</span><button class="copy-btn">Copiar</button></li>
+                <li class="command-item"><span class="command-text">groups</span><button class="copy-btn">Copiar</button></li>
+                <li class="command-item"><span class="command-text">id</span><button class="copy-btn">Copiar</button></li>
+                <li class="command-item"><span class="command-text">who</span><button class="copy-btn">Copiar</button></li>
+                <li class="command-item"><span class="command-text">whoami</span><button class="copy-btn">Copiar</button></li>
+                <li class="command-item"><span class="command-text">chmod</span><button class="copy-btn">Copiar</button></li>
+                <li class="command-item"><span class="command-text">chown</span><button class="copy-btn">Copiar</button></li>
+                <li class="command-item"><span class="command-text">chgrp</span><button class="copy-btn">Copiar</button></li>
+                <li class="command-item"><span class="command-text">ufw</span><button class="copy-btn">Copiar</button></li>
+                <li class="command-item"><span class="command-text">firewalld</span><button class="copy-btn">Copiar</button></li>
+                <li class="command-item"><span class="command-text">iptables</span><button class="copy-btn">Copiar</button></li>
+                <li class="command-item"><span class="command-text">selinux</span><button class="copy-btn">Copiar</button></li>
+                <li class="command-item"><span class="command-text">getenforce</span><button class="copy-btn">Copiar</button></li>
+                <li class="command-item"><span class="command-text">setenforce</span><button class="copy-btn">Copiar</button></li>
+            </ul>
+        </section>
+
+        <!-- 9) Ferramentas de compressão e arquivamento -->
+        <section class="category">
+            <h2>9) Ferramentas de compressão e arquivamento</h2>
+            <ul class="command-list">
+                <li class="command-item"><span class="command-text">tar</span><button class="copy-btn">Copiar</button></li>
+                <li class="command-item"><span class="command-text">gzip</span><button class="copy-btn">Copiar</button></li>
+                <li class="command-item"><span class="command-text">gunzip</span><button class="copy-btn">Copiar</button></li>
+                <li class="command-item"><span class="command-text">bzip2</span><button class="copy-btn">Copiar</button></li>
+                <li class="command-item"><span class="command-text">bunzip2</span><button class="copy-btn">Copiar</button></li>
+                <li class="command-item"><span class="command-text">xz</span><button class="copy-btn">Copiar</button></li>
+                <li class="command-item"><span class="command-text">unxz</span><button class="copy-btn">Copiar</button></li>
+                <li class="command-item"><span class="command-text">zip</span><button class="copy-btn">Copiar</button></li>
+                <li class="command-item"><span class="command-text">unzip</span><button class="copy-btn">Copiar</button></li>
+                <li class="command-item"><span class="command-text">7z</span><button class="copy-btn">Copiar</button></li>
+                <li class="command-item"><span class="command-text">7za</span><button class="copy-btn">Copiar</button></li>
+                <li class="command-item"><span class="command-text">pax</span><button class="copy-btn">Copiar</button></li>
+                <li class="command-item"><span class="command-text">cpio</span><button class="copy-btn">Copiar</button></li>
+                <li class="command-item"><span class="command-text">rsync</span><button class="copy-btn">Copiar</button></li>
+            </ul>
+        </section>
+
+        <!-- 10) Ferramentas avançadas / utilitários extras -->
+        <section class="category">
+            <h2>10) Ferramentas avançadas / utilitários extras</h2>
+            <ul class="command-list">
+                <li class="command-item"><span class="command-text">screen</span><button class="copy-btn">Copiar</button></li>
+                <li class="command-item"><span class="command-text">tmux</span><button class="copy-btn">Copiar</button></li>
+                <li class="command-item"><span class="command-text">watch</span><button class="copy-btn">Copiar</button></li>
+                <li class="command-item"><span class="command-text">cron</span><button class="copy-btn">Copiar</button></li>
+                <li class="command-item"><span class="command-text">crontab</span><button class="copy-btn">Copiar</button></li>
+                <li class="command-item"><span class="command-text">at</span><button class="copy-btn">Copiar</button></li>
+                <li class="command-item"><span class="command-text">batch</span><button class="copy-btn">Copiar</button></li>
+                <li class="command-item"><span class="command-text">logger</span><button class="copy-btn">Copiar</button></li>
+                <li class="command-item"><span class="command-text">strace</span><button class="copy-btn">Copiar</button></li>
+                <li class="command-item"><span class="command-text">ltrace</span><button class="copy-btn">Copiar</button></li>
+                <li class="command-item"><span class="command-text">valgrind</span><button class="copy-btn">Copiar</button></li>
+                <li class="command-item"><span class="command-text">uptime</span><button class="copy-btn">Copiar</button></li>
+                <li class="command-item"><span class="command-text">dmesg</span><button class="copy-btn">Copiar</button></li>
+                <li class="command-item"><span class="command-text">journalctl</span><button class="copy-btn">Copiar</button></li>
+                <li class="command-item"><span class="command-text">alias</span><button class="copy-btn">Copiar</button></li>
+                <li class="command-item"><span class="command-text">unalias</span><button class="copy-btn">Copiar</button></li>
+                <li class="command-item"><span class="command-text">which</span><button class="copy-btn">Copiar</button></li>
+                <li class="command-item"><span class="command-text">whereis</span><button class="copy-btn">Copiar</button></li>
+                <li class="command-item"><span class="command-text">type</span><button class="copy-btn">Copiar</button></li>
+                <li class="command-item"><span class="command-text">man</span><button class="copy-btn">Copiar</button></li>
+                <li class="command-item"><span class="command-text">info</span><button class="copy-btn">Copiar</button></li>
+                <li class="command-item"><span class="command-text">whatis</span><button class="copy-btn">Copiar</button></li>
+                <li class="command-item"><span class="command-text">apropos</span><button class="copy-btn">Copiar</button></li>
+            </ul>
+        </section>
+
+        <!-- 11) Comandos para extrair todos os executáveis do seu Linux -->
+        <section class="category">
+            <h2>11) Comandos para encontrar todos os executáveis do seu Linux</h2>
+            <ul class="command-list">
+                <li class="command-item"><span class="command-text">compgen -c | sort | uniq</span><button class="copy-btn">Copiar</button></li>
+                <li class="command-item"><span class="command-text">ls -1 /bin /sbin /usr/bin /usr/sbin /usr/local/bin /usr/local/sbin 2>/dev/null</span><button class="copy-btn">Copiar</button></li>
+                <li class="command-item"><span class="command-text">find / -type f -executable 2>/dev/null</span><button class="copy-btn">Copiar</button></li>
+            </ul>
+        </section>
+
+    </main>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const searchInput = document.getElementById('searchInput');
+            const commandItems = document.querySelectorAll('.command-item');
+
+            // Função para copiar texto para a área de transferência
+            function copyToClipboard(text, button) {
+                navigator.clipboard.writeText(text).then(() => {
+                    // Feedback visual
+                    const originalText = button.textContent;
+                    button.textContent = 'Copiado!';
+                    button.classList.add('copied');
+                    
+                    setTimeout(() => {
+                        button.textContent = originalText;
+                        button.classList.remove('copied');
+                    }, 2000);
+                }).catch(err => {
+                    console.error('Falha ao copiar o texto: ', err);
+                    alert('Não foi possível copiar o comando.');
+                });
+            }
+
+            // Adiciona evento de clique aos itens de comando (card inteiro)
+            commandItems.forEach(item => {
+                item.addEventListener('click', function (event) {
+                    // Verifica se o clique foi no botão ou no texto do comando
+                    if (event.target.classList.contains('copy-btn')) {
+                        return; // Não faz nada, o evento do botão cuidará disso
+                    }
+                    const commandText = this.querySelector('.command-text').textContent;
+                    const button = this.querySelector('.copy-btn');
+                    copyToClipboard(commandText, button);
+                });
+            });
+
+            // Adiciona evento de clique aos botões de cópia
+            const copyButtons = document.querySelectorAll('.copy-btn');
+            copyButtons.forEach(button => {
+                button.addEventListener('click', function (event) {
+                    event.stopPropagation(); // Impede que o clique se propague para o item pai (li)
+                    const commandText = this.previousElementSibling.textContent;
+                    copyToClipboard(commandText, this);
+                });
+            });
+
+            // Funcionalidade de pesquisa em tempo real
+            searchInput.addEventListener('input', function () {
+                const searchTerm = this.value.toLowerCase();
+
+                commandItems.forEach(item => {
+                    const commandText = item.querySelector('.command-text').textContent.toLowerCase();
+                    if (commandText.includes(searchTerm)) {
+                        item.classList.remove('hidden');
+                    } else {
+                        item.classList.add('hidden');
+                    }
+                });
+            });
+        });
+    </script>
+
+</body>
+</html>
