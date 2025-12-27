@@ -87,13 +87,19 @@
     <footer>© 2025 — Menu de Jogos</footer>
   </div>
   <script>
-  if (performance.navigation.type === 2) {
+  const SITE_VERSION = "0.0.9";
+  const savedVersion = localStorage.getItem("site_version");
+
+  if (savedVersion !== SITE_VERSION) {
+    localStorage.setItem("site_version", SITE_VERSION);
     location.reload(true);
   }
 </script>
 
+
 </body>
 </html>
+
 
 
 
