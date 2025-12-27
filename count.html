@@ -1,75 +1,730 @@
 <!DOCTYPE html>
-<html lang="pt-br">
+<html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Contador de Objetos por Cor</title>
+    <title>CountVision IA - Contagem Inteligente de Objetos</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        /* Estilos Gerais e Mobile-First */
         :root {
-            --bg-color: #121212;
-            --text-color: #e0e0e0;
-            --primary-color: #6200ee;
-            --primary-hover: #3700b3;
-            --secondary-color: #03dac6;
-            --panel-bg: #1e1e1e;
-            --border-color: #333;
-            --error-color: #cf6679;
+            --primary: #1a237e;
+            --primary-light: #3949ab;
+            --secondary: #7b1fa2;
+            --accent: #512da8;
+            --dark: #212121;
+            --gray: #757575;
+            --light-gray: #e0e0e0;
+            --white: #ffffff;
+            --gradient: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
         }
 
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            background-color: var(--bg-color);
-            color: var(--text-color);
+        * {
             margin: 0;
-            padding: 1rem;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            min-height: 100vh;
+            padding: 0;
             box-sizing: border-box;
         }
 
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: var(--dark);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
         .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* Header e Navegação */
+        header {
+            background: rgba(26, 35, 126, 0.95);
+            position: fixed;
             width: 100%;
-            max-width: 800px;
-            text-align: center;
+            top: 0;
+            z-index: 1000;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
         }
 
-        h1 {
-            color: var(--secondary-color);
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 0;
         }
 
-        /* Área de Vídeo e Canvas */
-        .video-container {
+        .logo {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: var(--white);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+        }
+
+        .logo i {
+            margin-right: 10px;
+            color: var(--accent);
+        }
+
+        .nav-links {
+            display: flex;
+            list-style: none;
+        }
+
+        .nav-links li {
+            margin-left: 25px;
+        }
+
+        .nav-links a {
+            color: var(--white);
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s;
             position: relative;
-            width: 100%;
-            max-width: 640px;
-            margin: auto;
-            background-color: #000;
-            border-radius: 8px;
-            overflow: hidden;
-            aspect-ratio: 4 / 3;
         }
 
-        #videoInput, #canvasOutput {
+        .nav-links a::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: var(--accent);
+            transition: width 0.3s;
+        }
+
+        .nav-links a:hover::after {
+            width: 100%;
+        }
+
+        .menu-toggle {
+            display: none;
+            color: var(--white);
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+
+        /* Seção Hero */
+        .hero {
+            background: var(--gradient);
+            padding: 150px 0 100px;
+            color: var(--white);
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero::before {
+            content: '';
             position: absolute;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            display: block;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><rect width="100" height="100" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="0.5"/></svg>');
+            background-size: 20px 20px;
+            opacity: 0.2;
         }
-        
-        /* Spinner de Carregamento */
-        .loader {
-            border: 5px solid #f3f3f3;
-            border-top: 5px solid var(--primary-color);
+
+        .hero-content {
+            position: relative;
+            z-index: 1;
+        }
+
+        .hero h1 {
+            font-size: 3rem;
+            margin-bottom: 20px;
+            animation: fadeInUp 1s ease-out;
+        }
+
+        .hero p {
+            font-size: 1.3rem;
+            max-width: 800px;
+            margin: 0 auto 40px;
+            animation: fadeInUp 1s ease-out 0.2s;
+            animation-fill-mode: both;
+        }
+
+        .cta-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            animation: fadeInUp 1s ease-out 0.4s;
+            animation-fill-mode: both;
+        }
+
+        .btn {
+            padding: 15px 30px;
+            border-radius: 30px;
+            font-weight: bold;
+            text-decoration: none;
+            transition: all 0.3s;
+            display: inline-block;
+            cursor: pointer;
+            border: none;
+            font-size: 1rem;
+        }
+
+        .btn-primary {
+            background: var(--white);
+            color: var(--primary);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--white);
+            border: 2px solid var(--white);
+        }
+
+        .btn-secondary:hover {
+            background: var(--white);
+            color: var(--primary);
+        }
+
+        /* Seções Gerais */
+        section {
+            padding: 80px 0;
+        }
+
+        .section-title {
+            text-align: center;
+            margin-bottom: 60px;
+        }
+
+        .section-title h2 {
+            font-size: 2.5rem;
+            color: var(--primary);
+            margin-bottom: 15px;
+            position: relative;
+            display: inline-block;
+        }
+
+        .section-title h2::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80px;
+            height: 4px;
+            background: var(--accent);
+        }
+
+        /* Seção Como Funciona */
+        .how-it-works {
+            background: #f9f9f9;
+        }
+
+        .process-steps {
+            display: flex;
+            justify-content: space-between;
+            flex-wrap: wrap;
+        }
+
+        .step {
+            flex-basis: calc(25% - 30px);
+            text-align: center;
+            padding: 30px 20px;
+            background: var(--white);
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            transition: transform 0.3s;
+            margin-bottom: 30px;
+        }
+
+        .step:hover {
+            transform: translateY(-10px);
+        }
+
+        .step-icon {
+            width: 80px;
+            height: 80px;
+            background: var(--gradient);
             border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+            color: var(--white);
+            font-size: 2rem;
+        }
+
+        .step h3 {
+            font-size: 1.3rem;
+            margin-bottom: 15px;
+            color: var(--primary);
+        }
+
+        /* Seção Demonstração Interativa */
+        .demo {
+            background: var(--dark);
+            color: var(--white);
+        }
+
+        .demo .section-title h2 {
+            color: var(--white);
+        }
+
+        .demo-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 30px;
+        }
+
+        .demo-upload {
+            flex-basis: 60%;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+            padding: 30px;
+        }
+
+        .upload-area {
+            border: 2px dashed var(--primary-light);
+            border-radius: 10px;
+            padding: 40px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .upload-area:hover {
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .upload-area i {
+            font-size: 3rem;
+            margin-bottom: 20px;
+            color: var(--primary-light);
+        }
+
+        .demo-results {
+            flex-basis: 35%;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+            padding: 30px;
+        }
+
+        .result-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 15px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .result-item:last-child {
+            border-bottom: none;
+        }
+
+        .result-label {
+            font-weight: bold;
+        }
+
+        .result-value {
+            color: var(--accent);
+        }
+
+        .demo-image-container {
+            margin-top: 20px;
+            position: relative;
+            overflow: hidden;
+            border-radius: 10px;
+            background: #000;
+            min-height: 300px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .demo-image {
+            max-width: 100%;
+            display: none;
+        }
+
+        .bounding-box {
+            position: absolute;
+            border: 2px solid #4CAF50;
+            background: rgba(76, 175, 80, 0.1);
+        }
+
+        .object-label {
+            position: absolute;
+            background: #4CAF50;
+            color: white;
+            padding: 3px 6px;
+            font-size: 12px;
+            border-radius: 3px;
+            top: -22px;
+            left: 0;
+        }
+
+        /* Seção Tecnologias */
+        .tech-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 30px;
+        }
+
+        .tech-card {
+            background: var(--white);
+            border-radius: 10px;
+            padding: 30px;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            transition: all 0.3s;
+        }
+
+        .tech-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        .tech-icon {
+            font-size: 3rem;
+            margin-bottom: 20px;
+            background: var(--gradient);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        .tech-card h3 {
+            font-size: 1.5rem;
+            margin-bottom: 15px;
+            color: var(--primary);
+        }
+
+        /* Seção Casos de Uso */
+        .use-cases {
+            background: #f9f9f9;
+        }
+
+        .cases-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+        }
+
+        .case-card {
+            background: var(--white);
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            transition: all 0.3s;
+        }
+
+        .case-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        .case-image {
+            height: 200px;
+            background: var(--gradient);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--white);
+            font-size: 3rem;
+        }
+
+        .case-content {
+            padding: 25px;
+        }
+
+        .case-content h3 {
+            font-size: 1.5rem;
+            margin-bottom: 15px;
+            color: var(--primary);
+        }
+
+        /* Seção Benefícios */
+        .benefits-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .benefit-item {
+            display: flex;
+            align-items: flex-start;
+            margin-bottom: 20px;
+        }
+
+        .benefit-icon {
+            color: var(--accent);
+            font-size: 1.5rem;
+            margin-right: 15px;
+            margin-top: 5px;
+        }
+
+        .benefit-text h3 {
+            font-size: 1.3rem;
+            margin-bottom: 10px;
+            color: var(--primary);
+        }
+
+        /* Seção Painel Administrativo */
+        .admin-panel {
+            background: var(--dark);
+            color: var(--white);
+        }
+
+        .admin-panel .section-title h2 {
+            color: var(--white);
+        }
+
+        .dashboard-preview {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+            padding: 30px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+        }
+
+        .dashboard-card {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .dashboard-card h3 {
+            margin-bottom: 15px;
+            color: var(--primary-light);
+        }
+
+        .dashboard-card i {
+            font-size: 2.5rem;
+            margin-bottom: 15px;
+            color: var(--accent);
+        }
+
+        /* Seção Contato */
+        .contact-form {
+            max-width: 800px;
+            margin: 0 auto;
+            background: #f9f9f9;
+            padding: 40px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 10px;
+            font-weight: bold;
+            color: var(--primary);
+        }
+
+        .form-group input,
+        .form-group textarea {
+            width: 100%;
+            padding: 15px;
+            border: 1px solid var(--light-gray);
+            border-radius: 5px;
+            font-family: inherit;
+            font-size: 1rem;
+        }
+
+        .form-group textarea {
+            min-height: 150px;
+            resize: vertical;
+        }
+
+        /* Footer */
+        footer {
+            background: var(--primary);
+            color: var(--white);
+            padding: 50px 0 20px;
+        }
+
+        .footer-content {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            margin-bottom: 30px;
+        }
+
+        .footer-section {
+            flex-basis: calc(25% - 30px);
+            margin-bottom: 30px;
+        }
+
+        .footer-section h3 {
+            font-size: 1.5rem;
+            margin-bottom: 20px;
+            position: relative;
+            padding-bottom: 10px;
+        }
+
+        .footer-section h3::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 50px;
+            height: 2px;
+            background: var(--accent);
+        }
+
+        .footer-section ul {
+            list-style: none;
+        }
+
+        .footer-section ul li {
+            margin-bottom: 10px;
+        }
+
+        .footer-section ul li a {
+            color: rgba(255, 255, 255, 0.7);
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+
+        .footer-section ul li a:hover {
+            color: var(--white);
+        }
+
+        .social-links {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .social-links a {
+            display: flex;
+            align-items: center;
+            justify-content: center;
             width: 40px;
             height: 40px;
-            animation: spin 2s linear infinite;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            color: var(--white);
+            transition: all 0.3s;
+        }
+
+        .social-links a:hover {
+            background: var(--accent);
+            transform: translateY(-3px);
+        }
+
+        .copyright {
+            text-align: center;
+            padding-top: 20px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            font-size: 0.9rem;
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        /* Animações */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Responsividade */
+        @media (max-width: 992px) {
+            .hero h1 {
+                font-size: 2.5rem;
+            }
+
+            .step {
+                flex-basis: calc(50% - 15px);
+            }
+
+            .demo-upload,
+            .demo-results {
+                flex-basis: 100%;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .nav-links {
+                display: none;
+                position: absolute;
+                top: 100%;
+                left: 0;
+                width: 100%;
+                background: var(--primary);
+                flex-direction: column;
+                padding: 20px;
+            }
+
+            .nav-links.active {
+                display: flex;
+            }
+
+            .nav-links li {
+                margin: 10px 0;
+            }
+
+            .menu-toggle {
+                display: block;
+            }
+
+            .hero {
+                padding: 120px 0 80px;
+            }
+
+            .hero h1 {
+                font-size: 2rem;
+            }
+
+            .hero p {
+                font-size: 1.1rem;
+            }
+
+            .cta-buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .step {
+                flex-basis: 100%;
+            }
+
+            .footer-section {
+                flex-basis: calc(50% - 15px);
+            }
+        }
+
+        @media (max-width: 576px) {
+            .section-title h2 {
+                font-size: 2rem;
+            }
+
+            .footer-section {
+                flex-basis: 100%;
+            }
+        }
+
+        /* Loading Spinner */
+        .spinner {
+            border: 4px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top: 4px solid var(--accent);
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
             margin: 20px auto;
         }
 
@@ -78,337 +733,679 @@
             100% { transform: rotate(360deg); }
         }
 
-        /* Painel de Controles */
-        .controls {
-            margin-top: 1.5rem;
-            padding: 1.5rem;
-            background-color: var(--panel-bg);
-            border-radius: 8px;
-            border: 1px solid var(--border-color);
-        }
-
-        .control-group {
-            margin-bottom: 1rem;
-            text-align: left;
-        }
-
-        label {
-            display: block;
-            margin-bottom: 0.5rem;
-            font-weight: bold;
-        }
-
-        input[type="range"] {
-            width: 100%;
-            cursor: pointer;
-        }
-
-        .slider-value {
-            float: right;
-        }
-
-        /* Botões */
-        button {
-            background-color: var(--primary-color);
-            color: white;
-            border: none;
-            padding: 0.8rem 1.5rem;
-            font-size: 1rem;
+        /* Notificação */
+        .notification {
+            position: fixed;
+            top: 100px;
+            right: 20px;
+            background: var(--white);
+            color: var(--dark);
+            padding: 15px 25px;
             border-radius: 5px;
-            cursor: pointer;
-            transition: background-color 0.3s;
-            margin: 0.5rem;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            transform: translateX(150%);
+            transition: transform 0.3s;
+            z-index: 1001;
         }
 
-        button:hover:not(:disabled) {
-            background-color: var(--primary-hover);
+        .notification.show {
+            transform: translateX(0);
         }
 
-        button:disabled {
-            background-color: #555;
-            cursor: not-allowed;
+        .notification.success {
+            border-left: 5px solid #4CAF50;
         }
 
-        /* Exibição de Contagem e Status */
-        #objectCount {
-            font-size: 2rem;
-            font-weight: bold;
-            color: var(--secondary-color);
-            margin: 1rem 0;
-        }
-
-        #statusMessage {
-            color: #ff9800; /* Laranja para avisos */
-            margin-bottom: 1rem;
-            min-height: 1.2em;
-        }
-
-        #statusMessage.error {
-            color: var(--error-color);
-        }
-
-        /* Responsividade para Desktops */
-        @media (min-width: 768px) {
-            .controls {
-                display: grid;
-                grid-template-columns: 1fr 1fr;
-                gap: 1rem;
-            }
+        .notification.error {
+            border-left: 5px solid #f44336;
         }
     </style>
 </head>
 <body>
-
-    <div class="container">
-        <h1>Contador de Objetos por Cor</h1>
-        <div id="loadingIndicator" class="loader"></div>
-        <p id="statusMessage">Carregando biblioteca de visão computacional...</p>
-
-        <div class="video-container">
-            <video id="videoInput" autoplay playsinline></video>
-            <canvas id="canvasOutput"></canvas>
-        </div>
-
-        <div id="objectCount">Objetos detectados: 0</div>
-
-        <div class="controls">
-            <div class="control-group" style="grid-column: 1 / -1;">
-                <button id="startButton" disabled>Ativar Câmera</button>
-                <button id="resetButton">Redefinir Contagem</button>
-                <button id="snapshotButton">Capturar Imagem</button>
+    <!-- Header -->
+    <header>
+        <nav class="container">
+            <a href="#" class="logo">
+                <i class="fas fa-brain"></i> CountVision IA
+            </a>
+            <ul class="nav-links">
+                <li><a href="#home">Início</a></li>
+                <li><a href="#how-it-works">Como Funciona</a></li>
+                <li><a href="#demo">Demonstração</a></li>
+                <li><a href="#technologies">Tecnologias</a></li>
+                <li><a href="#use-cases">Casos de Uso</a></li>
+                <li><a href="#benefits">Benefícios</a></li>
+                <li><a href="#admin-panel">Painel</a></li>
+                <li><a href="#contact">Contato</a></li>
+            </ul>
+            <div class="menu-toggle">
+                <i class="fas fa-bars"></i>
             </div>
-            
-            <div class="control-group">
-                <label for="colorPicker">Cor Alvo:</label>
-                <input type="color" id="colorPicker" value="#00ff00">
-            </div>
+        </nav>
+    </header>
 
-            <div class="control-group">
-                <label for="areaSlider">Área Mínima do Objeto: <span id="areaValue" class="slider-value">500</span></label>
-                <input type="range" id="areaSlider" min="100" max="5000" value="500" step="100">
-            </div>
-
-            <div class="control-group">
-                <label for="hSlider">Tolerância de Matiz (Hue): <span id="hValue" class="slider-value">10</span></label>
-                <input type="range" id="hSlider" min="1" max="40" value="10">
-            </div>
-
-            <div class="control-group">
-                <label for="sSlider">Tolerância de Saturação (Saturation): <span id="sValue" class="slider-value">40</span></label>
-                <input type="range" id="sSlider" min="10" max="100" value="40">
-            </div>
-
-            <div class="control-group">
-                <label for="vSlider">Tolerância de Valor (Value/Brightness): <span id="vValue" class="slider-value">40</span></label>
-                <input type="range" id="vSlider" min="10" max="100" value="40">
+    <!-- Seção Hero -->
+    <section id="home" class="hero">
+        <div class="container hero-content">
+            <h1>Contagem Inteligente de Objetos com IA em Tempo Real</h1>
+            <p>Alta precisão, automação completa e economia de tempo e custos para sua empresa. Nossa plataforma utiliza visão computacional avançada para detectar, classificar e contar objetos em imagens, vídeos e transmissões ao vivo.</p>
+            <div class="cta-buttons">
+                <a href="#demo" class="btn btn-primary">Testar Demonstração</a>
+                <a href="#contact" class="btn btn-secondary">Solicitar Solução</a>
             </div>
         </div>
-    </div>
+    </section>
 
-    <!-- MUDANÇA AQUI: Link para o OpenCV.js via jsDelivr (mais confiável) -->
-    <script async src="https://cdn.jsdelivr.net/npm/opencv.js@4.9.0/dist/opencv.js" onload="onOpenCvReady();" onerror="onOpenCvError();" type="text/javascript"></script>
+    <!-- Seção Como Funciona -->
+    <section id="how-it-works" class="how-it-works">
+        <div class="container">
+            <div class="section-title">
+                <h2>Como Funciona</h2>
+                <p>Nossa plataforma utiliza inteligência artificial de ponta para processamento de imagens e vídeos</p>
+            </div>
+            <div class="process-steps">
+                <div class="step">
+                    <div class="step-icon">
+                        <i class="fas fa-upload"></i>
+                    </div>
+                    <h3>Upload de Dados</h3>
+                    <p>Envie imagens, vídeos ou conecte câmeras ao vivo para análise em tempo real</p>
+                </div>
+                <div class="step">
+                    <div class="step-icon">
+                        <i class="fas fa-brain"></i>
+                    </div>
+                    <h3>Processamento com IA</h3>
+                    <p>Nossos algoritmos de deep learning analisam o conteúdo visual usando redes neurais convolucionais</p>
+                </div>
+                <div class="step">
+                    <div class="step-icon">
+                        <i class="fas fa-search"></i>
+                    </div>
+                    <h3>Detecção e Classificação</h3>
+                    <p>Identificação precisa de múltiplos objetos simultaneamente com alta precisão</p>
+                </div>
+                <div class="step">
+                    <div class="step-icon">
+                        <i class="fas fa-chart-bar"></i>
+                    </div>
+                    <h3>Resultados e Relatórios</h3>
+                    <p>Contagem automática em tempo real com visualização clara e relatórios detalhados</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Seção Demonstração Interativa -->
+    <section id="demo" class="demo">
+        <div class="container">
+            <div class="section-title">
+                <h2>Demonstração Interativa</h2>
+                <p>Experimente nossa tecnologia de contagem de objetos com IA</p>
+            </div>
+            <div class="demo-container">
+                <div class="demo-upload">
+                    <h3>Envie sua imagem para análise</h3>
+                    <div class="upload-area" id="uploadArea">
+                        <i class="fas fa-cloud-upload-alt"></i>
+                        <p>Clique para fazer upload ou arraste uma imagem aqui</p>
+                        <p class="small">Formatos suportados: JPG, PNG, GIF (máx. 10MB)</p>
+                        <input type="file" id="fileInput" accept="image/*" style="display: none;">
+                    </div>
+                    <div class="demo-image-container">
+                        <img id="demoImage" class="demo-image" alt="Imagem para demonstração">
+                        <div id="boundingBoxes"></div>
+                        <div class="spinner" id="loadingSpinner" style="display: none;"></div>
+                    </div>
+                </div>
+                <div class="demo-results">
+                    <h3>Resultados da Análise</h3>
+                    <div id="resultsContainer">
+                        <div class="result-item">
+                            <span class="result-label">Status:</span>
+                            <span class="result-value">Aguardando imagem</span>
+                        </div>
+                        <div class="result-item">
+                            <span class="result-label">Objetos detectados:</span>
+                            <span class="result-value">0</span>
+                        </div>
+                        <div class="result-item">
+                            <span class="result-label">Precisão:</span>
+                            <span class="result-value">-</span>
+                        </div>
+                        <div class="result-item">
+                            <span class="result-label">Tempo de processamento:</span>
+                            <span class="result-value">-</span>
+                        </div>
+                    </div>
+                    <div id="objectDetails" style="margin-top: 20px;"></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Seção Tecnologias -->
+    <section id="technologies" class="technologies">
+        <div class="container">
+            <div class="section-title">
+                <h2>Tecnologias Utilizadas</h2>
+                <p>Utilizamos as mais avançadas tecnologias de IA e visão computacional</p>
+            </div>
+            <div class="tech-grid">
+                <div class="tech-card">
+                    <div class="tech-icon">
+                        <i class="fas fa-brain"></i>
+                    </div>
+                    <h3>Inteligência Artificial</h3>
+                    <p>Algoritmos avançados de aprendizado de máquina para análise e reconhecimento de padrões</p>
+                </div>
+                <div class="tech-card">
+                    <div class="tech-icon">
+                        <i class="fas fa-eye"></i>
+                    </div>
+                    <h3>Visão Computacional</h3>
+                    <p>Técnicas especializadas para extração, análise e compreensão de informações de imagens</p>
+                </div>
+                <div class="tech-card">
+                    <div class="tech-icon">
+                        <i class="fas fa-project-diagram"></i>
+                    </div>
+                    <h3>Deep Learning</h3>
+                    <p>Redes neurais profundas para detecção e classificação de objetos com alta precisão</p>
+                </div>
+                <div class="tech-card">
+                    <div class="tech-icon">
+                        <i class="fas fa-cube"></i>
+                    </div>
+                    <h3>Modelos YOLO</h3>
+                    <p>Utilização de modelos de detecção de objetos em tempo real com alta performance</p>
+                </div>
+                <div class="tech-card">
+                    <div class="tech-icon">
+                        <i class="fas fa-server"></i>
+                    </div>
+                    <h3>Backend Escalável</h3>
+                    <p>Infraestrutura robusta e escalável para processamento de grandes volumes de dados</p>
+                </div>
+                <div class="tech-card">
+                    <div class="tech-icon">
+                        <i class="fas fa-plug"></i>
+                    </div>
+                    <h3>API REST</h3>
+                    <p>Interface de programação completa para integração com sistemas existentes</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Seção Casos de Uso -->
+    <section id="use-cases" class="use-cases">
+        <div class="container">
+            <div class="section-title">
+                <h2>Casos de Uso</h2>
+                <p>Nossa solução se adapta a diversos setores e necessidades</p>
+            </div>
+            <div class="cases-grid">
+                <div class="case-card">
+                    <div class="case-image">
+                        <i class="fas fa-industry"></i>
+                    </div>
+                    <div class="case-content">
+                        <h3>Indústrias</h3>
+                        <p>Monitoramento de linhas de produção, controle de qualidade e gestão de estoque em tempo real</p>
+                    </div>
+                </div>
+                <div class="case-card">
+                    <div class="case-image">
+                        <i class="fas fa-shopping-cart"></i>
+                    </div>
+                    <div class="case-content">
+                        <h3>Varejo</h3>
+                        <p>Análise de fluxo de clientes, gestão de prateleiras e otimização de espaços comerciais</p>
+                    </div>
+                </div>
+                <div class="case-card">
+                    <div class="case-image">
+                        <i class="fas fa-shield-alt"></i>
+                    </div>
+                    <div class="case-content">
+                        <h3>Segurança</h3>
+                        <p>Monitoramento de ambientes, detecção de intrusos e controle de acesso em áreas restritas</p>
+                    </div>
+                </div>
+                <div class="case-card">
+                    <div class="case-image">
+                        <i class="fas fa-seedling"></i>
+                    </div>
+                    <div class="case-content">
+                        <h3>Agricultura</h3>
+                        <p>Contagem de plantas, frutas e animais, monitoramento de colheitas e análise de saúde das culturas</p>
+                    </div>
+                </div>
+                <div class="case-card">
+                    <div class="case-image">
+                        <i class="fas fa-city"></i>
+                    </div>
+                    <div class="case-content">
+                        <h3>Cidades Inteligentes</h3>
+                        <p>Monitoramento de tráfego veicular, controle de fluxo de pessoas e gestão de espaços públicos</p>
+                    </div>
+                </div>
+                <div class="case-card">
+                    <div class="case-image">
+                        <i class="fas fa-truck"></i>
+                    </div>
+                    <div class="case-content">
+                        <h3>Logística</h3>
+                        <p>Contagem automática de mercadorias, otimização de armazenamento e controle de expedição</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Seção Benefícios -->
+    <section id="benefits" class="benefits">
+        <div class="container">
+            <div class="section-title">
+                <h2>Benefícios</h2>
+                <p>Descubra as vantagens de nossa solução de contagem de objetos com IA</p>
+            </div>
+            <div class="benefits-list">
+                <div class="benefit-item">
+                    <div class="benefit-icon">
+                        <i class="fas fa-check-circle"></i>
+                    </div>
+                    <div class="benefit-text">
+                        <h3>Alta Precisão</h3>
+                        <p>Nossos algoritmos oferecem precisão superior a 95% na detecção e contagem de objetos</p>
+                    </div>
+                </div>
+                <div class="benefit-item">
+                    <div class="benefit-icon">
+                        <i class="fas fa-robot"></i>
+                    </div>
+                    <div class="benefit-text">
+                        <h3>Automação Completa</h3>
+                        <p>Elimine processos manuais e reduza erros humanos com automação inteligente</p>
+                    </div>
+                </div>
+                <div class="benefit-item">
+                    <div class="benefit-icon">
+                        <i class="fas fa-user-check"></i>
+                    </div>
+                    <div class="benefit-text">
+                        <h3>Redução de Erros</h3>
+                        <p>Minimize falhas de contagem e garanta consistência nos resultados</p>
+                    </div>
+                </div>
+                <div class="benefit-item">
+                    <div class="benefit-icon">
+                        <i class="fas fa-tachometer-alt"></i>
+                    </div>
+                    <div class="benefit-text">
+                        <h3>Processamento Rápido</h3>
+                        <p>Análise em tempo real com resultados instantâneos para tomada de decisão ágil</p>
+                    </div>
+                </div>
+                <div class="benefit-item">
+                    <div class="benefit-icon">
+                        <i class="fas fa-expand-arrows-alt"></i>
+                    </div>
+                    <div class="benefit-text">
+                        <h3>Escalável</h3>
+                        <p>Solução que cresce com sua empresa, capaz de processar milhares de objetos simultaneamente</p>
+                    </div>
+                </div>
+                <div class="benefit-item">
+                    <div class="benefit-icon">
+                        <i class="fas fa-plug"></i>
+                    </div>
+                    <div class="benefit-text">
+                        <h3>Integração Simples</h3>
+                        <p>API REST completa para fácil integração com seus sistemas existentes</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Seção Painel Administrativo -->
+    <section id="admin-panel" class="admin-panel">
+        <div class="container">
+            <div class="section-title">
+                <h2>Painel Administrativo</h2>
+                <p>Controle completo sobre suas análises e configurações</p>
+            </div>
+            <div class="dashboard-preview">
+                <div class="dashboard-card">
+                    <i class="fas fa-history"></i>
+                    <h3>Histórico de Contagens</h3>
+                    <p>Acesso a todas as análises realizadas com filtros por data e tipo</p>
+                </div>
+                <div class="dashboard-card">
+                    <i class="fas fa-chart-line"></i>
+                    <h3>Gráficos e Estatísticas</h3>
+                    <p>Visualização intuitiva de dados e tendências para tomada de decisão</p>
+                </div>
+                <div class="dashboard-card">
+                    <i class="fas fa-file-export"></i>
+                    <h3>Exportação de Dados</h3>
+                    <p>Exporte resultados em CSV, Excel ou PDF para relatórios personalizados</p>
+                </div>
+                <div class="dashboard-card">
+                    <i class="fas fa-users-cog"></i>
+                    <h3>Controle de Usuários</h3>
+                    <p>Gerencie permissões e acesso de diferentes usuários à plataforma</p>
+                </div>
+                <div class="dashboard-card">
+                    <i class="fas fa-cogs"></i>
+                    <h3>Configuração de Modelos</h3>
+                    <p>Personalize os modelos de IA para objetos específicos do seu negócio</p>
+                </div>
+                <div class="dashboard-card">
+                    <i class="fas fa-bell"></i>
+                    <h3>Alertas e Notificações</h3>
+                    <p>Receba alertas automáticos quando determinados limites são atingidos</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Seção Contato -->
+    <section id="contact" class="contact">
+        <div class="container">
+            <div class="section-title">
+                <h2>Entre em Contato</h2>
+                <p>Fale com nossos especialistas em IA e descubra como podemos ajudar seu negócio</p>
+            </div>
+            <form class="contact-form" id="contactForm">
+                <div class="form-group">
+                    <label for="name">Nome</label>
+                    <input type="text" id="name" name="name" required>
+                </div>
+                <div class="form-group">
+                    <label for="email">E-mail</label>
+                    <input type="email" id="email" name="email" required>
+                </div>
+                <div class="form-group">
+                    <label for="company">Empresa</label>
+                    <input type="text" id="company" name="company">
+                </div>
+                <div class="form-group">
+                    <label for="message">Mensagem</label>
+                    <textarea id="message" name="message" required></textarea>
+                </div>
+                <button type="submit" class="btn btn-primary">Fale com nossos especialistas em IA</button>
+            </form>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>CountVision IA</h3>
+                    <p>Solução avançada de contagem de objetos com inteligência artificial para otimizar processos e aumentar a produtividade.</p>
+                    <div class="social-links">
+                        <a href="#"><i class="fab fa-facebook-f"></i></a>
+                        <a href="#"><i class="fab fa-twitter"></i></a>
+                        <a href="#"><i class="fab fa-linkedin-in"></i></a>
+                        <a href="#"><i class="fab fa-instagram"></i></a>
+                    </div>
+                </div>
+                <div class="footer-section">
+                    <h3>Links Rápidos</h3>
+                    <ul>
+                        <li><a href="#home">Início</a></li>
+                        <li><a href="#how-it-works">Como Funciona</a></li>
+                        <li><a href="#demo">Demonstração</a></li>
+                        <li><a href="#technologies">Tecnologias</a></li>
+                        <li><a href="#use-cases">Casos de Uso</a></li>
+                        <li><a href="#benefits">Benefícios</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h3>Soluções</h3>
+                    <ul>
+                        <li><a href="#">Indústrias</a></li>
+                        <li><a href="#">Varejo</a></li>
+                        <li><a href="#">Segurança</a></li>
+                        <li><a href="#">Agricultura</a></li>
+                        <li><a href="#">Cidades Inteligentes</a></li>
+                        <li><a href="#">Logística</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h3>Contato</h3>
+                    <ul>
+                        <li><i class="fas fa-map-marker-alt"></i> Rua da Tecnologia, 123</li>
+                        <li><i class="fas fa-phone"></i> (11) 3456-7890</li>
+                        <li><i class="fas fa-envelope"></i> contato@countvision.ai</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="copyright">
+                <p>&copy; 2023 CountVision IA. Todos os direitos reservados.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Notificação -->
+    <div class="notification" id="notification"></div>
 
     <script>
-        // Variáveis globais para elementos da interface e do OpenCV
-        const video = document.getElementById('videoInput');
-        const canvas = document.getElementById('canvasOutput');
-        const canvasContext = canvas.getContext('2d');
-        const startButton = document.getElementById('startButton');
-        const resetButton = document.getElementById('resetButton');
-        const snapshotButton = document.getElementById('snapshotButton');
-        const colorPicker = document.getElementById('colorPicker');
-        const areaSlider = document.getElementById('areaSlider');
-        const hSlider = document.getElementById('hSlider');
-        const sSlider = document.getElementById('sSlider');
-        const vSlider = document.getElementById('vSlider');
-        const statusMessage = document.getElementById('statusMessage');
-        const objectCountDisplay = document.getElementById('objectCount');
-        const loadingIndicator = document.getElementById('loadingIndicator');
+        // Menu Mobile Toggle
+        document.querySelector('.menu-toggle').addEventListener('click', function() {
+            document.querySelector('.nav-links').classList.toggle('active');
+        });
 
-        let stream = null;
-        let isProcessing = false;
-        let isCvReady = false;
-        let objectCount = 0;
-
-        // Parâmetros de detecção
-        let minArea = 500;
-        let hsvLow = new cv.Mat();
-        let hsvHigh = new cv.Mat();
-
-        // Função chamada se o OpenCV carregar com sucesso
-        function onOpenCvReady() {
-            if (typeof cv === 'undefined' || !cv.Mat) {
-                onOpenCvError(); // Chama a função de erro se algo der errado mesmo no onload
-                return;
-            }
-            
-            isCvReady = true;
-            loadingIndicator.style.display = 'none'; // Esconde o spinner
-            statusMessage.textContent = "Pronto. Clique em 'Ativar Câmera'.";
-            statusMessage.classList.remove('error');
-            startButton.disabled = false;
-
-            startButton.addEventListener('click', toggleCamera);
-            resetButton.addEventListener('click', resetCount);
-            snapshotButton.addEventListener('click', takeSnapshot);
-            
-            colorPicker.addEventListener('input', updateDetectionParams);
-            areaSlider.addEventListener('input', () => { minArea = parseInt(areaSlider.value); document.getElementById('areaValue').textContent = minArea; });
-            hSlider.addEventListener('input', updateDetectionParams);
-            sSlider.addEventListener('input', updateDetectionParams);
-            vSlider.addEventListener('input', updateDetectionParams);
-            
-            document.getElementById('areaValue').textContent = areaSlider.value;
-            document.getElementById('hValue').textContent = hSlider.value;
-            document.getElementById('sValue').textContent = sSlider.value;
-            document.getElementById('vValue').textContent = vSlider.value;
-
-            updateDetectionParams();
-        }
-
-        // Função chamada se o OpenCV NÃO carregar
-        function onOpenCvError() {
-            loadingIndicator.style.display = 'none'; // Esconde o spinner
-            statusMessage.textContent = "Erro Crítico: Não foi possível carregar a biblioteca OpenCV. Verifique sua conexão com a internet ou desative bloqueadores de anúncios.";
-            statusMessage.classList.add('error');
-            console.error("Falha ao carregar o script do OpenCV.js.");
-        }
-
-        // ... (O restante do código JavaScript permanece o mesmo) ...
-        function toggleCamera() {
-            if (!isCvReady) {
-                statusMessage.textContent = "A biblioteca OpenCV não está pronta.";
-                return;
-            }
-            if (stream) {
-                stopCamera();
-            } else {
-                startCamera();
-            }
-        }
-
-        function startCamera() {
-            statusMessage.textContent = "Solicitando acesso à câmera...";
-            statusMessage.classList.remove('error');
-            navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } })
-                .then(function(s) {
-                    stream = s;
-                    video.srcObject = stream;
-                    video.play();
-                    startButton.textContent = "Pausar Câmera";
-                    statusMessage.textContent = "Câmera ativa. Aponte para os objetos.";
-                    isProcessing = true;
-                    requestAnimationFrame(processVideo);
-                })
-                .catch(function(err) {
-                    statusMessage.textContent = `Erro ao acessar a câmera: ${err.name}. Verifique se o site usa HTTPS e se você permitiu o acesso.`;
-                    statusMessage.classList.add('error');
-                    console.error("Erro ao acessar a câmera: ", err);
+        // Smooth Scrolling
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                document.querySelector(this.getAttribute('href')).scrollIntoView({
+                    behavior: 'smooth'
                 });
-        }
+                // Fechar menu mobile se estiver aberto
+                document.querySelector('.nav-links').classList.remove('active');
+            });
+        });
 
-        function stopCamera() {
-            if (stream) {
-                stream.getTracks().forEach(track => track.stop());
-                video.srcObject = null;
-                stream = null;
+        // Upload de Imagem para Demonstração
+        const uploadArea = document.getElementById('uploadArea');
+        const fileInput = document.getElementById('fileInput');
+        const demoImage = document.getElementById('demoImage');
+        const boundingBoxes = document.getElementById('boundingBoxes');
+        const loadingSpinner = document.getElementById('loadingSpinner');
+        const resultsContainer = document.getElementById('resultsContainer');
+        const objectDetails = document.getElementById('objectDetails');
+
+        uploadArea.addEventListener('click', () => {
+            fileInput.click();
+        });
+
+        uploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadArea.style.background = 'rgba(255, 255, 255, 0.1)';
+        });
+
+        uploadArea.addEventListener('dragleave', () => {
+            uploadArea.style.background = 'transparent';
+        });
+
+        uploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadArea.style.background = 'transparent';
+            
+            if (e.data.files.length) {
+                fileInput.files = e.dataFiles;
+                processImage();
             }
-            isProcessing = false;
-            startButton.textContent = "Ativar Câmera";
-            statusMessage.textContent = "Câmera desativada.";
-            statusMessage.classList.remove('error');
-            canvasContext.clearRect(0, 0, canvas.width, canvas.height);
+        });
+
+        fileInput.addEventListener('change', processImage);
+
+        function processImage() {
+            if (fileInput.files && fileInput.files[0]) {
+                const reader = new FileReader();
+                
+                reader.onload = function(e) {
+                    demoImage.src = e.target.result;
+                    demoImage.style.display = 'block';
+                    loadingSpinner.style.display = 'block';
+                    
+                    // Simulação de processamento da IA
+                    setTimeout(() => {
+                        loadingSpinner.style.display = 'none';
+                        simulateObjectDetection();
+                    }, 2000);
+                };
+                
+                reader.readAsDataURL(fileInput.files[0]);
+            }
         }
 
-        function processVideo() {
-            if (!isProcessing) return;
-            try {
-                if (video.readyState === video.HAVE_ENOUGH_DATA) {
-                    canvas.width = video.videoWidth;
-                    canvas.height = video.videoHeight;
-                    let src = new cv.Mat(video.videoHeight, video.videoWidth, cv.CV_8UC4);
-                    let dst = cv.Mat.zeros(video.videoHeight, video.videoWidth, cv.CV_8UC3);
-                    let cap = new cv.VideoCapture(video);
-                    cap.read(src);
-                    cv.cvtColor(src, src, cv.COLOR_RGBA2RGB);
-                    cv.cvtColor(src, src, cv.COLOR_RGB2HSV);
-                    let mask = new cv.Mat();
-                    cv.inRange(src, hsvLow, hsvHigh, mask);
-                    let kernel = cv.getStructuringElement(cv.MORPH_ELLIPSE, new cv.Size(5, 5));
-                    cv.morphologyEx(mask, mask, cv.MORPH_OPEN, kernel);
-                    cv.morphologyEx(mask, mask, cv.MORPH_CLOSE, kernel);
-                    let contours = new cv.MatVector();
-                    let hierarchy = new cv.Mat();
-                    cv.findContours(mask, contours, hierarchy, cv.RETR_EXTERNAL, cv.CHAIN_APPROX_SIMPLE);
-                    objectCount = 0;
-                    for (let i = 0; i < contours.size(); ++i) {
-                        let contour = contours.get(i);
-                        if (cv.contourArea(contour) > minArea) {
-                            objectCount++;
-                            cv.drawContours(dst, contours, i, [0, 255, 0, 255], 2, cv.LINE_8, hierarchy, 100);
-                        }
-                        contour.delete();
-                    }
-                    cv.cvtColor(src, src, cv.COLOR_HSV2BGR);
-                    cv.addWeighted(src, 0.8, dst, 1, 0, dst);
-                    cv.imshow('canvasOutput', dst);
-                    objectCountDisplay.textContent = `Objetos detectados: ${objectCount}`;
-                    src.delete(); dst.delete(); mask.delete(); kernel.delete(); contours.delete(); hierarchy.delete();
+        function simulateObjectDetection() {
+            // Limpar resultados anteriores
+            boundingBoxes.innerHTML = '';
+            objectDetails.innerHTML = '';
+            
+            // Simulação de detecção de objetos
+            const objects = [
+                { type: 'Pessoa', count: Math.floor(Math.random() * 5) + 1, color: '#4CAF50' },
+                { type: 'Veículo', count: Math.floor(Math.random() * 3) + 1, color: '#2196F3' },
+                { type: 'Caixa', count: Math.floor(Math.random() * 10) + 5, color: '#FF9800' },
+                { type: 'Produto', count: Math.floor(Math.random() * 20) + 10, color: '#9C27B0' }
+            ];
+            
+            // Calcular total
+            const totalObjects = objects.reduce((sum, obj) => sum + obj.count, 0);
+            
+            // Atualizar resultados gerais
+            resultsContainer.innerHTML = `
+                <div class="result-item">
+                    <span class="result-label">Status:</span>
+                    <span class="result-value">Análise concluída</span>
+                </div>
+                <div class="result-item">
+                    <span class="result-label">Objetos detectados:</span>
+                    <span class="result-value">${totalObjects}</span>
+                </div>
+                <div class="result-item">
+                    <span class="result-label">Precisão:</span>
+                    <span class="result-value">${(Math.random() * 5 + 95).toFixed(2)}%</span>
+                </div>
+                <div class="result-item">
+                    <span class="result-label">Tempo de processamento:</span>
+                    <span class="result-value">${(Math.random() * 2 + 0.5).toFixed(2)}s</span>
+                </div>
+            `;
+            
+            // Adicionar detalhes dos objetos
+            let detailsHTML = '<h4>Detalhes dos Objetos:</h4>';
+            objects.forEach(obj => {
+                detailsHTML += `
+                    <div class="result-item">
+                        <span class="result-label">${obj.type}:</span>
+                        <span class="result-value">${obj.count}</span>
+                    </div>
+                `;
+                
+                // Adicionar bounding boxes simulados
+                for (let i = 0; i < obj.count; i++) {
+                    const box = document.createElement('div');
+                    box.className = 'bounding-box';
+                    
+                    // Posição e tamanho aleatórios
+                    const left = Math.random() * 70 + 10; // 10-80%
+                    const top = Math.random() * 70 + 10;  // 10-80%
+                    const width = Math.random() * 10 + 5;  // 5-15%
+                    const height = Math.random() * 10 + 5; // 5-15%
+                    
+                    box.style.left = `${left}%`;
+                    box.style.top = `${top}%`;
+                    box.style.width = `${width}%`;
+                    box.style.height = `${height}%`;
+                    box.style.borderColor = obj.color;
+                    
+                    // Adicionar label
+                    const label = document.createElement('div');
+                    label.className = 'object-label';
+                    label.textContent = obj.type;
+                    label.style.background = obj.color;
+                    box.appendChild(label);
+                    
+                    boundingBoxes.appendChild(box);
                 }
-            } catch (err) {
-                console.error("Erro durante o processamento de vídeo: ", err);
-                statusMessage.textContent = `Erro no processamento: ${err.message}. A câmera será desativada.`;
-                statusMessage.classList.add('error');
-                stopCamera();
-                return;
-            }
-            requestAnimationFrame(processVideo);
-        }
-        
-        function updateDetectionParams() {
-            if (!isCvReady) return;
-            let hex = colorPicker.value;
-            let r = parseInt(hex.substr(1, 2), 16);
-            let g = parseInt(hex.substr(3, 2), 16);
-            let b = parseInt(hex.substr(5, 2), 16);
-            let srcRgb = new cv.Mat(1, 1, cv.CV_8UC3, [r, g, b]);
-            let srcHsv = new cv.Mat();
-            cv.cvtColor(srcRgb, srcHsv, cv.COLOR_RGB2HSV);
-            let hTolerance = parseInt(hSlider.value);
-            let sTolerance = parseInt(sSlider.value);
-            let vTolerance = parseInt(vSlider.value);
-            document.getElementById('hValue').textContent = hTolerance;
-            document.getElementById('sValue').textContent = sTolerance;
-            document.getElementById('vValue').textContent = vTolerance;
-            let pixel = srcHsv.data;
-            let h = pixel[0], s = pixel[1], v = pixel[2];
-            let lowH = Math.max(0, h - hTolerance);
-            let highH = Math.min(179, h + hTolerance);
-            let lowS = Math.max(0, s - sTolerance);
-            let highS = Math.min(255, s + sTolerance);
-            let lowV = Math.max(0, v - vTolerance);
-            let highV = Math.min(255, v + vTolerance);
-            hsvLow.delete(); hsvHigh.delete();
-            hsvLow = new cv.Mat(1, 1, cv.CV_8UC3, [lowH, lowS, lowV, 0]);
-            hsvHigh = new cv.Mat(1, 1, cv.CV_8UC3, [highH, highS, highV, 255]);
-            srcRgb.delete(); srcHsv.delete();
+            });
+            
+            objectDetails.innerHTML = detailsHTML;
+            
+            // Mostrar notificação de sucesso
+            showNotification('Análise concluída com sucesso!', 'success');
         }
 
-        function resetCount() {
-            objectCount = 0;
-            objectCountDisplay.textContent = `Objetos detectados: 0`;
+        // Formulário de Contato
+        document.getElementById('contactForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // Simulação de envio do formulário
+            const formData = new FormData(this);
+            const data = Object.fromEntries(formData);
+            
+            console.log('Dados do formulário:', data);
+            
+            // Mostrar notificação de sucesso
+            showNotification('Mensagem enviada com sucesso! Entraremos em contato em breve.', 'success');
+            
+            // Limpar formulário
+            this.reset();
+        });
+
+        // Sistema de Notificações
+        function showNotification(message, type) {
+            const notification = document.getElementById('notification');
+            notification.textContent = message;
+            notification.className = `notification ${type}`;
+            notification.classList.add('show');
+            
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, 5000);
         }
 
-        function takeSnapshot() {
-            if (canvas.width === 0) {
-                statusMessage.textContent = "Nenhuma imagem para capturar. Ative a câmera primeiro.";
-                return;
-            }
-            let link = document.createElement('a');
-            link.download = 'snapshot-contagem.png';
-            link.href = canvas.toDataURL();
-            link.click();
-        }
+        // Animação ao rolar a página
+        window.addEventListener('scroll', () => {
+            const sections = document.querySelectorAll('section');
+            
+            sections.forEach(section => {
+                const sectionTop = section.offsetTop;
+                const sectionHeight = section.clientHeight;
+                const scrollPos = window.scrollY + window.innerHeight;
+                
+                if (scrollPos > sectionTop + 100) {
+                    section.style.opacity = '1';
+                    section.style.transform = 'translateY(0)';
+                }
+            });
+        });
+
+        // Inicializar animações
+        document.addEventListener('DOMContentLoaded', () => {
+            const sections = document.querySelectorAll('section');
+            
+            sections.forEach(section => {
+                section.style.opacity = '0';
+                section.style.transform = 'translateY(20px)';
+                section.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+            });
+            
+            // Ativar a primeira seção (hero)
+            document.querySelector('.hero').style.opacity = '1';
+            document.querySelector('.hero').style.transform = 'translateY(0)';
+        });
     </script>
 </body>
 </html>
