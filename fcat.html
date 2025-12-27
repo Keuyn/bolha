@@ -22,28 +22,17 @@
 
         /* Custom cursor */
         .custom-cursor {
-            width: 20px;
-            height: 20px;
-            border: 2px solid white;
-            border-radius: 50%;
-            position: fixed;
-            pointer-events: none;
-            z-index: 10000;
-            transition: transform 0.1s ease;
-            mix-blend-mode: difference;
-        }
+    width: 40px; /* ajuste o tamanho conforme necessário */
+    height: 40px;
+    background: url('mouse.png') no-repeat center center;
+    background-size: contain;
+    position: fixed;
+    pointer-events: none;
+    z-index: 10000;
+    transform: translate(-50%, -50%);
+}
 
-        .custom-cursor::after {
-            content: '';
-            width: 4px;
-            height: 4px;
-            background: white;
-            border-radius: 50%;
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-        }
+        
 
         /* Cat Container */
         .cat-container {
