@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contador de Objetos por Cor</title>
+    <style>
+        /* Estilos Gerais e Mobile-First */
+        :root {
+            --bg-color: #121212;
+            --text-color: #e0e0e0;
+            --primary-color: #6200ee;
+            --primary-hover: #3700b3;
+            --secondary-color: #03dac6;
+            --panel-bg: #1e1e1e;
+            --border-color: #333;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 1rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            box-sizing: border-box;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 800px;
+            text-align: center;
+        }
+
+        h1 {
+            color: var(--secondary-color);
+        }
+
+        /* Área de Vídeo e Canvas */
+        .video-container {
+            position: relative;
+            width: 100%;
+            max-width: 640px;
+            margin: auto;
+            background-color: #000;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        #videoInput, #canvasOutput {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+
+        #canvasOutput {
+            position: absolute;
+            top: 0;
+            left: 0;
+        }
+
+        /* Painel de Controles */
+        .controls {
+            margin-top: 1.5rem;
+            padding: 1.5rem;
+            background-color: var(--panel-bg);
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+        }
+
+        .control-group {
+            margin-bottom: 1rem;
+            text-align: left;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: bold;
+        }
+
+        input[type="range"] {
+            width: 100%;
+            cursor: pointer;
+        }
+
+        .slider-value {
+            float: right;
+        }
+
+        /* Botões */
+        button {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 0.8rem 1.5rem;
+            font-size: 1rem;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            margin: 0.5rem;
+        }
+
+        button:hover {
+            background-color: var(--primary-hover);
+        }
+
+        button:disabled {
+            background-color: #555;
+            cursor: not-allowed;
+        }
+
+        /* Exibição de Contagem e Status */
+        #objectCount {
+            font-size: 2rem;
+            font-weight: bold;
+            color: var(--secondary-color);
+            margin: 1rem 0;
+        }
+
+        #statusMessage {
+            color: #ff9800; /* Laranja para avisos */
+            margin-bottom: 1rem;
+            min-height: 1.2em;
+        }
+
+        /* Responsividade para Desktops */
+        @media (min-width: 768px) {
+            .controls {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>Contador de Objetos por Cor</h1>
+        <p id="statusMessage">Clique em "Ativar Câmera" para começar.</p>
+
+        <div class="video-container">
+            <video id="videoInput" autoplay playsinline></video>
+            <canvas id="canvasOutput"></canvas>
+        </div>
+
+        <div id="objectCount">Objetos detectados: 0</div>
+
+        <div class="controls">
+            <div class="control-group" style="grid-column: 1 / -1;">
+                <button id="startButton">Ativar Câmera</button>
+                <button id="resetButton">Redefinir Contagem</button>
+                <button id="snapshotButton">Capturar Imagem</button>
+            </div>
+            
+            <div class="control-group">
+                <label for="colorPicker">Cor Alvo:</label>
+                <input type="color" id="colorPicker" value="#00ff00">
+            </div>
+
+            <div class="control-group">
+                <label for="areaSlider">Área Mínima do Objeto: <span id="areaValue" class="slider-value">500</span></label>
+                <input type="range" id="areaSlider" min="100" max="5000" value="500" step="100">
+            </div>
+
+            <div class="control-group">
+                <label for="hSlider">Tolerância de Matiz (Hue): <span id="hValue" class="slider-value">10</span></label>
+                <input type="range" id="hSlider" min="1" max="40" value="10">
+            </div>
+
+            <div class="control-group">
+                <label for="sSlider">Tolerância de Saturação (Saturation): <span id="sValue" class="slider-value">40</span></label>
+                <input type="range" id="sSlider" min="10" max="100" value="40">
+            </div>
+
+            <div class="control-group">
+                <label for="vSlider">Tolerância de Valor (Value/Brightness): <span id="vValue" class="slider-value">40</span></label>
+                <input type="range" id="vSlider" min="10" max="100" value="40">
+            </div>
+        </div>
+    </div>
+
+    <!-- Carregando a biblioteca OpenCV.js -->
+    <!-- É crucial carregar ANTES do nosso script principal -->
+    <script async src="https://docs.opencv.org/4.5.0/opencv.js" onload="onOpenCvReady();" type="text/javascript"></script>
+
+    <script>
+        // Variáveis globais para elementos da interface e do OpenCV
+        let video = document.getElementById('videoInput');
+        let canvas = document.getElementById('canvasOutput');
+        let canvasContext = canvas.getContext('2d');
+        let startButton = document.getElementById('startButton');
+        let resetButton = document.getElementById('resetButton');
+        let snapshotButton = document.getElementById('snapshotButton');
+        let colorPicker = document.getElementById('colorPicker');
+        let areaSlider = document.getElementById('areaSlider');
+        let hSlider = document.getElementById('hSlider');
+        let sSlider = document.getElementById('sSlider');
+        let vSlider = document.getElementById('vSlider');
+        let statusMessage = document.getElementById('statusMessage');
+        let objectCountDisplay = document.getElementById('objectCount');
+
+        let stream = null; // Para armazenar o stream da câmera
+        let isProcessing = false;
+        let objectCount = 0;
+
+        // Parâmetros de detecção
+        let minArea = 500;
+        let hsvLow = new cv.Mat();
+        let hsvHigh = new cv.Mat();
+
+        // Esta função é chamada quando o OpenCV.js é carregado
+        function onOpenCvReady() {
+            startButton.addEventListener('click', toggleCamera);
+            resetButton.addEventListener('click', resetCount);
+            snapshotButton.addEventListener('click', takeSnapshot);
+            
+            // Listeners para atualizar parâmetros em tempo real
+            colorPicker.addEventListener('input', updateDetectionParams);
+            areaSlider.addEventListener('input', () => { minArea = areaSlider.value; document.getElementById('areaValue').textContent = minArea; });
+            hSlider.addEventListener('input', updateDetectionParams);
+            sSlider.addEventListener('input', updateDetectionParams);
+            vSlider.addEventListener('input', updateDetectionParams);
+            
+            // Atualiza os valores exibidos nos sliders
+            document.getElementById('areaValue').textContent = areaSlider.value;
+            document.getElementById('hValue').textContent = hSlider.value;
+            document.getElementById('sValue').textContent = sSlider.value;
+            document.getElementById('vValue').textContent = vSlider.value;
+
+            // Inicializa os parâmetros de cor
+            updateDetectionParams();
+            statusMessage.textContent = "OpenCV carregado. Clique em 'Ativar Câmera'.";
+            startButton.disabled = false;
+        }
+
+        // Alterna o estado da câmera (ligar/desligar)
+        function toggleCamera() {
+            if (stream) {
+                stopCamera();
+            } else {
+                startCamera();
+            }
+        }
+
+        // Inicia a câmera e o processamento
+        function startCamera() {
+            navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } })
+                .then(function(s) {
+                    stream = s;
+                    video.srcObject = stream;
+                    video.play();
+                    startButton.textContent = "Pausar Câmera";
+                    statusMessage.textContent = "Câmera ativa. Aponte para os objetos.";
+                    isProcessing = true;
+                    // Dá um tempo para o vídeo começar e depois processa
+                    setTimeout(processVideo, 500);
+                })
+                .catch(function(err) {
+                    statusMessage.textContent = "Erro ao acessar a câmera: " + err.name + ". Verifique as permissões do navegador.";
+                    console.error("Erro ao acessar a câmera: ", err);
+                });
+        }
+
+        // Para a câmera e o processamento
+        function stopCamera() {
+            if (stream) {
+                stream.getTracks().forEach(track => track.stop());
+                video.srcObject = null;
+                stream = null;
+            }
+            isProcessing = false;
+            startButton.textContent = "Ativar Câmera";
+            statusMessage.textContent = "Câmera desativada.";
+            canvasContext.clearRect(0, 0, canvas.width, canvas.height);
+        }
+
+        // Função principal de processamento de vídeo
+        function processVideo() {
+            if (!isProcessing) {
+                return;
+            }
+            try {
+                // Garante que o vídeo tenha dados suficientes para ser processado
+                if (video.readyState === video.HAVE_ENOUGH_DATA) {
+                    // Cria as matrizes (imagens) que o OpenCV usará
+                    let src = new cv.Mat(video.videoHeight, video.videoWidth, cv.CV_8UC4);
+                    let dst = cv.Mat.zeros(video.videoHeight, video.videoWidth, cv.CV_8UC3);
+                    let cap = new cv.VideoCapture(video);
+                    cap.read(src);
+
+                    // Converte a imagem de RGBA (padrão do canvas) para RGB
+                    cv.cvtColor(src, src, cv.COLOR_RGBA2RGB);
+                    
+                    // Converte de RGB para HSV (melhor para detecção de cor)
+                    cv.cvtColor(src, src, cv.COLOR_RGB2HSV);
+
+                    // Cria uma máscara binária onde os pixels estão na faixa de cor desejada
+                    let mask = new cv.Mat();
+                    cv.inRange(src, hsvLow, hsvHigh, mask);
+
+                    // Aplica operações morfológicas para remover ruído
+                    let kernel = cv.getStructuringElement(cv.MORPH_ELLIPSE, new cv.Size(5, 5));
+                    cv.morphologyEx(mask, mask, cv.MORPH_OPEN, kernel);
+                    cv.morphologyEx(mask, mask, cv.MORPH_CLOSE, kernel);
+
+                    // Encontra os contornos (os objetos)
+                    let contours = new cv.MatVector();
+                    let hierarchy = new cv.Mat();
+                    cv.findContours(mask, contours, hierarchy, cv.RETR_EXTERNAL, cv.CHAIN_APPROX_SIMPLE);
+
+                    // Reseta a contagem
+                    objectCount = 0;
+                    
+                    // Itera sobre os contornos encontrados
+                    for (let i = 0; i < contours.size(); ++i) {
+                        let contour = contours.get(i);
+                        let area = cv.contourArea(contour);
+                        
+                        // Filtra por área mínima para ignorar ruídos pequenos
+                        if (area > minArea) {
+                            objectCount++;
+                            // Desenha o contorno na imagem de destino (dst)
+                            cv.drawContours(dst, contours, i, [0, 255, 0, 255], 2, cv.LINE_8, hierarchy, 100);
+                        }
+                        contour.delete();
+                    }
+                    
+                    // Converte a imagem original de volta para BGR para desenhar
+                    cv.cvtColor(src, src, cv.COLOR_HSV2BGR);
+                    // Mescla a imagem original com os contornos desenhados
+                    cv.addWeighted(src, 0.8, dst, 1, 0, dst);
+
+                    // Exibe o resultado no canvas
+                    cv.imshow('canvasOutput', dst);
+                    
+                    // Atualiza o contador na tela
+                    objectCountDisplay.textContent = `Objetos detectados: ${objectCount}`;
+
+                    // Libera memória
+                    src.delete();
+                    dst.delete();
+                    mask.delete();
+                    kernel.delete();
+                    contours.delete();
+                    hierarchy.delete();
+                }
+            } catch (err) {
+                console.error("Erro durante o processamento: ", err);
+                statusMessage.textContent = "Ocorreu um erro no processamento. Recarregue a página.";
+                stopCamera();
+            }
+
+            // Continua o loop de processamento
+            requestAnimationFrame(processVideo);
+        }
+        
+        // Converte a cor HEX (do seletor) para HSV e atualiza as faixas de detecção
+        function updateDetectionParams() {
+            let hex = colorPicker.value;
+            let r = parseInt(hex.substr(1, 2), 16);
+            let g = parseInt(hex.substr(3, 2), 16);
+            let b = parseInt(hex.substr(5, 2), 16);
+
+            // Converte RGB para HSV
+            let srcRgb = new cv.Mat(1, 1, cv.CV_8UC3, [r, g, b]);
+            let srcHsv = new cv.Mat();
+            cv.cvtColor(srcRgb, srcHsv, cv.COLOR_RGB2HSV);
+            
+            let hTolerance = parseInt(hSlider.value);
+            let sTolerance = parseInt(sSlider.value);
+            let vTolerance = parseInt(vSlider.value);
+            
+            // Atualiza os valores exibidos
+            document.getElementById('hValue').textContent = hTolerance;
+            document.getElementById('sValue').textContent = sTolerance;
+            document.getElementById('vValue').textContent = vTolerance;
+
+            let pixel = srcHsv.data;
+            let h = pixel[0];
+            let s = pixel[1];
+            let v = pixel[2];
+
+            // No OpenCV.js, Hue vai de 0 a 179 (metade do padrão 0-360)
+            let lowH = Math.max(0, h - hTolerance);
+            let highH = Math.min(179, h + hTolerance);
+            let lowS = Math.max(0, s - sTolerance);
+            let highS = Math.min(255, s + sTolerance);
+            let lowV = Math.max(0, v - vTolerance);
+            let highV = Math.min(255, v + vTolerance);
+
+            // Cria as matrizes para a nova faixa de cor
+            hsvLow.delete();
+            hsvHigh.delete();
+            hsvLow = new cv.Mat(video.videoHeight, video.videoWidth, cv.CV_8UC3, [lowH, lowS, lowV, 0]);
+            hsvHigh = new cv.Mat(video.videoHeight, video.videoWidth, cv.CV_8UC3, [highH, highS, highV, 255]);
+            
+            srcRgb.delete();
+            srcHsv.delete();
+        }
+
+        // Reseta o contador para zero
+        function resetCount() {
+            objectCount = 0;
+            objectCountDisplay.textContent = `Objetos detectados: 0`;
+        }
+
+        // Tira um "print" da tela do canvas
+        function takeSnapshot() {
+            let link = document.createElement('a');
+            link.download = 'snapshot.png';
+            link.href = canvas.toDataURL();
+            link.click();
+        }
+    </script>
+</body>
+</html>
