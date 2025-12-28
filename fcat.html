@@ -1,15 +1,15 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pt-br">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Interactive Cat Cursor Follower</title>
+<title>Gato Seguidor Interativo</title>
 <style>
 * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
-  cursor: none;
+  cursor: none; /* Esconde o cursor padrão */
 }
 
 body {
@@ -20,18 +20,19 @@ body {
   position: relative;
 }
 
-/* Custom cursor - MODIFICADO */
+/* Custom cursor - CORRIGIDO */
 .custom-cursor {
-  width: 40px; /* Aumentado para acomodar a imagem do rato */
-  height: 40px; /* Aumentado para acomodar a imagem do rato */
+  width: 40px;
+  height: 40px;
   position: fixed;
   pointer-events: none;
   z-index: 10000;
   transition: transform 0.1s ease;
-  background-image: url('rato.png'); /* Adicionando a imagem do rato */
+  /* As duas linhas abaixo são essenciais para a imagem aparecer */
+  background-image: url('rato.png');
   background-size: contain;
   background-repeat: no-repeat;
-  mix-blend-mode: normal; /* Alterado para normal para a imagem ser visível */
+  mix-blend-mode: normal; /* Garante que a imagem seja visível */
 }
 
 /* Cat Container */
@@ -234,6 +235,20 @@ body {
   }
 }
 
+/* ANIMAÇÃO: Rabo feliz (mais rápido) */
+.tail.happy {
+  animation: wag-happy 0.3s ease-in-out infinite alternate;
+}
+
+@keyframes wag-happy {
+  0% {
+    transform: rotate(-30deg);
+  }
+  100% {
+    transform: rotate(30deg);
+  }
+}
+
 /* Cat Paws */
 .paws {
   position: absolute;
@@ -256,7 +271,6 @@ body {
 .cat.walking .paw {
   animation: walk 0.4s ease-in-out infinite alternate;
 }
-
 .cat.walking .paw:first-child {
   animation-delay: 0.2s;
 }
@@ -267,6 +281,69 @@ body {
   }
   100% {
     transform: translateY(-3px);
+  }
+}
+
+/* ANIMAÇÃO: Pulo (pounce) */
+.cat.pounce {
+  animation: pounce 0.5s ease-out;
+}
+
+@keyframes pounce {
+  0% {
+    transform: translateY(0) scale(1, 1);
+  }
+  40% {
+    transform: translateY(-40px) scale(0.9, 1.1);
+  }
+  100% {
+    transform: translateY(0) scale(1, 1);
+  }
+}
+
+/* ANIMAÇÃO: Dormindo */
+.cat.sleeping .eye {
+  height: 2px; /* Fecha os olhos */
+}
+.cat.sleeping .eye::before {
+  display: none; /* Esconde o brilho */
+}
+.cat.sleeping {
+  animation: sleep 3s ease-in-out infinite;
+}
+
+@keyframes sleep {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-3px);
+  }
+}
+
+/* ANIMAÇÃO: Bolha de sono */
+.sleep-bubble {
+  position: absolute;
+  top: -40px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 24px;
+  opacity: 0;
+  animation: bubble-float 2s ease-out forwards;
+  pointer-events: none;
+}
+
+@keyframes bubble-float {
+  0% {
+    opacity: 0;
+    transform: translateX(-50%) translateY(0);
+  }
+  50% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: translateX(-50%) translateY(-30px);
   }
 }
 
@@ -324,12 +401,19 @@ body {
   border: 3px dashed rgba(255,255,255,0.3);
   border-radius: 20px;
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
   color: white;
   font-weight: bold;
   transition: all 0.3s ease;
   pointer-events: auto;
+  font-size: 1.1rem;
+}
+
+.interactive-zone span {
+  font-size: 2.5rem;
+  margin-bottom: 5px;
 }
 
 .interactive-zone:hover {
@@ -399,7 +483,7 @@ body {
     <div class="cat-body"></div>
     
     <!-- Tail -->
-    <div class="tail"></div>
+    <div class="tail" id="catTail"></div>
     
     <!-- Paws -->
     <div class="paws">
@@ -414,74 +498,81 @@ body {
 
 <!-- Main Content -->
 <div class="content">
-  <h1>🐱 Follow the Cat!</h1>
-  <p>Move your mouse around and watch the cat follow you!</p>
+  <h1>🐱 Siga o Gato!</h1>
+  <p>Mova o mouse e clique nas zonas para interagir!</p>
 </div>
 
 <!-- Interactive Zones -->
-<div class="interactive-zone zone1">Pet Zone 1</div>
-<div class="interactive-zone zone2">Pet Zone 2</div>
-<div class="interactive-zone zone3">Pet Zone 3</div>
+<div class="interactive-zone zone1" id="foodZone">
+  <span>🍖</span>
+  Comida
+</div>
+<div class="interactive-zone zone2" id="toyZone">
+  <span>🧶</span>
+  Brinquedo
+</div>
+<div class="interactive-zone zone3" id="napZone">
+  <span>💤</span>
+  Soneca
+</div>
 
 <script>
 // Cat following mouse
 const cat = document.getElementById('cat');
 const catElement = document.getElementById('catElement');
+const catTail = document.getElementById('catTail');
 const cursor = document.querySelector('.custom-cursor');
 const leftEye = document.getElementById('leftEye');
 const rightEye = document.getElementById('rightEye');
+
+// Zonas interativas
+const foodZone = document.getElementById('foodZone');
+const toyZone = document.getElementById('toyZone');
+const napZone = document.getElementById('napZone');
 
 let mouseX = window.innerWidth / 2;
 let mouseY = window.innerHeight / 2;
 let catX = mouseX;
 let catY = mouseY;
 let isMoving = false;
-let lastBlinkTime = Date.now();
 
 // Mouse tracking
 document.addEventListener('mousemove', (e) => {
   mouseX = e.clientX;
   mouseY = e.clientY;
   
-  // Update custom cursor - MODIFICADO
-  cursor.style.left = mouseX - 20 + 'px'; // Ajustado para centralizar a imagem
-  cursor.style.top = mouseY - 20 + 'px'; // Ajustado para centralizar a imagem
+  // Update custom cursor - CORRIGIDO
+  cursor.style.left = mouseX - 20 + 'px'; // Metade da largura (40px / 2)
+  cursor.style.top = mouseY - 20 + 'px';  // Metade da altura (40px / 2)
   
   // Create particle effect occasionally
   if (Math.random() < 0.1) {
-    createParticle(mouseX, mouseY);
+    createParticle(mouseX, mouseY, '✨');
   }
 });
 
 // Smooth cat movement
 function animateCat() {
-  // Calculate distance
   const dx = mouseX - catX;
   const dy = mouseY - catY;
   const distance = Math.sqrt(dx * dx + dy * dy);
   
-  // Only move if distance is significant
   if (distance > 5) {
-    // Smooth following with easing
     catX += dx * 0.1;
     catY += dy * 0.1;
     
-    // Update cat position
     cat.style.left = catX - 60 + 'px';
     cat.style.top = catY - 50 + 'px';
     
-    // Rotate cat based on movement direction
     const angle = Math.atan2(dy, dx) * (180 / Math.PI);
     const rotation = Math.max(-30, Math.min(30, angle));
     catElement.style.transform = `rotate(${rotation}deg)`;
     
-    // Add walking animation
     if (!isMoving) {
       isMoving = true;
       catElement.classList.add('walking');
     }
   } else {
-    // Stop walking animation
     if (isMoving) {
       isMoving = false;
       catElement.classList.remove('walking');
@@ -510,10 +601,10 @@ setInterval(() => {
 }, 3000);
 
 // Create particle effect
-function createParticle(x, y) {
+function createParticle(x, y, emoji = '✨') {
   const particle = document.createElement('div');
   particle.className = 'particle';
-  particle.innerHTML = '✨';
+  particle.innerHTML = emoji;
   particle.style.left = x + 'px';
   particle.style.top = y + 'px';
   particle.style.setProperty('--x', (Math.random() - 0.5) * 100 + 'px');
@@ -526,16 +617,51 @@ function createParticle(x, y) {
   }, 1000);
 }
 
-// Interactive zones
+// --- FUNÇÕES DE INTERAÇÃO ---
+
+// Função para a Zona de Comida
+function triggerFoodZone() {
+  catTail.classList.add('happy');
+  for (let i = 0; i < 8; i++) {
+    setTimeout(() => createParticle(catX, catY, ['🍖', '🐟', '🥛'][Math.floor(Math.random() * 3)]), i * 50);
+  }
+  setTimeout(() => {
+    catTail.classList.remove('happy');
+  }, 2000);
+}
+
+// Função para a Zona de Brinquedo
+function triggerToyZone() {
+  catElement.classList.add('pounce');
+  for (let i = 0; i < 5; i++) {
+    setTimeout(() => createParticle(catX, catY, ['🧶', '🪀', '⚽'][Math.floor(Math.random() * 3)]), i * 70);
+  }
+  setTimeout(() => {
+    catElement.classList.remove('pounce');
+  }, 500);
+}
+
+// Função para a Zona de Soneca
+function triggerNapZone() {
+  catElement.classList.add('sleeping');
+  const bubble = document.createElement('div');
+  bubble.className = 'sleep-bubble';
+  bubble.innerHTML = 'Zzz';
+  catElement.appendChild(bubble);
+
+  setTimeout(() => {
+    bubble.remove();
+    catElement.classList.remove('sleeping');
+  }, 2000);
+}
+
+// --- EVENT LISTENERS DAS ZONAS ---
+
+// Hover effect
 document.querySelectorAll('.interactive-zone').forEach(zone => {
   zone.addEventListener('mouseenter', () => {
     zone.style.background = 'rgba(255,255,255,0.2)';
     zone.style.transform = 'scale(1.1)';
-    
-    // Make cat happy
-    for (let i = 0; i < 5; i++) {
-      setTimeout(() => createParticle(catX, catY), i * 100);
-    }
   });
   
   zone.addEventListener('mouseleave', () => {
@@ -544,10 +670,14 @@ document.querySelectorAll('.interactive-zone').forEach(zone => {
   });
 });
 
+// Click events
+foodZone.addEventListener('click', triggerFoodZone);
+toyZone.addEventListener('click', triggerToyZone);
+napZone.addEventListener('click', triggerNapZone);
+
+
 // Start animations
 animateCat();
-
-// Initial blink
 setTimeout(blink, 1000);
 
 // Touch support for mobile
