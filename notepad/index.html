@@ -10,15 +10,6 @@
       1. Salve este código como um único arquivo "index.html".
       2. Abra o arquivo em qualquer navegador moderno (Chrome, Firefox, Edge, Safari).
       3. Todas as funcionalidades rodam 100% no seu navegador (cliente-side).
-      4. Seus documentos são salvos automaticamente no armazenamento local do navegador (localStorage).
-      5. Para persistir um arquivo, use o botão "Salvar" ou "Baixar" para exportá-lo como .txt ou .md.
-      
-      LIMITAÇÕES E NOTAS:
-      - SEGURANÇA: Por rodar inteiramente no cliente, seus dados nunca saem do seu computador.
-      - DESEMPENHO: Arquivos muito grandes (acima de 10-15 MB) podem deixar a edição lenta. O editor avisa sobre isso.
-      - PDF: A exportação para PDF utiliza a função de impressão do navegador. Selecione "Salvar como PDF" na caixa de diálogo de impressão.
-      - ACESSIBILIDADE: O editor foi construído com boas práticas de ARIA e navegação por teclado.
-      - OFFLINE: Funciona offline após o primeiro carregamento. Para um verdadeiro PWA, um Service Worker seria necessário (não implementado para manter a simplicidade).
     -->
 
     <style>
@@ -80,7 +71,7 @@
             background-color: var(--bg-color);
             color: var(--text-color);
             transition: background-color 0.3s ease, color 0.3s ease;
-            overflow: hidden; /* Evita scrollbars duplas */
+            overflow: hidden;
         }
 
         body {
@@ -98,6 +89,7 @@
             align-items: center;
             gap: 8px;
             flex-shrink: 0;
+            z-index: 10;
         }
 
         .main-content {
@@ -133,10 +125,10 @@
             font-family: var(--font-family);
             font-size: var(--font-size);
             line-height: 1.6;
-            white-space: pre-wrap; /* Mantém quebras de linha e espaços */
+            white-space: pre-wrap;
             overflow-y: auto;
             resize: none;
-            outline: none; /* Remove o outline padrão do contenteditable */
+            outline: none;
             min-height: 100%;
         }
 
@@ -150,6 +142,7 @@
             font-size: 0.85em;
             color: var(--line-number-color);
             flex-shrink: 0;
+            z-index: 10;
         }
 
         /* === BOTÕES E CONTROLES === */
@@ -163,6 +156,7 @@
             font-family: inherit;
             font-size: 0.9em;
             transition: background-color 0.2s, transform 0.1s;
+            type: button; /* Garante comportamento de botão */
         }
 
         button:hover {
@@ -192,7 +186,7 @@
 
         /* === MODAIS === */
         .modal {
-            display: none; /* Escondido por padrão */
+            display: none; 
             position: fixed;
             z-index: 1000;
             left: 0;
@@ -351,21 +345,21 @@
 
     <!-- Cabeçalho com a barra de ferramentas -->
     <header class="header" role="toolbar" aria-label="Ações do arquivo e edição">
-        <button id="newBtn" title="Novo (Ctrl+N)">Novo</button>
-        <button id="openBtn" title="Abrir (Ctrl+O)">Abrir</button>
-        <button id="saveBtn" title="Salvar (Ctrl+S)">Salvar</button>
-        <button id="downloadBtn" title="Baixar">Baixar</button>
+        <button id="newBtn" title="Novo (Ctrl+N)" type="button">Novo</button>
+        <button id="openBtn" title="Abrir (Ctrl+O)" type="button">Abrir</button>
+        <button id="saveBtn" title="Salvar (Ctrl+S)" type="button">Salvar</button>
+        <button id="downloadBtn" title="Baixar" type="button">Baixar</button>
         <div class="separator"></div>
-        <button id="undoBtn" class="icon-btn" title="Desfazer (Ctrl+Z)">↶</button>
-        <button id="redoBtn" class="icon-btn" title="Refazer (Ctrl+Y)">↷</button>
+        <button id="undoBtn" class="icon-btn" title="Desfazer (Ctrl+Z)" type="button">↶</button>
+        <button id="redoBtn" class="icon-btn" title="Refazer (Ctrl+Y)" type="button">↷</button>
         <div class="separator"></div>
-        <button id="findBtn" title="Localizar e Substituir (Ctrl+F)">Find</button>
-        <button id="copyBtn" title="Copiar Tudo (Ctrl+Shift+C)">Copiar</button>
+        <button id="findBtn" title="Localizar e Substituir (Ctrl+F)" type="button">Find</button>
+        <button id="copyBtn" title="Copiar Tudo (Ctrl+Shift+C)" type="button">Copiar</button>
         <div class="separator"></div>
-        <button id="templatesBtn" title="Inserir Template">Templates</button>
+        <button id="templatesBtn" title="Inserir Template" type="button">Templates</button>
         <div class="separator"></div>
-        <button id="settingsBtn" title="Configurações">⚙️</button>
-        <button id="miniModeBtn" title="Modo de Foco">Mini</button>
+        <button id="settingsBtn" title="Configurações" type="button">⚙️</button>
+        <button id="miniModeBtn" title="Modo de Foco" type="button">Mini</button>
     </header>
 
     <!-- Área principal do editor -->
@@ -390,7 +384,7 @@
         <div class="modal-content">
             <div class="modal-header">
                 <h2 id="settingsTitle">Configurações</h2>
-                <button class="close-btn" aria-label="Fechar" onclick="App.UI.closeModal('settingsModal')">&times;</button>
+                <button class="close-btn" aria-label="Fechar" onclick="App.UI.closeModal('settingsModal')" type="button">&times;</button>
             </div>
             <div class="form-group">
                 <label for="themeSelect">Tema:</label>
@@ -443,7 +437,7 @@
                     Verificação Ortográfica
                 </label>
             </div>
-            <button id="saveSettingsBtn">Salvar Configurações</button>
+            <button id="saveSettingsBtn" type="button">Salvar Configurações</button>
         </div>
     </div>
 
@@ -452,7 +446,7 @@
         <div class="modal-content">
             <div class="modal-header">
                 <h2 id="findTitle">Localizar e Substituir</h2>
-                <button class="close-btn" aria-label="Fechar" onclick="App.UI.closeModal('findModal')">&times;</button>
+                <button class="close-btn" aria-label="Fechar" onclick="App.UI.closeModal('findModal')" type="button">&times;</button>
             </div>
             <div class="form-group">
                 <label for="findInput">Localizar:</label>
@@ -475,8 +469,8 @@
                 </label>
             </div>
             <div style="display: flex; gap: 10px;">
-                <button id="findNextBtn">Localizar Próxima</button>
-                <button id="replaceAllBtn">Substituir Tudo</button>
+                <button id="findNextBtn" type="button">Localizar Próxima</button>
+                <button id="replaceAllBtn" type="button">Substituir Tudo</button>
             </div>
         </div>
     </div>
@@ -486,11 +480,11 @@
         <div class="modal-content">
             <div class="modal-header">
                 <h2 id="templatesTitle">Inserir Template</h2>
-                <button class="close-btn" aria-label="Fechar" onclick="App.UI.closeModal('templatesModal')">&times;</button>
+                <button class="close-btn" aria-label="Fechar" onclick="App.UI.closeModal('templatesModal')" type="button">&times;</button>
             </div>
-            <button class="template-btn" data-template="note">Nota Rápida</button>
-            <button class="template-btn" data-template="checklist">Checklist</button>
-            <button class="template-btn" data-template="journal">Entrada de Diário</button>
+            <button class="template-btn" data-template="note" type="button">Nota Rápida</button>
+            <button class="template-btn" data-template="checklist" type="button">Checklist</button>
+            <button class="template-btn" data-template="journal" type="button">Entrada de Diário</button>
         </div>
     </div>
 
@@ -499,7 +493,7 @@
         <div class="modal-content">
             <div class="modal-header">
                 <h2 id="historyTitle">Histórico de Versões (LocalStorage)</h2>
-                <button class="close-btn" aria-label="Fechar" onclick="App.UI.closeModal('historyModal')">&times;</button>
+                <button class="close-btn" aria-label="Fechar" onclick="App.UI.closeModal('historyModal')" type="button">&times;</button>
             </div>
             <ul id="historyList" class="history-list"></ul>
         </div>
@@ -510,7 +504,7 @@
         <div class="modal-content">
             <div class="modal-header">
                 <h2 id="shortcutsTitle">Atalhos de Teclado</h2>
-                <button class="close-btn" aria-label="Fechar" onclick="App.UI.closeModal('shortcutsModal')">&times;</button>
+                <button class="close-btn" aria-label="Fechar" onclick="App.UI.closeModal('shortcutsModal')" type="button">&times;</button>
             </div>
             <ul class="shortcuts-list">
                 <li><span>Novo Arquivo</span><kbd>Ctrl + N</kbd></li>
@@ -530,13 +524,25 @@
 
     <!-- Elemento para anúncios a leitores de tela -->
     <div class="sr-announcement" aria-live="assertive" id="srAnnouncement">ola</div>
-       <footer>
+       <footer style="padding: 10px; text-align: center; font-size: 0.8em; border-top: 1px solid var(--border-color); background: var(--header-bg);">
             <p>&copy;<a href="https://instagram.com/keurynn_" target="_blank" rel="noopener noreferrer" style="color: #1E90FF;">
   keuryn
 </a> 2025 Todos os direitos reservados</p>
         </footer>
+
     <script>
-        // Objeto principal da aplicação para encapsular estado e lógica
+        // Função utilitária de debounce (fora do objeto App para evitar erros de referência na inicialização)
+        function debounce(func, delay) {
+            let timeoutId;
+            return function(...args) {
+                clearTimeout(timeoutId);
+                timeoutId = setTimeout(() => {
+                    func.apply(this, args);
+                }, delay);
+            };
+        }
+
+        // Objeto principal da aplicação
         const App = {
             // Estado da aplicação
             state: {
@@ -662,7 +668,7 @@
             addToVersionHistory(content) {
                 const timestamp = new Date().toLocaleString();
                 this.state.versionHistory.unshift({ timestamp, content });
-                if (this.state.versionHistory.length > 10) { // Mantém apenas as últimas 10 versões
+                if (this.state.versionHistory.length > 10) { 
                     this.state.versionHistory.pop();
                 }
                 localStorage.setItem('miniNotepadVersionHistory', JSON.stringify(this.state.versionHistory));
@@ -677,22 +683,11 @@
                 this.addToVersionHistory(content);
             },
 
-            // Função de auto-save com debounce
-            autoSave: this.debounce(function() {
+            // Função de auto-seve usando a função debounce global
+            autoSave: debounce(function() {
                 this.saveToLocalStorage();
                 this.UI.setStatus("Salvo automaticamente.");
             }, 500),
-
-            // Debounce para evitar execuções excessivas de funções
-            debounce(func, delay) {
-                let timeoutId;
-                return (...args) => {
-                    clearTimeout(timeoutId);
-                    timeoutId = setTimeout(() => {
-                        func.apply(this, args);
-                    }, delay);
-                };
-            },
 
             // Atualiza os contadores de palavras, caracteres, etc.
             updateCounters() {
@@ -700,7 +695,7 @@
                 const charCount = text.length;
                 const wordCount = text.trim() === '' ? 0 : text.trim().split(/\s+/).length;
                 const lineCount = text.split('\n').length;
-                const readingTime = Math.ceil(wordCount / 200); // Assumindo 200 WPM
+                const readingTime = Math.ceil(wordCount / 200); 
                 
                 this.DOM.counters.textContent = `Palavras: ${wordCount} | Caracteres: ${charCount} | Linhas: ${lineCount} | Leitura: ~${readingTime} min`;
             },
@@ -720,7 +715,7 @@
                     this.state.history = this.state.history.slice(0, this.state.historyIndex + 1);
                     this.state.history.push(currentContent);
                     this.state.historyIndex++;
-                    if (this.state.history.length > 50) { // Limita o tamanho do histórico
+                    if (this.state.history.length > 50) { 
                         this.state.history.shift();
                         this.state.historyIndex--;
                     }
@@ -765,7 +760,7 @@
                 const file = event.target.files[0];
                 if (!file) return;
 
-                if (file.size > 10 * 1024 * 1024) { // Limite de 10MB
+                if (file.size > 10 * 1024 * 1024) { 
                     alert("Arquivo muito grande. O tamanho máximo recomendado é 10MB para melhor performance.");
                     return;
                 }
@@ -781,7 +776,6 @@
                     alert("Ocorreu um erro ao ler o arquivo.");
                 };
                 reader.readAsText(file);
-                // Limpa o input para permitir abrir o mesmo arquivo novamente
                 event.target.value = '';
             },
 
@@ -859,15 +853,21 @@
                     App.DOM.srAnnouncement.textContent = message;
                 },
                 showModal(modalId) {
-                    document.getElementById(modalId).classList.add('active');
-                    document.getElementById(modalId).setAttribute('aria-hidden', 'false');
-                    // Foco no primeiro elemento focável do modal
-                    const firstFocusable = document.querySelector(`#${modalalId} button, #${modalId} input, #${modalId} select`);
-                    if(firstFocusable) firstFocusable.focus();
+                    const modal = document.getElementById(modalId);
+                    if (modal) {
+                        modal.classList.add('active');
+                        modal.setAttribute('aria-hidden', 'false');
+                        // CORREÇÃO: 'modalalId' corrigido para 'modalId'
+                        const firstFocusable = document.querySelector(`#${modalId} button, #${modalId} input, #${modalId} select`);
+                        if(firstFocusable) firstFocusable.focus();
+                    }
                 },
                 closeModal(modalId) {
-                    document.getElementById(modalId).classList.remove('active');
-                    document.getElementById(modalId).setAttribute('aria-hidden', 'true');
+                    const modal = document.getElementById(modalId);
+                    if (modal) {
+                        modal.classList.remove('active');
+                        modal.setAttribute('aria-hidden', 'true');
+                    }
                 },
                 populateHistoryModal() {
                     const list = document.getElementById('historyList');
@@ -916,11 +916,11 @@
                             case 'f': e.preventDefault(); this.UI.showModal('findModal'); break;
                             case 'z': e.preventDefault(); this.undo(); break;
                             case 'y': e.preventDefault(); this.redo(); break;
-                            case 'a': // Deixa o comportamento padrão de selecionar tudo
+                            case 'a': 
                             case 'c':
                             case 'v':
                             case 'x':
-                                break; // Não faz nada, o navegador cuida
+                                break; 
                         }
                     }
                     // Modo mini com Esc
@@ -1008,10 +1008,11 @@
                     });
                 });
 
-                // Listener para o botão de histórico (adicionei um botão para isso no rodapé)
+                // Listener para o botão de histórico
                 const historyBtn = document.createElement('button');
                 historyBtn.textContent = 'Histórico';
                 historyBtn.title = 'Ver histórico de versões';
+                historyBtn.type = 'button';
                 historyBtn.addEventListener('click', () => {
                     this.UI.populateHistoryModal();
                     this.UI.showModal('historyModal');
@@ -1022,6 +1023,7 @@
                 const shortcutsBtn = document.createElement('button');
                 shortcutsBtn.textContent = '?';
                 shortcutsBtn.title = 'Ver atalhos de teclado';
+                shortcutsBtn.type = 'button';
                 shortcutsBtn.addEventListener('click', () => this.UI.showModal('shortcutsModal'));
                 document.querySelector('.header').appendChild(shortcutsBtn);
             },
@@ -1040,10 +1042,15 @@
         });
 
         // Mensagem para usuários com JavaScript desativado
-        document.querySelector('noscript').remove(); // Remove a tag noscript se o JS estiver ativo
-        const noscriptEl = document.createElement('noscript');
-        noscriptEl.innerHTML = `<div style="color: red; padding: 20px; text-align: center;">Este editor de texto requer JavaScript para funcionar. Por favor, habilite-o no seu navegador.</div>`;
-        document.body.prepend(noscriptEl);
+        // CORREÇÃO: Verificação se existe antes de remover
+        const noscriptEl = document.querySelector('noscript');
+        if (noscriptEl) {
+            noscriptEl.remove(); 
+        }
+        
+        const newNoscriptEl = document.createElement('noscript');
+        newNoscriptEl.innerHTML = `<div style="color: red; padding: 20px; text-align: center;">Este editor de texto requer JavaScript para funcionar. Por favor, habilite-o no seu navegador.</div>`;
+        document.body.prepend(newNoscriptEl);
 
     </script>
 </body>
