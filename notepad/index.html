@@ -358,6 +358,9 @@
         <div class="separator"></div>
         <button id="templatesBtn" title="Inserir Template" type="button">Templates</button>
         <div class="separator"></div>
+        <!-- NOVO BOTÃO NOTEPAD V2 -->
+        <button id="notepadV2Btn" title="Ir para Notepad V2" type="button">Notepad V2</button>
+        <div class="separator"></div>
         <button id="settingsBtn" title="Configurações" type="button">⚙️</button>
         <button id="miniModeBtn" title="Modo de Foco" type="button">Mini</button>
     </header>
@@ -857,7 +860,6 @@
                     if (modal) {
                         modal.classList.add('active');
                         modal.setAttribute('aria-hidden', 'false');
-                        // CORREÇÃO: 'modalalId' corrigido para 'modalId'
                         const firstFocusable = document.querySelector(`#${modalId} button, #${modalId} input, #${modalId} select`);
                         if(firstFocusable) firstFocusable.focus();
                     }
@@ -945,6 +947,11 @@
                     this.UI.announce(document.body.classList.contains('mini-mode') ? "Modo de foco ativado." : "Modo de foco desativado.");
                 });
                 document.getElementById('templatesBtn').addEventListener('click', () => this.UI.showModal('templatesModal'));
+
+                // Listener para o novo botão Notepad V2
+                document.getElementById('notepadV2Btn').addEventListener('click', () => {
+                    window.location.href = 'https://keuyn.github.io/bolha/notepad/app';
+                });
 
                 // Input de arquivo
                 this.DOM.fileInput.addEventListener('change', (e) => this.handleFileOpen(e));
@@ -1042,7 +1049,6 @@
         });
 
         // Mensagem para usuários com JavaScript desativado
-        // CORREÇÃO: Verificação se existe antes de remover
         const noscriptEl = document.querySelector('noscript');
         if (noscriptEl) {
             noscriptEl.remove(); 
