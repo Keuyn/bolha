@@ -1,0 +1,1087 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mini Notepad - Editor de Texto Online</title>
+    
+    <!-- 
+      INSTRUÇÕES DE USO:
+      1. Salve este código como um único arquivo "index.html".
+      2. Abra o arquivo em qualquer navegador moderno (Chrome, Firefox, Edge, Safari).
+      3. Todas as funcionalidades rodam 100% no seu navegador (cliente-side).
+      4. Seus documentos são salvos automaticamente no armazenamento local do navegador (localStorage).
+      5. Para persistir um arquivo, use o botão "Salvar" ou "Baixar" para exportá-lo como .txt ou .md.
+    -->
+
+    <style>
+        /* === VARIÁVEIS DE TEMA E ESTILOS GLOBAIS === */
+        :root {
+            --bg-color: #280000;
+            --editor-bg: #111;
+            --text-color: #e0e0e0;
+            --accent-color: #640000;
+            --accent-hover: #850000;
+            --border-color: #4a0000;
+            --header-bg: #1a0000;
+            --footer-bg: #1a0000;
+            --modal-bg: #2a0000;
+            --font-family: 'Courier New', Courier, monospace;
+            --font-size: 16px;
+            --line-number-color: #666;
+        }
+
+        /* Tema Claro */
+        body.theme-light {
+            --bg-color: #f4f4f4;
+            --editor-bg: #ffffff;
+            --text-color: #333;
+            --accent-color: #d32f2f;
+            --accent-hover: #f44336;
+            --border-color: #ddd;
+            --header-bg: #e0e0e0;
+            --footer-bg: #e0e0e0;
+            --modal-bg: #fff;
+            --line-number-color: #aaa;
+        }
+
+        /* Tema Alto Contraste */
+        body.theme-high-contrast {
+            --bg-color: #000;
+            --editor-bg: #000;
+            --text-color: #fff;
+            --accent-color: #0f0;
+            --accent-hover: #0f0;
+            --border-color: #0f0;
+            --header-bg: #111;
+            --footer-bg: #111;
+            --modal-bg: #111;
+            --line-number-color: #0f0;
+        }
+
+        /* === RESET E ESTILOS BASE === */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html, body {
+            height: 100%;
+            font-family: var(--font-family);
+            font-size: var(--font-size);
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            transition: background-color 0.3s ease, color 0.3s ease;
+            overflow: hidden;
+        }
+
+        body {
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* === LAYOUT PRINCIPAL === */
+        .header {
+            background-color: var(--header-bg);
+            padding: 8px 12px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 8px;
+            flex-shrink: 0;
+        }
+
+        .main-content {
+            display: flex;
+            flex-grow: 1;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .editor-container {
+            display: flex;
+            width: 100%;
+            overflow: hidden;
+            height: 100%;
+        }
+
+        .line-numbers {
+            background-color: var(--header-bg);
+            color: var(--line-number-color);
+            padding: 10px;
+            text-align: right;
+            user-select: none;
+            border-right: 1px solid var(--border-color);
+            overflow: hidden;
+            flex-shrink: 0;
+            white-space: pre;
+            min-width: 40px;
+        }
+
+        #editor {
+            flex-grow: 1;
+            background-color: var(--editor-bg);
+            color: var(--text-color);
+            border: none;
+            padding: 10px;
+            font-family: var(--font-family);
+            font-size: var(--font-size);
+            line-height: 1.6;
+            white-space: pre-wrap;
+            overflow-y: auto;
+            resize: none;
+            outline: none;
+            height: 100%;
+        }
+
+        .footer {
+            background-color: var(--footer-bg);
+            padding: 5px 12px;
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.85em;
+            color: var(--line-number-color);
+            flex-shrink: 0;
+        }
+        
+        .footer-credit {
+            font-size: 0.75em;
+            text-align: center;
+            padding: 2px;
+            opacity: 0.7;
+        }
+
+        /* === BOTÕES E CONTROLES === */
+        button {
+            background-color: var(--accent-color);
+            color: #fff;
+            border: 1px solid var(--border-color);
+            padding: 6px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-family: inherit;
+            font-size: 0.9em;
+            transition: background-color 0.2s, transform 0.1s;
+        }
+
+        button:hover {
+            background-color: var(--accent-hover);
+        }
+
+        button:active {
+            transform: scale(0.98);
+        }
+
+        button:focus-visible {
+            outline: 2px solid #fff;
+            outline-offset: 2px;
+        }
+        
+        .icon-btn {
+            padding: 6px 8px;
+            font-size: 1.1em;
+        }
+
+        .separator {
+            width: 1px;
+            height: 24px;
+            background-color: var(--border-color);
+            margin: 0 5px;
+        }
+
+        /* === MODAIS === */
+        .modal {
+            display: none; /* Escondido por padrão */
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.6);
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background-color: var(--modal-bg);
+            padding: 20px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            width: 90%;
+            max-width: 500px;
+            max-height: 80vh;
+            overflow-y: auto;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 10px;
+        }
+
+        .modal-header h2 {
+            font-size: 1.2em;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 1.5em;
+            color: var(--text-color);
+            cursor: pointer;
+            padding: 0;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .close-btn:hover {
+            color: var(--accent-hover);
+            transform: none;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        .form-group input[type="text"],
+        .form-group input[type="number"],
+        .form-group select {
+            width: 100%;
+            padding: 8px;
+            background-color: var(--editor-bg);
+            color: var(--text-color);
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+        }
+
+        .form-group input[type="checkbox"] {
+            margin-right: 8px;
+        }
+
+        .checkbox-group label {
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+        }
+        
+        .history-list, .shortcuts-list {
+            list-style: none;
+        }
+        
+        .history-list li, .shortcuts-list li {
+            padding: 8px;
+            border-bottom: 1px solid var(--border-color);
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .history-list li:hover, .shortcuts-list li:hover {
+            background-color: var(--header-bg);
+        }
+        
+        .shortcuts-list kbd {
+            background-color: var(--editor-bg);
+            padding: 2px 6px;
+            border-radius: 3px;
+            border: 1px solid var(--border-color);
+            font-family: sans-serif;
+        }
+
+        /* === MODO MINIMIZADO === */
+        body.mini-mode .header, body.mini-mode .footer {
+            display: none;
+        }
+        body.mini-mode .main-content {
+            height: 100vh;
+        }
+
+        /* === ESTILOS DE IMPRESSÃO (PARA PDF) === */
+        @media print {
+            body {
+                background-color: #fff;
+                color: #000;
+            }
+            .header, .footer, .line-numbers {
+                display: none !important;
+            }
+            .main-content {
+                height: auto;
+                overflow: visible;
+            }
+            #editor {
+                background-color: #fff;
+                color: #000;
+                overflow: visible;
+                white-space: pre-wrap;
+            }
+        }
+        
+        /* === ANUNCIO PARA ACESSIBILIDADE === */
+        .sr-announcement {
+            position: absolute;
+            left: -10000px;
+            width: 1px;
+            height: 1px;
+            overflow: hidden;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Cabeçalho com a barra de ferramentas -->
+    <header class="header" role="toolbar" aria-label="Ações do arquivo e edição">
+        <button id="newBtn" title="Novo (Ctrl+N)">Novo</button>
+        <button id="openBtn" title="Abrir (Ctrl+O)">Abrir</button>
+        <button id="saveBtn" title="Salvar (Ctrl+S)">Salvar</button>
+        <button id="downloadBtn" title="Baixar">Baixar</button>
+        <div class="separator"></div>
+        <button id="undoBtn" class="icon-btn" title="Desfazer (Ctrl+Z)">↶</button>
+        <button id="redoBtn" class="icon-btn" title="Refazer (Ctrl+Y)">↷</button>
+        <div class="separator"></div>
+        <button id="findBtn" title="Localizar e Substituir (Ctrl+F)">Find</button>
+        <button id="copyBtn" title="Copiar Tudo (Ctrl+Shift+C)">Copiar</button>
+        <div class="separator"></div>
+        <button id="templatesBtn" title="Inserir Template">Templates</button>
+        <div class="separator"></div>
+        <button id="settingsBtn" title="Configurações">⚙️</button>
+        <button id="miniModeBtn" title="Modo de Foco">Mini</button>
+        <!-- Botões dinâmicos serão adicionados aqui via JS -->
+    </header>
+
+    <!-- Área principal do editor -->
+    <main class="main-content">
+        <div class="editor-container">
+            <div class="line-numbers" id="lineNumbers" aria-hidden="true">1</div>
+            <div id="editor" contenteditable="true" spellcheck="true" role="textbox" aria-multiline="true" aria-label="Área de edição de texto"></div>
+        </div>
+    </main>
+
+    <!-- Rodapé com contadores e status -->
+    <footer class="footer" role="status" aria-live="polite">
+        <span id="statusMessage">Pronto.</span>
+        <span id="counters">Palavras: 0 | Caracteres: 0 | Linhas: 1</span>
+    </footer>
+    
+    <!-- Rodapé de Créditos -->
+    <div class="footer footer-credit">
+        <p>&copy; <a href="https://instagram.com/keurynn_" target="_blank" rel="noopener noreferrer" style="color: inherit;">keuryn</a> 2025 Todos os direitos reservados</p>
+    </div>
+
+    <!-- Input de arquivo escondido -->
+    <input type="file" id="fileInput" accept=".txt,.md" style="display: none;">
+
+    <!-- Modal de Configurações -->
+    <div id="settingsModal" class="modal" role="dialog" aria-labelledby="settingsTitle" aria-hidden="true">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="settingsTitle">Configurações</h2>
+                <button class="close-btn" aria-label="Fechar" data-close-modal="settingsModal">&times;</button>
+            </div>
+            <div class="form-group">
+                <label for="themeSelect">Tema:</label>
+                <select id="themeSelect">
+                    <option value="dark">Escuro (Padrão)</option>
+                    <option value="light">Claro</option>
+                    <option value="high-contrast">Alto Contraste</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="fontFamilySelect">Fonte:</label>
+                <select id="fontFamilySelect">
+                    <option value="'Courier New', Courier, monospace">Monoespaçada (Padrão)</option>
+                    <option value="sans-serif">Sans-Serif</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="fontSizeSlider">Tamanho da Fonte: <span id="fontSizeValue">16</span>px</label>
+                <input type="range" id="fontSizeSlider" min="12" max="24" value="16">
+            </div>
+            <div class="form-group checkbox-group">
+                <label>
+                    <input type="checkbox" id="autoSaveToggle" checked>
+                    Salvar Automaticamente
+                </label>
+            </div>
+            <div class="form-group">
+                <label for="autoSaveInterval">Intervalo do Auto-Save (segundos):</label>
+                <input type="number" id="autoSaveInterval" min="1" max="300" value="5">
+            </div>
+            <div class="form-group checkbox-group">
+                <label>
+                    <input type="checkbox" id="lineNumbersToggle" checked>
+                    Mostrar Números de Linha
+                </label>
+            </div>
+            <div class="form-group checkbox-group">
+                <label>
+                    <input type="checkbox" id="tabToSpacesToggle" checked>
+                    Tab para Espaços
+                </label>
+            </div>
+            <div class="form-group">
+                <label for="tabSizeInput">Espaços por Tab:</label>
+                <input type="number" id="tabSizeInput" min="1" max="8" value="4">
+            </div>
+            <div class="form-group checkbox-group">
+                <label>
+                    <input type="checkbox" id="spellcheckToggle" checked>
+                    Verificação Ortográfica
+                </label>
+            </div>
+            <button id="saveSettingsBtn">Salvar Configurações</button>
+        </div>
+    </div>
+
+    <!-- Modal de Localizar e Substituir -->
+    <div id="findModal" class="modal" role="dialog" aria-labelledby="findTitle" aria-hidden="true">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="findTitle">Localizar e Substituir</h2>
+                <button class="close-btn" aria-label="Fechar" data-close-modal="findModal">&times;</button>
+            </div>
+            <div class="form-group">
+                <label for="findInput">Localizar:</label>
+                <input type="text" id="findInput">
+            </div>
+            <div class="form-group">
+                <label for="replaceInput">Substituir por:</label>
+                <input type="text" id="replaceInput">
+            </div>
+            <div class="form-group checkbox-group">
+                <label>
+                    <input type="checkbox" id="caseSensitiveToggle">
+                    Diferenciar maiúsculas/minúsculas
+                </label>
+            </div>
+            <div class="form-group checkbox-group">
+                <label>
+                    <input type="checkbox" id="regexToggle">
+                    Usar Expressão Regular (Regex)
+                </label>
+            </div>
+            <div style="display: flex; gap: 10px;">
+                <button id="findNextBtn">Localizar Próxima</button>
+                <button id="replaceAllBtn">Substituir Tudo</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Modal de Templates -->
+    <div id="templatesModal" class="modal" role="dialog" aria-labelledby="templatesTitle" aria-hidden="true">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="templatesTitle">Inserir Template</h2>
+                <button class="close-btn" aria-label="Fechar" data-close-modal="templatesModal">&times;</button>
+            </div>
+            <button class="template-btn" data-template="note" style="width: 100%; margin-bottom: 10px;">Nota Rápida</button>
+            <button class="template-btn" data-template="checklist" style="width: 100%; margin-bottom: 10px;">Checklist</button>
+            <button class="template-btn" data-template="journal" style="width: 100%; margin-bottom: 10px;">Entrada de Diário</button>
+        </div>
+    </div>
+
+    <!-- Modal de Histórico de Versões -->
+    <div id="historyModal" class="modal" role="dialog" aria-labelledby="historyTitle" aria-hidden="true">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="historyTitle">Histórico de Versões (LocalStorage)</h2>
+                <button class="close-btn" aria-label="Fechar" data-close-modal="historyModal">&times;</button>
+            </div>
+            <ul id="historyList" class="history-list"></ul>
+        </div>
+    </div>
+
+    <!-- Modal de Atalhos de Teclado -->
+    <div id="shortcutsModal" class="modal" role="dialog" aria-labelledby="shortcutsTitle" aria-hidden="true">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="shortcutsTitle">Atalhos de Teclado</h2>
+                <button class="close-btn" aria-label="Fechar" data-close-modal="shortcutsModal">&times;</button>
+            </div>
+            <ul class="shortcuts-list">
+                <li><span>Novo Arquivo</span><kbd>Ctrl + N</kbd></li>
+                <li><span>Abrir Arquivo</span><kbd>Ctrl + O</kbd></li>
+                <li><span>Salvar</span><kbd>Ctrl + S</kbd></li>
+                <li><span>Localizar</span><kbd>Ctrl + F</kbd></li>
+                <li><span>Desfazer</span><kbd>Ctrl + Z</kbd></li>
+                <li><span>Refazer</span><kbd>Ctrl + Y</kbd></li>
+                <li><span>Selecionar Tudo</span><kbd>Ctrl + A</kbd></li>
+                <li><span>Modo de Foco (Mini)</span><kbd>Esc</kbd></li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- Elemento para anúncios a leitores de tela -->
+    <div class="sr-announcement" aria-live="assertive" id="srAnnouncement"></div>
+
+    <script>
+        // Objeto principal da aplicação para encapsular estado e lógica
+        const App = {
+            // Estado da aplicação
+            state: {
+                content: '',
+                history: [],
+                historyIndex: -1,
+                settings: {
+                    theme: 'dark',
+                    fontFamily: "'Courier New', Courier, monospace",
+                    fontSize: 16,
+                    autoSave: true,
+                    autoSaveInterval: 5,
+                    lineNumbers: true,
+                    tabToSpaces: true,
+                    tabSize: 4,
+                    spellcheck: true
+                },
+                templates: {
+                    note: "TÍTULO DA NOTA\n\n- Ponto importante 1\n- Ponto importante 2\n\n[Detalhes adicionais...]",
+                    checklist: "- [ ] Tarefa 1\n- [ ] Tarefa 2\n- [ ] Tarefa 3\n\n[Observações...]",
+                    journal: "# DATA: [Inserir Data]\n\n## Tópico do Dia\n\nMeus pensamentos sobre...\n\n- Sentimento: ...\n- Acontecimento: ...\n- Aprendizado: ...\n"
+                },
+                lastSavedContent: '',
+                versionHistory: [],
+                autoSaveTimer: null
+            },
+
+            // Referências a elementos DOM
+            DOM: {
+                editor: document.getElementById('editor'),
+                lineNumbers: document.getElementById('lineNumbers'),
+                statusMessage: document.getElementById('statusMessage'),
+                counters: document.getElementById('counters'),
+                fileInput: document.getElementById('fileInput'),
+                srAnnouncement: document.getElementById('srAnnouncement')
+            },
+
+            // Inicialização da aplicação
+            init() {
+                this.loadSettings();
+                this.applySettings();
+                this.loadLastSession();
+                this.setupEventListeners();
+                this.updateCounters();
+                this.updateLineNumbers();
+                this.saveToHistory();
+                this.UI.announce("Editor de texto carregado. Pronto para usar.");
+                
+                // Correção: Inicializa debounce corretamente após o objeto App existir
+                this.autoSave = this.debounce(this._performAutoSave.bind(this), 1000);
+            },
+
+            // Função interna de auto-save
+            _performAutoSave() {
+                this.saveToLocalStorage();
+                this.UI.setStatus("Salvo automaticamente.");
+            },
+
+            // Carrega configurações do localStorage
+            loadSettings() {
+                const savedSettings = localStorage.getItem('miniNotepadSettings');
+                if (savedSettings) {
+                    try {
+                        this.state.settings = { ...this.state.settings, ...JSON.parse(savedSettings) };
+                    } catch (e) {
+                        console.error("Erro ao carregar configurações", e);
+                    }
+                }
+            },
+
+            // Salva configurações no localStorage
+            saveSettings() {
+                localStorage.setItem('miniNotepadSettings', JSON.stringify(this.state.settings));
+                this.applySettings();
+                this.UI.announce("Configurações salvas.");
+            },
+
+            // Aplica as configurações na UI
+            applySettings() {
+                const s = this.state.settings;
+                document.body.className = `theme-${s.theme}`;
+                document.documentElement.style.setProperty('--font-family', s.fontFamily);
+                document.documentElement.style.setProperty('--font-size', `${s.fontSize}px`);
+                this.DOM.editor.spellcheck = s.spellcheck;
+                
+                // Atualiza os controles na UI
+                document.getElementById('themeSelect').value = s.theme;
+                document.getElementById('fontFamilySelect').value = s.fontFamily;
+                document.getElementById('fontSizeSlider').value = s.fontSize;
+                document.getElementById('fontSizeValue').textContent = s.fontSize;
+                document.getElementById('autoSaveToggle').checked = s.autoSave;
+                document.getElementById('autoSaveInterval').value = s.autoSaveInterval;
+                document.getElementById('lineNumbersToggle').checked = s.lineNumbers;
+                document.getElementById('tabToSpacesToggle').checked = s.tabToSpaces;
+                document.getElementById('tabSizeInput').value = s.tabSize;
+                document.getElementById('spellcheckToggle').checked = s.spellcheck;
+
+                // Mostra/oculta números de linha
+                const lineNumbersEl = document.querySelector('.line-numbers');
+                if(lineNumbersEl) lineNumbersEl.style.display = s.lineNumbers ? 'block' : 'none';
+
+                // Reinicia o auto-save se a configuração mudar
+                this.setupAutoSave();
+            },
+
+            // Configura o salvamento automático
+            setupAutoSave() {
+                if (this.state.autoSaveTimer) {
+                    clearInterval(this.state.autoSaveTimer);
+                }
+                if (this.state.settings.autoSave) {
+                    // Nota: autoSave chama o wrapper debounced
+                    this.state.autoSaveTimer = setInterval(() => {
+                        this.autoSave();
+                    }, this.state.settings.autoSaveInterval * 1000);
+                }
+            },
+
+            // Carrega a última sessão do localStorage
+            loadLastSession() {
+                const lastContent = localStorage.getItem('miniNotepadContent');
+                if (lastContent) {
+                    this.DOM.editor.textContent = lastContent;
+                    this.state.content = lastContent;
+                    this.state.lastSavedContent = lastContent;
+                    this.UI.announce("Última sessão recuperada.");
+                } else {
+                    // Texto inicial se não houver sessão salva
+                    this.DOM.editor.textContent = "Bem-vindo ao Mini Notepad!\nComece a digitar aqui...";
+                    this.state.content = this.DOM.editor.textContent;
+                }
+                this.loadVersionHistory();
+            },
+
+            // Carrega o histórico de versões
+            loadVersionHistory() {
+                const history = localStorage.getItem('miniNotepadVersionHistory');
+                if (history) {
+                    try {
+                        this.state.versionHistory = JSON.parse(history);
+                    } catch (e) {
+                        console.error("Erro ao carregar histórico", e);
+                    }
+                }
+            },
+
+            // Adiciona uma versão ao histórico
+            addToVersionHistory(content) {
+                const timestamp = new Date().toLocaleString();
+                this.state.versionHistory.unshift({ timestamp, content });
+                if (this.state.versionHistory.length > 10) {
+                    this.state.versionHistory.pop();
+                }
+                localStorage.setItem('miniNotepadVersionHistory', JSON.stringify(this.state.versionHistory));
+            },
+
+            // Salva o conteúdo atual no localStorage
+            saveToLocalStorage() {
+                const content = this.DOM.editor.textContent;
+                this.state.content = content;
+                localStorage.setItem('miniNotepadContent', content);
+                this.state.lastSavedContent = content;
+                this.addToVersionHistory(content);
+            },
+
+            // Utilitário Debounce
+            debounce(func, delay) {
+                let timeoutId;
+                return (...args) => {
+                    clearTimeout(timeoutId);
+                    timeoutId = setTimeout(() => {
+                        func.apply(this, args);
+                    }, delay);
+                };
+            },
+
+            // Atualiza os contadores de palavras, caracteres, etc.
+            updateCounters() {
+                const text = this.DOM.editor.textContent;
+                const charCount = text.length;
+                const wordCount = text.trim() === '' ? 0 : text.trim().split(/\s+/).length;
+                const lineCount = text.split('\n').length;
+                const readingTime = Math.ceil(wordCount / 200);
+                
+                this.DOM.counters.textContent = `Palavras: ${wordCount} | Caracteres: ${charCount} | Linhas: ${lineCount} | Leitura: ~${readingTime} min`;
+            },
+
+            // Atualiza a numeração de linhas
+            updateLineNumbers() {
+                if (!this.state.settings.lineNumbers) return;
+                const lineCount = this.DOM.editor.textContent.split('\n').length;
+                const lineNumbersHtml = Array.from({ length: lineCount }, (_, i) => i + 1).join('<br>');
+                this.DOM.lineNumbers.innerHTML = lineNumbersHtml;
+            },
+
+            // Gerencia o histórico de desfazer/refazer
+            saveToHistory() {
+                const currentContent = this.DOM.editor.textContent;
+                // Evita duplicatas consecutivas
+                if (this.state.history[this.state.historyIndex] !== currentContent) {
+                    // Trunca o futuro se estivermos no meio do histórico
+                    this.state.history = this.state.history.slice(0, this.state.historyIndex + 1);
+                    this.state.history.push(currentContent);
+                    this.state.historyIndex++;
+                    // Limite de histórico
+                    if (this.state.history.length > 50) {
+                        this.state.history.shift();
+                        this.state.historyIndex--;
+                    }
+                }
+            },
+
+            undo() {
+                if (this.state.historyIndex > 0) {
+                    this.state.historyIndex--;
+                    this.DOM.editor.textContent = this.state.history[this.state.historyIndex];
+                    this.updateUIAfterChange();
+                    this.UI.announce("Desfazer realizado.");
+                }
+            },
+
+            redo() {
+                if (this.state.historyIndex < this.state.history.length - 1) {
+                    this.state.historyIndex++;
+                    this.DOM.editor.textContent = this.state.history[this.state.historyIndex];
+                    this.updateUIAfterChange();
+                    this.UI.announce("Refazer realizado.");
+                }
+            },
+
+            // Funções de arquivo
+            newFile() {
+                if (this.state.content !== this.state.lastSavedContent) {
+                    if (!confirm("Há alterações não salvas. Tem certeza que deseja criar um novo arquivo?")) {
+                        return;
+                    }
+                }
+                this.DOM.editor.textContent = '';
+                this.state.content = '';
+                this.saveToHistory();
+                this.updateUIAfterChange();
+                this.UI.announce("Novo arquivo criado.");
+            },
+
+            openFile() {
+                this.DOM.fileInput.click();
+            },
+
+            handleFileOpen(event) {
+                const file = event.target.files[0];
+                if (!file) return;
+
+                if (file.size > 10 * 1024 * 1024) {
+                    alert("Arquivo muito grande. O tamanho máximo recomendado é 10MB para melhor performance.");
+                    return;
+                }
+
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    this.DOM.editor.textContent = e.target.result;
+                    this.saveToHistory();
+                    this.updateUIAfterChange();
+                    this.UI.announce(`Arquivo "${file.name}" aberto com sucesso.`);
+                };
+                reader.onerror = () => {
+                    alert("Ocorreu um erro ao ler o arquivo.");
+                };
+                reader.readAsText(file);
+                event.target.value = '';
+            },
+
+            saveFile() {
+                this.saveToLocalStorage();
+                this.UI.setStatus("Arquivo salvo no navegador.");
+                this.UI.announce("Arquivo salvo localmente.");
+            },
+
+            downloadFile(format = 'txt') {
+                const content = this.DOM.editor.textContent;
+                const blob = new Blob([content], { type: 'text/plain' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `documento.${format}`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+                this.UI.announce(`Download do arquivo .${format} iniciado.`);
+            },
+
+            copyToClipboard() {
+                const content = this.DOM.editor.textContent;
+                navigator.clipboard.writeText(content).then(() => {
+                    this.UI.setStatus("Conteúdo copiado para a área de transferência.");
+                    this.UI.announce("Conteúdo copiado.");
+                }).catch(err => {
+                    console.error('Erro ao copiar: ', err);
+                    alert("Não foi possível copiar o texto.");
+                });
+            },
+
+            // Funções de Localizar e Substituir
+            findAndReplace() {
+                const findText = document.getElementById('findInput').value;
+                const replaceText = document.getElementById('replaceInput').value;
+                const caseSensitive = document.getElementById('caseSensitiveToggle').checked;
+                const isRegex = document.getElementById('regexToggle').checked;
+
+                if (!findText) {
+                    alert("Por favor, insira o texto para localizar.");
+                    return;
+                }
+
+                let flags = caseSensitive ? 'g' : 'gi';
+                let searchPattern;
+                try {
+                    searchPattern = isRegex ? new RegExp(findText, flags) : new RegExp(findText.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), flags);
+                } catch (e) {
+                    alert("Expressão regular inválida.");
+                    return;
+                }
+                
+                const content = this.DOM.editor.textContent;
+                const newContent = content.replace(searchPattern, replaceText);
+                
+                if (content !== newContent) {
+                    this.DOM.editor.textContent = newContent;
+                    this.saveToHistory();
+                    this.updateUIAfterChange();
+                    this.UI.announce("Substituição concluída.");
+                } else {
+                    this.UI.announce("Texto não encontrado.");
+                }
+            },
+
+            // Funções de UI
+            UI: {
+                setStatus(message) {
+                    App.DOM.statusMessage.textContent = message;
+                },
+                announce(message) {
+                    App.DOM.srAnnouncement.textContent = message;
+                    // Limpa o anúncio após alguns segundos
+                    setTimeout(() => { App.DOM.srAnnouncement.textContent = ''; }, 3000);
+                },
+                showModal(modalId) {
+                    const modal = document.getElementById(modalId);
+                    if (modal) {
+                        modal.classList.add('active');
+                        modal.setAttribute('aria-hidden', 'false');
+                        
+                        // CORREÇÃO AQUI: Foco no primeiro elemento focável e Typo corrigido
+                        const selector = `#${modalId} input, #${modalId} button, #${modalId} select`;
+                        const firstFocusable = modal.querySelector(selector);
+                        if(firstFocusable) firstFocusable.focus();
+                    }
+                },
+                closeModal(modalId) {
+                    const modal = document.getElementById(modalId);
+                    if (modal) {
+                        modal.classList.remove('active');
+                        modal.setAttribute('aria-hidden', 'true');
+                    }
+                },
+                populateHistoryModal() {
+                    const list = document.getElementById('historyList');
+                    list.innerHTML = '';
+                    if (App.state.versionHistory.length === 0) {
+                        list.innerHTML = '<li>Nenhum histórico encontrado.</li>';
+                        return;
+                    }
+                    App.state.versionHistory.forEach((version, index) => {
+                        const li = document.createElement('li');
+                        li.innerHTML = `<span>${version.timestamp}</span><button data-action="restore-version" data-index="${index}">Restaurar</button>`;
+                        
+                        // Adiciona evento no botão de restaurar
+                        const restoreBtn = li.querySelector('button');
+                        restoreBtn.onclick = () => {
+                            App.DOM.editor.textContent = version.content;
+                            App.saveToHistory();
+                            App.updateUIAfterChange();
+                            App.UI.announce(`Versão de ${version.timestamp} restaurada.`);
+                            App.UI.closeModal('historyModal');
+                        };
+                        
+                        list.appendChild(li);
+                    });
+                }
+            },
+
+            // Configura todos os event listeners
+            setupEventListeners() {
+                // Eventos do Editor
+                this.DOM.editor.addEventListener('input', () => {
+                    this.autoSave();
+                    this.updateCounters();
+                    this.updateLineNumbers();
+                    this.saveToHistory();
+                });
+
+                this.DOM.editor.addEventListener('keydown', (e) => {
+                    // Tab para espaços
+                    if (e.key === 'Tab' && this.state.settings.tabToSpaces) {
+                        e.preventDefault();
+                        document.execCommand('insertText', false, ' '.repeat(this.state.settings.tabSize));
+                    }
+                    // Atalhos de teclado
+                    if (e.ctrlKey || e.metaKey) {
+                        switch (e.key.toLowerCase()) {
+                            case 's': e.preventDefault(); this.saveFile(); break;
+                            case 'o': e.preventDefault(); this.openFile(); break;
+                            case 'n': e.preventDefault(); this.newFile(); break;
+                            case 'f': e.preventDefault(); this.UI.showModal('findModal'); break;
+                            case 'z': e.preventDefault(); this.undo(); break;
+                            case 'y': e.preventDefault(); this.redo(); break;
+                        }
+                    }
+                    // Modo mini com Esc (se não estiver em um modal)
+                    if (e.key === 'Escape' && !document.querySelector('.modal.active')) {
+                        document.body.classList.toggle('mini-mode');
+                        this.UI.announce(document.body.classList.contains('mini-mode') ? "Modo de foco ativado." : "Modo de foco desativado.");
+                    }
+                });
+
+                // Botões da barra de ferramentas
+                document.getElementById('newBtn').addEventListener('click', () => this.newFile());
+                document.getElementById('openBtn').addEventListener('click', () => this.openFile());
+                document.getElementById('saveBtn').addEventListener('click', () => this.saveFile());
+                document.getElementById('downloadBtn').addEventListener('click', () => this.downloadFile());
+                document.getElementById('undoBtn').addEventListener('click', () => this.undo());
+                document.getElementById('redoBtn').addEventListener('click', () => this.redo());
+                document.getElementById('findBtn').addEventListener('click', () => this.UI.showModal('findModal'));
+                document.getElementById('copyBtn').addEventListener('click', () => this.copyToClipboard());
+                document.getElementById('settingsBtn').addEventListener('click', () => this.UI.showModal('settingsModal'));
+                document.getElementById('miniModeBtn').addEventListener('click', () => {
+                    document.body.classList.toggle('mini-mode');
+                    this.UI.announce(document.body.classList.contains('mini-mode') ? "Modo de foco ativado." : "Modo de foco desativado.");
+                });
+                document.getElementById('templatesBtn').addEventListener('click', () => this.UI.showModal('templatesModal'));
+
+                // Input de arquivo
+                this.DOM.fileInput.addEventListener('change', (e) => this.handleFileOpen(e));
+
+                // Modal de Configurações
+                document.getElementById('saveSettingsBtn').addEventListener('click', () => {
+                    this.state.settings.theme = document.getElementById('themeSelect').value;
+                    this.state.settings.fontFamily = document.getElementById('fontFamilySelect').value;
+                    this.state.settings.fontSize = parseInt(document.getElementById('fontSizeSlider').value);
+                    this.state.settings.autoSave = document.getElementById('autoSaveToggle').checked;
+                    this.state.settings.autoSaveInterval = parseInt(document.getElementById('autoSaveInterval').value);
+                    this.state.settings.lineNumbers = document.getElementById('lineNumbersToggle').checked;
+                    this.state.settings.tabToSpaces = document.getElementById('tabToSpacesToggle').checked;
+                    this.state.settings.tabSize = parseInt(document.getElementById('tabSizeInput').value);
+                    this.state.settings.spellcheck = document.getElementById('spellcheckToggle').checked;
+                    this.saveSettings();
+                    this.UI.closeModal('settingsModal');
+                });
+
+                // Listeners para controles que atualizam a UI em tempo real
+                document.getElementById('fontSizeSlider').addEventListener('input', (e) => {
+                    document.getElementById('fontSizeValue').textContent = e.target.value;
+                });
+
+                // Modal de Find & Replace
+                document.getElementById('findNextBtn').addEventListener('click', () => {
+                    const findText = document.getElementById('findInput').value;
+                    if (!findText) return;
+                    const caseSensitive = document.getElementById('caseSensitiveToggle').checked;
+                    window.find(findText, false, caseSensitive);
+                });
+                document.getElementById('replaceAllBtn').addEventListener('click', () => this.findAndReplace());
+
+                // Modal de Templates
+                document.querySelectorAll('.template-btn').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        const templateKey = e.target.dataset.template;
+                        const templateText = this.state.templates[templateKey];
+                        document.execCommand('insertText', false, templateText);
+                        this.updateUIAfterChange();
+                        this.UI.closeModal('templatesModal');
+                        this.UI.announce(`Template "${e.target.textContent}" inserido.`);
+                    });
+                });
+                
+                // Fechar modais com 'Escape' globalmente
+                document.addEventListener('keydown', (e) => {
+                    if (e.key === 'Escape') {
+                        const activeModal = document.querySelector('.modal.active');
+                        if (activeModal) {
+                            this.UI.closeModal(activeModal.id);
+                        }
+                    }
+                });
+
+                // Fechar modais clicando no fundo e botões de fechar (delegação de eventos)
+                document.querySelectorAll('.modal').forEach(modal => {
+                    modal.addEventListener('click', (e) => {
+                        if (e.target === modal) {
+                            this.UI.closeModal(modal.id);
+                        }
+                    });
+                });
+                
+                // Delegação para botões com data-close-modal
+                document.body.addEventListener('click', (e) => {
+                    if (e.target.closest('[data-close-modal]')) {
+                        const btn = e.target.closest('[data-close-modal]');
+                        this.UI.closeModal(btn.dataset.closeModal);
+                    }
+                });
+
+                // Listener para o botão de histórico (criado dinamicamente)
+                const historyBtn = document.createElement('button');
+                historyBtn.textContent = 'Histórico';
+                historyBtn.title = 'Ver histórico de versões';
+                historyBtn.addEventListener('click', () => {
+                    this.UI.populateHistoryModal();
+                    this.UI.showModal('historyModal');
+                });
+                document.querySelector('.header').appendChild(historyBtn);
+
+                // Listener para o botão de atalhos (criado dinamicamente)
+                const shortcutsBtn = document.createElement('button');
+                shortcutsBtn.textContent = '?';
+                shortcutsBtn.title = 'Ver atalhos de teclado';
+                shortcutsBtn.addEventListener('click', () => this.UI.showModal('shortcutsModal'));
+                document.querySelector('.header').appendChild(shortcutsBtn);
+            },
+
+            // Função auxiliar para atualizar a UI após uma mudança de conteúdo
+            updateUIAfterChange() {
+                this.state.content = this.DOM.editor.textContent;
+                this.updateCounters();
+                this.updateLineNumbers();
+            }
+        };
+
+        // Inicia a aplicação quando o DOM estiver carregado
+        document.addEventListener('DOMContentLoaded', () => {
+            App.init();
+        });
+
+    </script>
+</body>
+</html>
