@@ -333,7 +333,7 @@ const napZone = document.getElementById('napZone');
 // --- ESTADO DO JOGO (NOVO) ---
 let score = 0;
 let happiness = 0; // Começa com um valor médio de felicidade
-const maxHappiness = 100;
+const maxHappiness = 1000;
 
 // NOVO: Flag para controlar a mensagem de felicidade baixa
 let isLowHappinessMessageShown = false;
@@ -533,12 +533,12 @@ function decreaseHappiness() {
 // Inicialização do jogo
 animateCat();
 updateUI();
-setTimeout(blink, 100);
+setTimeout(blink, 10);
 playSound('meow');
 showFeedback("Cuide do seu gatinho!");
 
 // NOVO: Inicia a diminuição da felicidade a cada 2 segundos (2000ms)
-setInterval(decreaseHappiness, 1000);
+setInterval(decreaseHappiness, 100);
 
 // Suporte a toque para seguir o gato em mobile
 document.addEventListener('touchmove', (e) => {
