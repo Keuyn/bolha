@@ -3,13 +3,14 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Gato Seguidor Interativo</title>
+<title>Siga o Gato! - Jogo Interativo</title>
 <style>
+/* --- ESTILOS GERAIS E CORPO --- */
 * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
-  cursor: none; /* Esconde o cursor padrão */
+  cursor: none; /* Esconde o cursor padrão do sistema */
 }
 
 body {
@@ -18,9 +19,16 @@ body {
   overflow: hidden;
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   position: relative;
+  /* Adiciona uma transição suave para a tela de carregamento */
+  opacity: 0;
+  animation: fadeIn 1s ease-out forwards;
 }
 
-/* Custom cursor - CORRIGIDO */
+@keyframes fadeIn {
+  to { opacity: 1; }
+}
+
+/* --- CURSOR PERSONALIZADO --- */
 .custom-cursor {
   width: 40px;
   height: 40px;
@@ -28,14 +36,71 @@ body {
   pointer-events: none;
   z-index: 10000;
   transition: transform 0.1s ease;
-  /* As duas linhas abaixo são essenciais para a imagem aparecer */
-  background-image: url('rato.png');
+  background-image: url('rato.png'); /* Imagem do rato */
   background-size: contain;
   background-repeat: no-repeat;
-  mix-blend-mode: normal; /* Garante que a imagem seja visível */
+  mix-blend-mode: normal;
 }
 
-/* Cat Container */
+/* --- INTERFACE DO JOGO (NOVO) --- */
+.game-ui {
+  position: fixed;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  z-index: 5000;
+  color: white;
+  text-shadow: 1px 1px 3px rgba(0,0,0,0.5);
+}
+
+#score-display {
+  font-size: 1.5rem;
+  font-weight: bold;
+}
+
+.happiness-bar-container {
+  width: 300px;
+  height: 25px;
+  background-color: rgba(0, 0, 0, 0.3);
+  border-radius: 15px;
+  border: 2px solid rgba(255, 255, 255, 0.5);
+  overflow: hidden;
+}
+
+#happiness-bar {
+  height: 100%;
+  width: 0%; /* Inicia vazia */
+  background: linear-gradient(90deg, #f9ca24, #f0932b);
+  transition: width 0.5s ease-out; /* Animação suave da barra */
+  border-radius: 13px;
+}
+
+#feedback-message {
+  position: fixed;
+  top: 100px;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: rgba(255, 255, 255, 0.9);
+  color: #333;
+  padding: 10px 20px;
+  border-radius: 10px;
+  font-size: 1.2rem;
+  font-weight: bold;
+  opacity: 0; /* Escondido por padrão */
+  transition: opacity 0.3s ease;
+  z-index: 6000;
+  pointer-events: none;
+}
+
+#feedback-message.show {
+  opacity: 1;
+}
+
+/* --- CONTAINER E ANIMAÇÕES DO GATO --- */
 .cat-container {
   position: fixed;
   width: 120px;
@@ -54,15 +119,11 @@ body {
 }
 
 @keyframes idle {
-  0%, 100% {
-    transform: translateY(0);
-  }
-  50% {
-    transform: translateY(-5px);
-  }
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-5px); }
 }
 
-/* Cat Body */
+/* Corpo do Gato */
 .cat-body {
   position: absolute;
   bottom: 10px;
@@ -75,7 +136,7 @@ body {
   box-shadow: 0 5px 15px rgba(0,0,0,0.3);
 }
 
-/* Cat Head */
+/* Cabeça do Gato */
 .cat-head {
   position: absolute;
   top: 0;
@@ -88,312 +149,72 @@ body {
   box-shadow: 0 3px 10px rgba(0,0,0,0.2);
 }
 
-/* Cat Ears */
-.ear {
-  position: absolute;
-  width: 0;
-  height: 0;
-  border-style: solid;
-}
+/* Orelhas */
+.ear { position: absolute; width: 0; height: 0; border-style: solid; }
+.ear-left { top: -5px; left: 10px; border-width: 0 12px 25px 12px; border-color: transparent transparent #ff6b6b transparent; transform: rotate(-15deg); }
+.ear-right { top: -5px; right: 10px; border-width: 0 12px 25px 12px; border-color: transparent transparent #ff6b6b transparent; transform: rotate(15deg); }
+.ear-inner { position: absolute; width: 0; height: 0; border-style: solid; }
+.ear-left .ear-inner { top: 8px; left: 6px; border-width: 0 6px 12px 6px; border-color: transparent transparent #ffb3ba transparent; }
+.ear-right .ear-inner { top: 8px; right: 6px; border-width: 0 6px 12px 6px; border-color: transparent transparent #ffb3ba transparent; }
 
-.ear-left {
-  top: -5px;
-  left: 10px;
-  border-width: 0 12px 25px 12px;
-  border-color: transparent transparent #ff6b6b transparent;
-  transform: rotate(-15deg);
-}
+/* Olhos */
+.eyes { position: absolute; top: 25px; left: 50%; transform: translateX(-50%); display: flex; gap: 15px; }
+.eye { width: 12px; height: 16px; background: #333; border-radius: 50%; position: relative; overflow: hidden; }
+.eye::before { content: ''; position: absolute; top: 2px; left: 2px; width: 4px; height: 4px; background: white; border-radius: 50%; animation: sparkle 3s ease-in-out infinite; }
+@keyframes sparkle { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
+.eye.blink { animation: blink 0.3s ease-in-out; }
+@keyframes blink { 0%, 100% { transform: scaleY(1); } 50% { transform: scaleY(0.1); } }
 
-.ear-right {
-  top: -5px;
-  right: 10px;
-  border-width: 0 12px 25px 12px;
-  border-color: transparent transparent #ff6b6b transparent;
-  transform: rotate(15deg);
-}
+/* Nariz e Boca */
+.nose { position: absolute; top: 38px; left: 50%; transform: translateX(-50%); width: 0; height: 0; border-style: solid; border-width: 0 4px 4px 4px; border-color: transparent transparent #d63031 transparent; }
+.mouth { position: absolute; top: 42px; left: 50%; transform: translateX(-50%); width: 20px; height: 10px; border: 2px solid #333; border-top: none; border-radius: 0 0 20px 20px; }
 
-.ear-inner {
-  position: absolute;
-  width: 0;
-  height: 0;
-  border-style: solid;
-}
+/* Rabo */
+.tail { position: absolute; bottom: 15px; right: -30px; width: 40px; height: 40px; background: linear-gradient(135deg, #ff6b6b, #ff8e53); border-radius: 50% 10% 50% 10%; transform-origin: 10% 50%; animation: wag 1s ease-in-out infinite alternate; box-shadow: 0 3px 10px rgba(0,0,0,0.2); }
+@keyframes wag { 0% { transform: rotate(-20deg); } 100% { transform: rotate(20deg); } }
 
-.ear-left .ear-inner {
-  top: 8px;
-  left: 6px;
-  border-width: 0 6px 12px 6px;
-  border-color: transparent transparent #ffb3ba transparent;
-}
+/* Patas */
+.paws { position: absolute; bottom: -5px; left: 50%; transform: translateX(-50%); display: flex; gap: 20px; }
+.paw { width: 18px; height: 15px; background: linear-gradient(135deg, #ff6b6b, #ff8e53); border-radius: 50% 50% 40% 40%; box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
 
-.ear-right .ear-inner {
-  top: 8px;
-  right: 6px;
-  border-width: 0 6px 12px 6px;
-  border-color: transparent transparent #ffb3ba transparent;
+/* Animação de Andar (Melhorada) */
+.cat.walking .paw { animation: walk 0.4s ease-in-out infinite alternate; }
+.cat.walking .paw:first-child { animation-delay: 0.2s; }
+.cat.walking { /* Adiciona um leve balanço ao corpo */
+  animation: walk-body 0.8s ease-in-out infinite alternate;
 }
+@keyframes walk { 0% { transform: translateY(0); } 100% { transform: translateY(-3px); } }
+@keyframes walk-body { 0% { transform: translateY(0) rotate(0deg); } 100% { transform: translateY(-2px) rotate(1deg); } }
 
-/* Cat Eyes */
-.eyes {
-  position: absolute;
-  top: 25px;
-  left: 50%;
-  transform: translateX(-50%);
-  display: flex;
-  gap: 15px;
-}
+/* --- ANIMAÇÕES DE INTERAÇÃO DO GATO --- */
+/* Rabo Feliz */
+.tail.happy { animation: wag-happy 0.3s ease-in-out infinite alternate; }
+@keyframes wag-happy { 0% { transform: rotate(-30deg); } 100% { transform: rotate(30deg); } }
 
-.eye {
-  width: 12px;
-  height: 16px;
-  background: #333;
-  border-radius: 50%;
-  position: relative;
-  overflow: hidden;
-}
+/* Pulo */
+.cat.pounce { animation: pounce 0.5s ease-out; }
+@keyframes pounce { 0% { transform: translateY(0) scale(1, 1); } 40% { transform: translateY(-40px) scale(0.9, 1.1); } 100% { transform: translateY(0) scale(1, 1); } }
 
-.eye::before {
-  content: '';
-  position: absolute;
-  top: 2px;
-  left: 2px;
-  width: 4px;
-  height: 4px;
-  background: white;
-  border-radius: 50%;
-  animation: sparkle 3s ease-in-out infinite;
-}
+/* Dormindo */
+.cat.sleeping .eye { height: 2px; }
+.cat.sleeping .eye::before { display: none; }
+.cat.sleeping { animation: sleep 3s ease-in-out infinite; }
+@keyframes sleep { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-3px); } }
 
-@keyframes sparkle {
-  0%, 100% {
-    opacity: 1;
-  }
-  50% {
-    opacity: 0.3;
-  }
-}
+/* Bolha de Sono */
+.sleep-bubble { position: absolute; top: -40px; left: 50%; transform: translateX(-50%); font-size: 24px; opacity: 0; animation: bubble-float 2s ease-out forwards; pointer-events: none; }
+@keyframes bubble-float { 0% { opacity: 0; transform: translateX(-50%) translateY(0); } 50% { opacity: 1; } 100% { opacity: 0; transform: translateX(-50%) translateY(-30px); } }
 
-.eye.blink {
-  animation: blink 0.3s ease-in-out;
-}
+/* Sombra */
+.shadow { position: absolute; bottom: -10px; left: 50%; transform: translateX(-50%); width: 80px; height: 20px; background: rgba(0,0,0,0.2); border-radius: 50%; filter: blur(10px); }
 
-@keyframes blink {
-  0%, 100% {
-    transform: scaleY(1);
-  }
-  50% {
-    transform: scaleY(0.1);
-  }
-}
+/* --- CONTEÚDO PRINCIPAL --- */
+.content { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center; color: white; pointer-events: none; }
+.content h1 { font-size: 3rem; margin-bottom: 1rem; text-shadow: 2px 2px 4px rgba(0,0,0,0.3); animation: float 3s ease-in-out infinite; }
+.content p { font-size: 1.2rem; opacity: 0.9; text-shadow: 1px 1px 2px rgba(0,0,0,0.3); }
+@keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
 
-/* Cat Nose */
-.nose {
-  position: absolute;
-  top: 38px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 0;
-  height: 0;
-  border-style: solid;
-  border-width: 0 4px 4px 4px;
-  border-color: transparent transparent #d63031 transparent;
-}
-
-/* Cat Mouth */
-.mouth {
-  position: absolute;
-  top: 42px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 20px;
-  height: 10px;
-  border: 2px solid #333;
-  border-top: none;
-  border-radius: 0 0 20px 20px;
-}
-
-/* Cat Tail */
-.tail {
-  position: absolute;
-  bottom: 15px;
-  right: -30px;
-  width: 40px;
-  height: 40px;
-  background: linear-gradient(135deg, #ff6b6b, #ff8e53);
-  border-radius: 50% 10% 50% 10%;
-  transform-origin: 10% 50%;
-  animation: wag 1s ease-in-out infinite alternate;
-  box-shadow: 0 3px 10px rgba(0,0,0,0.2);
-}
-
-@keyframes wag {
-  0% {
-    transform: rotate(-20deg);
-  }
-  100% {
-    transform: rotate(20deg);
-  }
-}
-
-/* ANIMAÇÃO: Rabo feliz (mais rápido) */
-.tail.happy {
-  animation: wag-happy 0.3s ease-in-out infinite alternate;
-}
-
-@keyframes wag-happy {
-  0% {
-    transform: rotate(-30deg);
-  }
-  100% {
-    transform: rotate(30deg);
-  }
-}
-
-/* Cat Paws */
-.paws {
-  position: absolute;
-  bottom: -5px;
-  left: 50%;
-  transform: translateX(-50%);
-  display: flex;
-  gap: 20px;
-}
-
-.paw {
-  width: 18px;
-  height: 15px;
-  background: linear-gradient(135deg, #ff6b6b, #ff8e53);
-  border-radius: 50% 50% 40% 40%;
-  box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-}
-
-/* Walking animation */
-.cat.walking .paw {
-  animation: walk 0.4s ease-in-out infinite alternate;
-}
-.cat.walking .paw:first-child {
-  animation-delay: 0.2s;
-}
-
-@keyframes walk {
-  0% {
-    transform: translateY(0);
-  }
-  100% {
-    transform: translateY(-3px);
-  }
-}
-
-/* ANIMAÇÃO: Pulo (pounce) */
-.cat.pounce {
-  animation: pounce 0.5s ease-out;
-}
-
-@keyframes pounce {
-  0% {
-    transform: translateY(0) scale(1, 1);
-  }
-  40% {
-    transform: translateY(-40px) scale(0.9, 1.1);
-  }
-  100% {
-    transform: translateY(0) scale(1, 1);
-  }
-}
-
-/* ANIMAÇÃO: Dormindo */
-.cat.sleeping .eye {
-  height: 2px; /* Fecha os olhos */
-}
-.cat.sleeping .eye::before {
-  display: none; /* Esconde o brilho */
-}
-.cat.sleeping {
-  animation: sleep 3s ease-in-out infinite;
-}
-
-@keyframes sleep {
-  0%, 100% {
-    transform: translateY(0);
-  }
-  50% {
-    transform: translateY(-3px);
-  }
-}
-
-/* ANIMAÇÃO: Bolha de sono */
-.sleep-bubble {
-  position: absolute;
-  top: -40px;
-  left: 50%;
-  transform: translateX(-50%);
-  font-size: 24px;
-  opacity: 0;
-  animation: bubble-float 2s ease-out forwards;
-  pointer-events: none;
-}
-
-@keyframes bubble-float {
-  0% {
-    opacity: 0;
-    transform: translateX(-50%) translateY(0);
-  }
-  50% {
-    opacity: 1;
-  }
-  100% {
-    opacity: 0;
-    transform: translateX(-50%) translateY(-30px);
-  }
-}
-
-/* Shadow */
-.shadow {
-  position: absolute;
-  bottom: -10px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 80px;
-  height: 20px;
-  background: rgba(0,0,0,0.2);
-  border-radius: 50%;
-  filter: blur(10px);
-}
-
-/* Content */
-.content {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  text-align: center;
-  color: white;
-  pointer-events: none;
-}
-
-.content h1 {
-  font-size: 3rem;
-  margin-bottom: 1rem;
-  text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
-  animation: float 3s ease-in-out infinite;
-}
-
-.content p {
-  font-size: 1.2rem;
-  opacity: 0.9;
-  text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
-}
-
-@keyframes float {
-  0%, 100% {
-    transform: translateY(0);
-  }
-  50% {
-    transform: translateY(-10px);
-  }
-}
-
-/* Interactive elements */
+/* --- ZONAS INTERATIVAS (COM MELHORIAS) --- */
 .interactive-zone {
   position: absolute;
   width: 150px;
@@ -411,113 +232,82 @@ body {
   font-size: 1.1rem;
 }
 
-.interactive-zone span {
-  font-size: 2.5rem;
-  margin-bottom: 5px;
-}
+.interactive-zone span { font-size: 2.5rem; margin-bottom: 5px; }
 
+/* Efeito de Hover melhorado com Bounce e Brilho */
 .interactive-zone:hover {
-  background: rgba(255,255,255,0.1);
+  background: rgba(255,255,255,0.15);
   transform: scale(1.05);
+  animation: bounce 0.5s ease;
+  filter: brightness(1.2);
 }
 
-.zone1 {
-  top: 20%;
-  left: 10%;
+@keyframes bounce {
+  0%, 100% { transform: scale(1.05) translateY(0); }
+  50% { transform: scale(1.1) translateY(-5px); }
 }
 
-.zone2 {
-  top: 60%;
-  right: 15%;
-}
+.zone1 { top: 20%; left: 10%; }
+.zone2 { top: 60%; right: 15%; }
+.zone3 { bottom: 20%; left: 20%; }
 
-.zone3 {
-  bottom: 20%;
-  left: 20%;
-}
-
-/* Particle effect */
+/* --- EFEITOS DE PARTÍCULAS --- */
 .particle {
   position: fixed;
   pointer-events: none;
   opacity: 0;
   animation: particle-float 1s ease-out forwards;
 }
-
 @keyframes particle-float {
-  0% {
-    opacity: 1;
-    transform: translate(0, 0) scale(0);
-  }
-  100% {
-    opacity: 0;
-    transform: translate(var(--x), var(--y)) scale(1);
-  }
+  0% { opacity: 1; transform: translate(0, 0) scale(0); }
+  100% { opacity: 0; transform: translate(var(--x), var(--y)) scale(1); }
 }
 </style>
 </head>
 <body>
-<!-- Custom Cursor -->
+
+<!-- --- INTERFACE DO JOGO (NOVO) --- -->
+<div class="game-ui">
+  <div id="score-display">Pontuação: 0</div>
+  <div class="happiness-bar-container">
+    <div id="happiness-bar"></div>
+  </div>
+</div>
+<div id="feedback-message"></div>
+
+<!-- Cursor Personalizado -->
 <div class="custom-cursor"></div>
 
-<!-- Cat Container -->
+<!-- Container do Gato -->
 <div class="cat-container" id="cat">
   <div class="cat" id="catElement">
-    <!-- Cat Head -->
     <div class="cat-head">
-      <div class="ear ear-left">
-        <div class="ear-inner"></div>
-      </div>
-      <div class="ear ear-right">
-        <div class="ear-inner"></div>
-      </div>
-      <div class="eyes">
-        <div class="eye" id="leftEye"></div>
-        <div class="eye" id="rightEye"></div>
-      </div>
+      <div class="ear ear-left"><div class="ear-inner"></div></div>
+      <div class="ear ear-right"><div class="ear-inner"></div></div>
+      <div class="eyes"><div class="eye" id="leftEye"></div><div class="eye" id="rightEye"></div></div>
       <div class="nose"></div>
       <div class="mouth"></div>
     </div>
-    
-    <!-- Cat Body -->
     <div class="cat-body"></div>
-    
-    <!-- Tail -->
     <div class="tail" id="catTail"></div>
-    
-    <!-- Paws -->
-    <div class="paws">
-      <div class="paw"></div>
-      <div class="paw"></div>
-    </div>
-    
-    <!-- Shadow -->
+    <div class="paws"><div class="paw"></div><div class="paw"></div></div>
     <div class="shadow"></div>
   </div>
 </div>
 
-<!-- Main Content -->
+<!-- Conteúdo Principal -->
 <div class="content">
   <h1>🐱 Siga o Gato!</h1>
   <p>Mova o mouse e clique nas zonas para interagir!</p>
 </div>
 
-<!-- Interactive Zones -->
-<div class="interactive-zone zone1" id="foodZone">
-  <span>🍖</span>
-  Comida
-</div>
-<div class="interactive-zone zone2" id="toyZone">
-  <span>🧶</span>
-  Brinquedo
-</div>
-<div class="interactive-zone zone3" id="napZone">
-  <span>💤</span>
-  Soneca
-</div>
+<!-- Zonas Interativas -->
+<div class="interactive-zone zone1" id="foodZone"><span>🍖</span>Comida</div>
+<div class="interactive-zone zone2" id="toyZone"><span>🧶</span>Brinquedo</div>
+<div class="interactive-zone zone3" id="napZone"><span>💤</span>Soneca</div>
 
 <script>
-// Cat following mouse
+// --- ELEMENTOS DO DOM ---
 const cat = document.getElementById('cat');
 const catElement = document.getElementById('catElement');
 const catTail = document.getElementById('catTail');
@@ -525,166 +315,206 @@ const cursor = document.querySelector('.custom-cursor');
 const leftEye = document.getElementById('leftEye');
 const rightEye = document.getElementById('rightEye');
 
+// Elementos da UI (NOVO)
+const scoreDisplay = document.getElementById('score-display');
+const happinessBar = document.getElementById('happiness-bar');
+const feedbackMessageEl = document.getElementById('feedback-message');
+
 // Zonas interativas
 const foodZone = document.getElementById('foodZone');
 const toyZone = document.getElementById('toyZone');
 const napZone = document.getElementById('napZone');
 
+// --- ESTADO DO JOGO (NOVO) ---
+let score = 0;
+let happiness = 0;
+const maxHappiness = 100;
+
+// --- VARIÁVEIS DE MOVIMENTO ---
 let mouseX = window.innerWidth / 2;
 let mouseY = window.innerHeight / 2;
 let catX = mouseX;
 let catY = mouseY;
 let isMoving = false;
 
+// --- SISTEMA DE SOM (NOVO) ---
+// **IMPORTANTE**: Substitua os URLs pelos seus próprios arquivos de som.
+const sounds = {
+    meow: 'path/to/meow.mp3',
+    pounce: 'path/to/pounce.mp3',
+    happy: 'path/to/happy_purr.mp3',
+    sleep: 'path/to/sleep_purr.mp3'
+};
+
+function playSound(soundName) {
+    // Tenta tocar o som, mas não quebra o jogo se o arquivo não existir
+    try {
+        const audio = new Audio(sounds[soundName]);
+        audio.volume = 0.5;
+        audio.play();
+    } catch (error) {
+        console.warn(`Som não encontrado: ${sounds[soundName]}`);
+    }
+}
+
+// --- FUNÇÕES DE ATUALIZAÇÃO DA UI (NOVO) ---
+function updateUI() {
+    scoreDisplay.textContent = `Pontuação: ${score}`;
+    happinessBar.style.width = `${(happiness / maxHappiness) * 100}%`;
+
+    // Verifica marcos de felicidade para mostrar feedback
+    if (happiness >= maxHappiness && happiness < maxHappiness + 10) {
+        showFeedback("Gato Supimpa! 🎉");
+        happiness = maxHappiness; // Impede que a barra passe de 100%
+    } else if (happiness >= 50 && happiness < 55) {
+        showFeedback("Gato Feliz! 😊");
+    }
+}
+
+function showFeedback(message) {
+    feedbackMessageEl.textContent = message;
+    feedbackMessageEl.classList.add('show');
+    setTimeout(() => {
+        feedbackMessageEl.classList.remove('show');
+    }, 2500);
+}
+
+// --- FUNÇÕES DE INTERAÇÃO DO GATO ---
+function triggerFoodZone() {
+    playSound('happy');
+    catTail.classList.add('happy');
+    score += 10;
+    happiness = Math.min(happiness + 20, maxHappiness);
+    updateUI();
+
+    // Cria partículas de comida e corações
+    for (let i = 0; i < 5; i++) {
+        setTimeout(() => createParticle(catX, catY, ['🍖', '🐟', '❤️'][Math.floor(Math.random() * 3)]), i * 50);
+    }
+    setTimeout(() => catTail.classList.remove('happy'), 2000);
+}
+
+function triggerToyZone() {
+    playSound('pounce');
+    catElement.classList.add('pounce');
+    score += 15;
+    happiness = Math.min(happiness + 25, maxHappiness);
+    updateUI();
+
+    // Cria partículas de brinquedo e estrelas
+    for (let i = 0; i < 5; i++) {
+        setTimeout(() => createParticle(catX, catY, ['🧶', '🪀', '⭐'][Math.floor(Math.random() * 3)]), i * 70);
+    }
+    setTimeout(() => catElement.classList.remove('pounce'), 500);
+}
+
+function triggerNapZone() {
+    playSound('sleep');
+    catElement.classList.add('sleeping');
+    score += 5;
+    happiness = Math.min(happiness + 10, maxHappiness);
+    updateUI();
+
+    const bubble = document.createElement('div');
+    bubble.className = 'sleep-bubble';
+    bubble.innerHTML = 'Zzz';
+    catElement.appendChild(bubble);
+
+    setTimeout(() => {
+        bubble.remove();
+        catElement.classList.remove('sleeping');
+    }, 2000);
+}
+
+// --- FUNÇÕES AUXILIARES ---
+function createParticle(x, y, emoji = '✨') {
+    const particle = document.createElement('div');
+    particle.className = 'particle';
+    particle.innerHTML = emoji;
+    particle.style.left = x + 'px';
+    particle.style.top = y + 'px';
+    particle.style.setProperty('--x', (Math.random() - 0.5) * 100 + 'px');
+    particle.style.setProperty('--y', (Math.random() - 0.5) * 100 + 'px');
+    document.body.appendChild(particle);
+    setTimeout(() => particle.remove(), 1000);
+}
+
+function blink() {
+    leftEye.classList.add('blink');
+    rightEye.classList.add('blink');
+    setTimeout(() => {
+        leftEye.classList.remove('blink');
+        rightEye.classList.remove('blink');
+    }, 300);
+}
+
+// --- LÓGICA PRINCIPAL ---
 // Mouse tracking
 document.addEventListener('mousemove', (e) => {
-  mouseX = e.clientX;
-  mouseY = e.clientY;
-  
-  // Update custom cursor - CORRIGIDO
-  cursor.style.left = mouseX - 20 + 'px'; // Metade da largura (40px / 2)
-  cursor.style.top = mouseY - 20 + 'px';  // Metade da altura (40px / 2)
-  
-  // Create particle effect occasionally
-  if (Math.random() < 0.1) {
-    createParticle(mouseX, mouseY, '✨');
-  }
+    mouseX = e.clientX;
+    mouseY = e.clientY;
+    cursor.style.left = mouseX - 20 + 'px';
+    cursor.style.top = mouseY - 20 + 'px';
+    if (Math.random() < 0.1) createParticle(mouseX, mouseY, '✨');
 });
 
-// Smooth cat movement
+// Animação suave do gato
 function animateCat() {
-  const dx = mouseX - catX;
-  const dy = mouseY - catY;
-  const distance = Math.sqrt(dx * dx + dy * dy);
-  
-  if (distance > 5) {
-    catX += dx * 0.1;
-    catY += dy * 0.1;
-    
-    cat.style.left = catX - 60 + 'px';
-    cat.style.top = catY - 50 + 'px';
-    
-    const angle = Math.atan2(dy, dx) * (180 / Math.PI);
-    const rotation = Math.max(-30, Math.min(30, angle));
-    catElement.style.transform = `rotate(${rotation}deg)`;
-    
-    if (!isMoving) {
-      isMoving = true;
-      catElement.classList.add('walking');
+    const dx = mouseX - catX;
+    const dy = mouseY - catY;
+    const distance = Math.sqrt(dx * dx + dy * dy);
+
+    if (distance > 5) {
+        catX += dx * 0.1;
+        catY += dy * 0.1;
+        cat.style.left = catX - 60 + 'px';
+        cat.style.top = catY - 50 + 'px';
+        const angle = Math.atan2(dy, dx) * (180 / Math.PI);
+        const rotation = Math.max(-30, Math.min(30, angle));
+        catElement.style.transform = `rotate(${rotation}deg)`;
+        if (!isMoving) {
+            isMoving = true;
+            catElement.classList.add('walking');
+        }
+    } else {
+        if (isMoving) {
+            isMoving = false;
+            catElement.classList.remove('walking');
+        }
     }
-  } else {
-    if (isMoving) {
-      isMoving = false;
-      catElement.classList.remove('walking');
-    }
-  }
-  
-  requestAnimationFrame(animateCat);
+    requestAnimationFrame(animateCat);
 }
 
-// Blinking animation
-function blink() {
-  leftEye.classList.add('blink');
-  rightEye.classList.add('blink');
-  
-  setTimeout(() => {
-    leftEye.classList.remove('blink');
-    rightEye.classList.remove('blink');
-  }, 300);
+// Event Listeners para as Zonas (Desktop e Mobile)
+function setupZoneListeners(zone, action) {
+    // Desktop
+    zone.addEventListener('click', action);
+    // Mobile
+    zone.addEventListener('touchstart', (e) => {
+        e.preventDefault(); // Evita o comportamento padrão do toque
+        action();
+    });
 }
 
-// Random blinking
-setInterval(() => {
-  if (Math.random() < 0.7) {
-    blink();
-  }
-}, 3000);
+setupZoneListeners(foodZone, triggerFoodZone);
+setupZoneListeners(toyZone, triggerToyZone);
+setupZoneListeners(napZone, triggerNapZone);
 
-// Create particle effect
-function createParticle(x, y, emoji = '✨') {
-  const particle = document.createElement('div');
-  particle.className = 'particle';
-  particle.innerHTML = emoji;
-  particle.style.left = x + 'px';
-  particle.style.top = y + 'px';
-  particle.style.setProperty('--x', (Math.random() - 0.5) * 100 + 'px');
-  particle.style.setProperty('--y', (Math.random() - 0.5) * 100 + 'px');
-  
-  document.body.appendChild(particle);
-  
-  setTimeout(() => {
-    particle.remove();
-  }, 1000);
-}
+// Piscar aleatório
+setInterval(() => { if (Math.random() < 0.7) blink(); }, 3000);
 
-// --- FUNÇÕES DE INTERAÇÃO ---
-
-// Função para a Zona de Comida
-function triggerFoodZone() {
-  catTail.classList.add('happy');
-  for (let i = 0; i < 8; i++) {
-    setTimeout(() => createParticle(catX, catY, ['🍖', '🐟', '🥛'][Math.floor(Math.random() * 3)]), i * 50);
-  }
-  setTimeout(() => {
-    catTail.classList.remove('happy');
-  }, 2000);
-}
-
-// Função para a Zona de Brinquedo
-function triggerToyZone() {
-  catElement.classList.add('pounce');
-  for (let i = 0; i < 5; i++) {
-    setTimeout(() => createParticle(catX, catY, ['🧶', '🪀', '⚽'][Math.floor(Math.random() * 3)]), i * 70);
-  }
-  setTimeout(() => {
-    catElement.classList.remove('pounce');
-  }, 500);
-}
-
-// Função para a Zona de Soneca
-function triggerNapZone() {
-  catElement.classList.add('sleeping');
-  const bubble = document.createElement('div');
-  bubble.className = 'sleep-bubble';
-  bubble.innerHTML = 'Zzz';
-  catElement.appendChild(bubble);
-
-  setTimeout(() => {
-    bubble.remove();
-    catElement.classList.remove('sleeping');
-  }, 2000);
-}
-
-// --- EVENT LISTENERS DAS ZONAS ---
-
-// Hover effect
-document.querySelectorAll('.interactive-zone').forEach(zone => {
-  zone.addEventListener('mouseenter', () => {
-    zone.style.background = 'rgba(255,255,255,0.2)';
-    zone.style.transform = 'scale(1.1)';
-  });
-  
-  zone.addEventListener('mouseleave', () => {
-    zone.style.background = 'rgba(255,255,255,0.1)';
-    zone.style.transform = 'scale(1.05)';
-  });
-});
-
-// Click events
-foodZone.addEventListener('click', triggerFoodZone);
-toyZone.addEventListener('click', triggerToyZone);
-napZone.addEventListener('click', triggerNapZone);
-
-
-// Start animations
+// Inicialização do jogo
 animateCat();
+updateUI();
 setTimeout(blink, 1000);
+playSound('meow'); // Miado inicial para dar as boas-vindas
+showFeedback("Cuide do seu gatinho!");
 
-// Touch support for mobile
+// Suporte a toque para seguir o gato em mobile
 document.addEventListener('touchmove', (e) => {
-  const touch = e.touches[0];
-  mouseX = touch.clientX;
-  mouseY = touch.clientY;
+    const touch = e.touches[0];
+    mouseX = touch.clientX;
+    mouseY = touch.clientY;
 });
 </script>
 </body>
