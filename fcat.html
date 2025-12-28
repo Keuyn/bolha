@@ -397,7 +397,7 @@ function showFeedback(message) {
 function triggerFoodZone() {
     playSound('happy');
     catTail.classList.add('happy');
-    score += 10;
+    score += 1;
     happiness = Math.min(happiness + 20, maxHappiness);
     updateUI();
 
@@ -423,7 +423,7 @@ function triggerToyZone() {
 function triggerNapZone() {
     playSound('sleep');
     catElement.classList.add('sleeping');
-    score += 5;
+    score += 1;
     happiness = Math.min(happiness + 10, maxHappiness);
     updateUI();
 
