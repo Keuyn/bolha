@@ -192,26 +192,27 @@ body {
 @keyframes walk { 0% { transform: translateY(0); } 100% { transform: translateY(-3px); } }
 @keyframes walk-body { 0% { transform: translateY(0) rotate(0deg); } 100% { transform: translateY(-2px) rotate(1deg); } }
 
-/* --- RODAPÉ --- */
-footer {
-  background-color: #333;
-  color: white;
-  padding: 10px;
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  width: 100%;
-  text-align: center;
-}
+/* --- ANIMAÇÕES DE INTERAÇÃO DO GATO --- */
+/* Rabo Feliz */
+.tail.happy { animation: wag-happy 0.3s ease-in-out infinite alternate; }
+@keyframes wag-happy { 0% { transform: rotate(-30deg); } 100% { transform: rotate(30deg); } }
 
-footer a {
-  color: #ffffff;
-  text-decoration: none;
-}
+/* Pulo */
+.cat.pounce { animation: pounce 0.5s ease-out; }
+@keyframes pounce { 0% { transform: translateY(0) scale(1, 1); } 40% { transform: translateY(-40px) scale(0.9, 1.1); } 100% { transform: translateY(0) scale(1, 1); } }
 
-footer a:hover {
-  text-decoration: underline;
-}
+/* Dormindo */
+.cat.sleeping .eye { height: 2px; }
+.cat.sleeping .eye::before { display: none; }
+.cat.sleeping { animation: sleep 3s ease-in-out infinite; }
+@keyframes sleep { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-3px); } }
+
+/* Bolha de Sono */
+.sleep-bubble { position: absolute; top: -40px; left: 50%; transform: translateX(-50%); font-size: 24px; opacity: 0; animation: bubble-float 2s ease-out forwards; pointer-events: none; }
+@keyframes bubble-float { 0% { opacity: 0; transform: translateX(-50%) translateY(0); } 50% { opacity: 1; } 100% { opacity: 0; transform: translateX(-50%) translateY(-30px); } }
+
+/* Sombra */
+.shadow { position: absolute; bottom: -10px; left: 50%; transform: translateX(-50%); width: 80px; height: 20px; background: rgba(0,0,0,0.2); border-radius: 50%; filter: blur(10px); }
 
 /* --- CONTEÚDO PRINCIPAL --- */
 .content { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center; color: white; pointer-events: none; }
@@ -267,6 +268,27 @@ footer a:hover {
   0% { opacity: 1; transform: translate(0, 0) scale(0); }
   100% { opacity: 0; transform: translate(var(--x), var(--y)) scale(1); }
 }
+
+  /* --- RODAPÉ --- */
+footer {
+  background-color: #333;
+  color: white;
+  padding: 10px;
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  text-align: center;
+}
+
+footer a {
+  color: #ffffff;
+  text-decoration: none;
+}
+
+footer a:hover {
+  text-decoration: underline;
+}
 </style>
 </head>
 <body>
@@ -311,17 +333,242 @@ footer a:hover {
 <div class="interactive-zone zone2" id="toyZone"><span>🧶</span>Brinquedo</div>
 <div class="interactive-zone zone3" id="napZone"><span>💤</span>Soneca</div>
 
-<!-- Rodapé -->
-<footer>
-  <p>&copy;<a href="https://instagram.com/keurynn_" target="_blank" rel="noopener noreferrer">keuryn</a> 2025 Todos os direitos reservados</p>
-</footer>
-
+  
 <script>
 // --- ELEMENTOS DO DOM ---
-// (Mesmas funções de interação do jogo que já estão no seu código)
+const cat = document.getElementById('cat');
+const catElement = document.getElementById('catElement');
+const catTail = document.getElementById('catTail');
+const cursor = document.querySelector('.custom-cursor');
+const leftEye = document.getElementById('leftEye');
+const rightEye = document.getElementById('rightEye');
 
-// Continue o resto do seu código aqui, sem alteração nos scripts.
+// Elementos da UI (NOVO)
+const scoreDisplay = document.getElementById('score-display');
+const happinessBar = document.getElementById('happiness-bar');
+const feedbackMessageEl = document.getElementById('feedback-message');
+
+// Zonas interativas
+const foodZone = document.getElementById('foodZone');
+const toyZone = document.getElementById('toyZone');
+const napZone = document.getElementById('napZone');
+
+// --- ESTADO DO JOGO (NOVO) ---
+let score = 0;
+let happiness = 0; // Começa com um valor médio de felicidade
+const maxHappiness = 1000;
+
+// NOVO: Flag para controlar a mensagem de felicidade baixa
+let isLowHappinessMessageShown = false;
+
+// --- VARIÁVEIS DE MOVIMENTO ---
+let mouseX = window.innerWidth / 2;
+let mouseY = window.innerHeight / 2;
+let catX = mouseX;
+let catY = mouseY;
+let isMoving = false;
+
+// --- SISTEMA DE SOM (NOVO) ---
+// **IMPORTANTE**: Substitua os URLs pelos seus próprios arquivos de som.
+const sounds = {
+    meow: 'path/to/meow.mp3',
+    pounce: 'path/to/pounce.mp3',
+    happy: 'path/to/happy_purr.mp3',
+    sleep: 'path/to/sleep_purr.mp3'
+};
+
+function playSound(soundName) {
+    try {
+        const audio = new Audio(sounds[soundName]);
+        audio.volume = 0.5;
+        audio.play();
+    } catch (error) {
+        console.warn(`Som não encontrado: ${sounds[soundName]}`);
+    }
+}
+
+// --- FUNÇÕES DE ATUALIZAÇÃO DA UI (NOVO) ---
+function updateUI() {
+    scoreDisplay.textContent = `Pontuação: ${score}`;
+    happinessBar.style.width = `${(happiness / maxHappiness) * 100}%`;
+
+    // MODIFICADO: Adiciona feedback visual para felicidade baixa
+    if (happiness < 25) {
+        happinessBar.classList.add('low');
+    } else {
+        happinessBar.classList.remove('low');
+    }
+
+    // Verifica marcos de felicidade para mostrar feedback
+    if (happiness >= maxHappiness && happiness < maxHappiness + 100) {
+        showFeedback("Gato Supimpa! 🎉");
+        happiness = maxHappiness;
+    } else if (happiness >= 50 && happiness < 55) {
+        showFeedback("Gato Feliz! 😊");
+    }
+}
+
+function showFeedback(message) {
+    feedbackMessageEl.textContent = message;
+    feedbackMessageEl.classList.add('show');
+    setTimeout(() => {
+        feedbackMessageEl.classList.remove('show');
+    }, 2500);
+}
+
+// --- FUNÇÕES DE INTERAÇÃO DO GATO ---
+function triggerFoodZone() {
+    playSound('happy');
+    catTail.classList.add('happy');
+    score += 1;
+    happiness = Math.min(happiness + 20, maxHappiness);
+    updateUI();
+
+    for (let i = 0; i < 5; i++) {
+        setTimeout(() => createParticle(catX, catY, ['🍖', '🐟', '❤️'][Math.floor(Math.random() * 3)]), i * 50);
+    }
+    setTimeout(() => catTail.classList.remove('happy'), 2000);
+}
+
+function triggerToyZone() {
+    playSound('pounce');
+    catElement.classList.add('pounce');
+    score += 1;
+    happiness = Math.min(happiness + 25, maxHappiness);
+    updateUI();
+
+    for (let i = 0; i < 5; i++) {
+        setTimeout(() => createParticle(catX, catY, ['🧶', '🪀', '⭐'][Math.floor(Math.random() * 3)]), i * 70);
+    }
+    setTimeout(() => catElement.classList.remove('pounce'), 500);
+}
+
+function triggerNapZone() {
+    playSound('sleep');
+    catElement.classList.add('sleeping');
+    score += 1;
+    happiness = Math.min(happiness + 10, maxHappiness);
+    updateUI();
+
+    const bubble = document.createElement('div');
+    bubble.className = 'sleep-bubble';
+    bubble.innerHTML = 'Zzz';
+    catElement.appendChild(bubble);
+
+    setTimeout(() => {
+        bubble.remove();
+        catElement.classList.remove('sleeping');
+    }, 2000);
+}
+
+// --- FUNÇÕES AUXILIARES ---
+function createParticle(x, y, emoji = '✨') {
+    const particle = document.createElement('div');
+    particle.className = 'particle';
+    particle.innerHTML = emoji;
+    particle.style.left = x + 'px';
+    particle.style.top = y + 'px';
+    particle.style.setProperty('--x', (Math.random() - 0.5) * 100 + 'px');
+    particle.style.setProperty('--y', (Math.random() - 0.5) * 100 + 'px');
+    document.body.appendChild(particle);
+    setTimeout(() => particle.remove(), 1000);
+}
+
+function blink() {
+    leftEye.classList.add('blink');
+    rightEye.classList.add('blink');
+    setTimeout(() => {
+        leftEye.classList.remove('blink');
+        rightEye.classList.remove('blink');
+    }, 300);
+}
+
+// --- LÓGICA PRINCIPAL ---
+// Mouse tracking
+document.addEventListener('mousemove', (e) => {
+    mouseX = e.clientX;
+    mouseY = e.clientY;
+    cursor.style.left = mouseX - 20 + 'px';
+    cursor.style.top = mouseY - 20 + 'px';
+    if (Math.random() < 0.1) createParticle(mouseX, mouseY, '✨');
+});
+
+// Animação suave do gato
+function animateCat() {
+    const dx = mouseX - catX;
+    const dy = mouseY - catY;
+    const distance = Math.sqrt(dx * dx + dy * dy);
+
+    if (distance > 5) {
+        catX += dx * 0.1;
+        catY += dy * 0.1;
+        cat.style.left = catX - 60 + 'px';
+        cat.style.top = catY - 50 + 'px';
+        const angle = Math.atan2(dy, dx) * (180 / Math.PI);
+        const rotation = Math.max(-30, Math.min(30, angle));
+        catElement.style.transform = `rotate(${rotation}deg)`;
+        if (!isMoving) {
+            isMoving = true;
+            catElement.classList.add('walking');
+        }
+    } else {
+        if (isMoving) {
+            isMoving = false;
+            catElement.classList.remove('walking');
+        }
+    }
+    requestAnimationFrame(animateCat);
+}
+
+// Event Listeners para as Zonas (Desktop e Mobile)
+function setupZoneListeners(zone, action) {
+    zone.addEventListener('click', action);
+    zone.addEventListener('touchstart', (e) => {
+        e.preventDefault();
+        action();
+    });
+}
+
+setupZoneListeners(foodZone, triggerFoodZone);
+setupZoneListeners(toyZone, triggerToyZone);
+setupZoneListeners(napZone, triggerNapZone);
+
+// Piscar aleatório
+setInterval(() => { if (Math.random() < 0.7) blink(); }, 3000);
+
+// --- NOVO: SISTEMA DE DECAIMENTO DE FELICIDADE ---
+function decreaseHappiness() {
+    if (happiness > 0) {
+        happiness -= 1; // Diminui 1 ponto de felicidade
+        updateUI(); // Atualiza a barra na tela
+
+        // Mostra uma mensagem se a felicidade ficar muito baixa, apenas uma vez
+        if (happiness < 25 && !isLowHappinessMessageShown) {
+            showFeedback("O gato está triste... 😢");
+            isLowHappinessMessageShown = true;
+        } else if (happiness >= 40) {
+            // Reseta a flag quando a felicidade melhorar
+            isLowHappinessMessageShown = false;
+        }
+    }
+}
+
+// Inicialização do jogo
+animateCat();
+updateUI();
+setTimeout(blink, 10);
+playSound('meow');
+showFeedback("Cuide do seu gatinho!");
+
+// NOVO: Inicia a diminuição da felicidade a cada 2 segundos (2000ms)
+setInterval(decreaseHappiness, 100);
+
+// Suporte a toque para seguir o gato em mobile
+document.addEventListener('touchmove', (e) => {
+    const touch = e.touches[0];
+    mouseX = touch.clientX;
+    mouseY = touch.clientY;
+});
 </script>
-
 </body>
 </html>
