@@ -79,6 +79,11 @@ body {
   border-radius: 13px;
 }
 
+/* NOVO: Muda a cor da barra quando a felicidade está baixa */
+#happiness-bar.low {
+  background: linear-gradient(90deg, #eb4d4b, #c0392b);
+}
+
 #feedback-message {
   position: fixed;
   top: 100px;
@@ -327,8 +332,11 @@ const napZone = document.getElementById('napZone');
 
 // --- ESTADO DO JOGO (NOVO) ---
 let score = 0;
-let happiness = 0;
+let happiness = 70; // Começa com um valor médio de felicidade
 const maxHappiness = 100;
+
+// NOVO: Flag para controlar a mensagem de felicidade baixa
+let isLowHappinessMessageShown = false;
 
 // --- VARIÁVEIS DE MOVIMENTO ---
 let mouseX = window.innerWidth / 2;
@@ -347,7 +355,6 @@ const sounds = {
 };
 
 function playSound(soundName) {
-    // Tenta tocar o som, mas não quebra o jogo se o arquivo não existir
     try {
         const audio = new Audio(sounds[soundName]);
         audio.volume = 0.5;
@@ -362,10 +369,17 @@ function updateUI() {
     scoreDisplay.textContent = `Pontuação: ${score}`;
     happinessBar.style.width = `${(happiness / maxHappiness) * 100}%`;
 
+    // MODIFICADO: Adiciona feedback visual para felicidade baixa
+    if (happiness < 25) {
+        happinessBar.classList.add('low');
+    } else {
+        happinessBar.classList.remove('low');
+    }
+
     // Verifica marcos de felicidade para mostrar feedback
     if (happiness >= maxHappiness && happiness < maxHappiness + 10) {
         showFeedback("Gato Supimpa! 🎉");
-        happiness = maxHappiness; // Impede que a barra passe de 100%
+        happiness = maxHappiness;
     } else if (happiness >= 50 && happiness < 55) {
         showFeedback("Gato Feliz! 😊");
     }
@@ -387,7 +401,6 @@ function triggerFoodZone() {
     happiness = Math.min(happiness + 20, maxHappiness);
     updateUI();
 
-    // Cria partículas de comida e corações
     for (let i = 0; i < 5; i++) {
         setTimeout(() => createParticle(catX, catY, ['🍖', '🐟', '❤️'][Math.floor(Math.random() * 3)]), i * 50);
     }
@@ -401,7 +414,6 @@ function triggerToyZone() {
     happiness = Math.min(happiness + 25, maxHappiness);
     updateUI();
 
-    // Cria partículas de brinquedo e estrelas
     for (let i = 0; i < 5; i++) {
         setTimeout(() => createParticle(catX, catY, ['🧶', '🪀', '⭐'][Math.floor(Math.random() * 3)]), i * 70);
     }
@@ -487,11 +499,9 @@ function animateCat() {
 
 // Event Listeners para as Zonas (Desktop e Mobile)
 function setupZoneListeners(zone, action) {
-    // Desktop
     zone.addEventListener('click', action);
-    // Mobile
     zone.addEventListener('touchstart', (e) => {
-        e.preventDefault(); // Evita o comportamento padrão do toque
+        e.preventDefault();
         action();
     });
 }
@@ -503,12 +513,32 @@ setupZoneListeners(napZone, triggerNapZone);
 // Piscar aleatório
 setInterval(() => { if (Math.random() < 0.7) blink(); }, 3000);
 
+// --- NOVO: SISTEMA DE DECAIMENTO DE FELICIDADE ---
+function decreaseHappiness() {
+    if (happiness > 0) {
+        happiness -= 1; // Diminui 1 ponto de felicidade
+        updateUI(); // Atualiza a barra na tela
+
+        // Mostra uma mensagem se a felicidade ficar muito baixa, apenas uma vez
+        if (happiness < 25 && !isLowHappinessMessageShown) {
+            showFeedback("O gato está triste... 😢");
+            isLowHappinessMessageShown = true;
+        } else if (happiness >= 40) {
+            // Reseta a flag quando a felicidade melhorar
+            isLowHappinessMessageShown = false;
+        }
+    }
+}
+
 // Inicialização do jogo
 animateCat();
 updateUI();
 setTimeout(blink, 1000);
-playSound('meow'); // Miado inicial para dar as boas-vindas
+playSound('meow');
 showFeedback("Cuide do seu gatinho!");
+
+// NOVO: Inicia a diminuição da felicidade a cada 2 segundos (2000ms)
+setInterval(decreaseHappiness, 2000);
 
 // Suporte a toque para seguir o gato em mobile
 document.addEventListener('touchmove', (e) => {
