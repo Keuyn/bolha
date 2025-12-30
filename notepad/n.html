@@ -1,8 +1,6 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-    <link href="https://cdn.jsdelivr.net/npm/prismjs/themes/prism.css" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/prismjs/prism.js"></script>
 
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -548,6 +546,22 @@
     <!-- Elemento para anúncios a leitores de tela -->
     <div class="sr-announcement" aria-live="assertive" id="srAnnouncement"></div>
 
+
+<link rel="stylesheet" href="https://unpkg.com/codemirror/lib/codemirror.css">
+<script src="https://unpkg.com/codemirror/lib/codemirror.js"></script>
+<script src="https://unpkg.com/codemirror/mode/javascript/javascript.js"></script>
+
+<textarea id="editor"></textarea>
+
+<script>
+  CodeMirror.fromTextArea(document.getElementById("editor"), {
+    lineNumbers: true,
+    mode: "javascript"
+  });
+</script>
+
+
+    
     <script>
         // Objeto principal da aplicação para encapsular estado e lógica
         const App = {
