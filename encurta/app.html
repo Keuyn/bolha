@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LinkFlow | Gerador Universal</title>
+    <meta name="description" content="Crie links universais sem servidor ou banco de dados.">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>⚡</text></svg>">
+
+    <style>
+        /* =========================================
+           CSS ESTILO "CYBER / CLEAN"
+           ========================================= */
+        :root {
+            --primary: #2563eb; /* Royal Blue */
+            --bg: #f8fafc;
+            --surface: #ffffff;
+            --text: #1e293b;
+            --text-light: #64748b;
+            --accent: #0ea5e9;
+            --radius: 16px;
+        }
+
+        body.dark-mode {
+            --primary: #3b82f6;
+            --bg: #0f172a;
+            --surface: #1e293b;
+            --text: #f1f5f9;
+            --text-light: #94a3b8;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', system-ui, -apple-system, sans-serif; }
+
+        body {
+            background-color: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.3s, color 0.3s;
+            padding: 20px;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 600px;
+            background: var(--surface);
+            padding: 40px;
+            border-radius: var(--radius);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+
+        h1 { margin-bottom: 10px; font-size: 2rem; background: linear-gradient(to right, var(--primary), var(--accent)); -webkit-background-clip: text; color: transparent; }
+        p.subtitle { color: var(--text-light); margin-bottom: 30px; }
+
+        .input-group { position: relative; margin-bottom: 20px; }
+        
+        input {
+            width: 100%;
+            padding: 18px 20px;
+            font-size: 1.1rem;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            background: var(--bg);
+            color: var(--text);
+            outline: none;
+            transition: all 0.2s;
+        }
+
+        body.dark-mode input { border-color: #334155; }
+
+        input:focus { border-color: var(--primary); box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.1); }
+
+        button {
+            width: 100%;
+            padding: 18px;
+            background: var(--primary);
+            color: white;
+            font-weight: 700;
+            font-size: 1.1rem;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: transform 0.1s, background 0.2s;
+        }
+
+        button:hover { background: #1d4ed8; }
+        button:active { transform: scale(0.98); }
+
+        /* Área de Resultado */
+        .result-box {
+            margin-top: 30px;
+            padding: 20px;
+            background: var(--bg);
+            border: 2px dashed var(--primary);
+            border-radius: 12px;
+            display: none; /* Escondido */
+            animation: fadeIn 0.4s ease;
+        }
+
+        .result-box.visible { display: block; }
+
+        .generated-link {
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+            word-break: break-all;
+            color: var(--primary);
+            margin-bottom: 15px;
+            display: block;
+            background: rgba(37, 99, 235, 0.1);
+            padding: 10px;
+            border-radius: 8px;
+        }
+
+        .copy-btn {
+            background: var(--text);
+            color: var(--surface);
+            width: auto;
+            padding: 10px 20px;
+            font-size: 0.9rem;
+        }
+
+        .info-note {
+            margin-top: 20px;
+            font-size: 0.8rem;
+            color: var(--text-light);
+            background: rgba(0,0,0,0.05);
+            padding: 10px;
+            border-radius: 8px;
+        }
+
+        /* Animations */
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* Responsividade */
+        @media (max-width: 500px) {
+            .container { padding: 25px; }
+            h1 { font-size: 1.5rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>⚡ LinkFlow</h1>
+        <p class="subtitle">Gere links que funcionam em qualquer lugar, sem servidor.</p>
+
+        <!-- Tela de Redirecionamento (Aparece se o link for acessado) -->
+        <div id="redirect-ui" style="display: none;">
+            <div style="font-size: 3rem; margin-bottom: 20px;">🚀</div>
+            <h2>Redirecionando...</h2>
+            <p>Por favor, aguarde um momento.</p>
+        </div>
+
+        <!-- Tela de Criação (Normal) -->
+        <div id="creator-ui">
+            <div class="input-group">
+                <input type="url" id="urlInput" placeholder="Cole seu link longo aqui (https://...)" autofocus>
+            </div>
+            
+            <button onclick="generateLink()">Gerar Link Universal</button>
+
+            <div class="result-box" id="resultBox">
+                <p>Seu link foi gerado (copie e envie):</p>
+                <span class="generated-link" id="outputLink"></span>
+                <button class="copy-btn" onclick="copyLink()">Copiar Link</button>
+            </div>
+
+            <div class="info-note">
+                ℹ️ <strong>Nota:</strong> Como não usamos banco de dados, o link original é codificado dentro do novo link. Ele funciona em qualquer navegador, mas ficará visualmente "longo" ou codificado.
+            </div>
+        </div>
+    </div>
+
+    <script>
+        /* =========================================
+           LÓGICA SERVERLESS (HASH FRAGMENT)
+           ========================================= */
+
+        const creatorUI = document.getElementById('creator-ui');
+        const redirectUI = document.getElementById('redirect-ui');
+        const outputLink = document.getElementById('outputLink');
+        const resultBox = document.getElementById('resultBox');
+
+        // 1. Inicialização: Verifica se estamos acessando um link gerado
+        document.addEventListener('DOMContentLoaded', () => {
+            const hash = window.location.hash.substring(1); // Remove o '#'
+
+            if (hash) {
+                // Modo Redirecionamento
+                creatorUI.style.display = 'none';
+                redirectUI.style.display = 'block';
+                processRedirect(hash);
+            } else {
+                // Modo Criação
+                // Verifica tema
+                if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+                    document.body.classList.add('dark-mode');
+                }
+            }
+        });
+
+        // 2. Função de Geração
+        function generateLink() {
+            const input = document.getElementById('urlInput');
+            let originalUrl = input.value.trim();
+
+            // Validação básica
+            if (!originalUrl) {
+                alert("Por favor, insira um URL.");
+                return;
+            }
+            
+            // Adiciona http:// se faltar
+            if (!/^https?:\/\//i.test(originalUrl)) {
+                originalUrl = 'http://' + originalUrl;
+            }
+
+            // Codifica o URL (Base64)
+            // Usamos btoa para transformar o texto em código
+            // encodeURIComponent garante que caracteres especiais não quebrem
+            const encoded = btoa(encodeURIComponent(originalUrl));
+
+            // Monta o link universal baseado na URL atual da página
+            // Exemplo: meusite.com/#codigo
+            const universalLink = `${window.location.origin}${window.location.pathname}#${encoded}`;
+
+            outputLink.textContent = universalLink;
+            resultBox.classList.add('visible');
+        }
+
+        // 3. Função de Redirecionamento
+        function processRedirect(hash) {
+            try {
+                // Decodifica o Base64 de volta para URL
+                const targetUrl = decodeURIComponent(atob(hash));
+
+                // Validação de segurança extra antes de redirecionar
+                if (targetUrl.startsWith('http://') || targetUrl.startsWith('https://')) {
+                    setTimeout(() => {
+                        window.location.replace(targetUrl);
+                    }, 1000); // Pequeno delay para o UX
+                } else {
+                    alert("Link inválido ou corrompido.");
+                }
+            } catch (e) {
+                alert("Erro ao ler o link. O código pode estar incorreto.");
+            }
+        }
+
+        // 4. Utilitários
+        function copyLink() {
+            const text = outputLink.textContent;
+            navigator.clipboard.writeText(text).then(() => {
+                const btn = document.querySelector('.copy-btn');
+                const originalText = btn.textContent;
+                btn.textContent = "Copiado!";
+                setTimeout(() => btn.textContent = originalText, 2000);
+            });
+        }
+    </script>
+</body>
+</html>
