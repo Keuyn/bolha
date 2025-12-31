@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ProPaint Web - Studio</title>
+    <title>ProPaint Web - Studio Final</title>
     <style>
         /* --- CSS VARIABLES & THEME --- */
         :root {
@@ -88,19 +88,21 @@
         .canvas-area {
             grid-area: canvas;
             position: relative;
-            overflow: hidden;
+            overflow: auto; /* Allow scrolling if image is big */
             background: #111;
-            /* Checkerboard pattern for transparency */
+            /* Checkerboard */
             background-image: linear-gradient(45deg, #222 25%, transparent 25%), linear-gradient(-45deg, #222 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #222 75%), linear-gradient(-45deg, transparent 75%, #222 75%);
             background-size: 20px 20px;
             background-position: 0 0, 0 10px, 10px -10px, -10px 0px;
-            cursor: crosshair;
+            display: flex;
+            justify-content: center;
+            align-items: center;
         }
         
         #canvas-wrapper {
-            position: absolute;
-            transform-origin: 0 0;
+            position: relative;
             box-shadow: 0 0 20px rgba(0,0,0,0.5);
+            background: white; /* Base bg for canvas */
         }
 
         canvas { display: block; position: absolute; top: 0; left: 0; }
@@ -161,12 +163,13 @@
     <div class="app-container">
         <!-- HEADER -->
         <header>
-            <div style="font-weight: bold; margin-right: 20px;">🎨 ProPaint</div>
+            <div style="font-weight: bold; margin-right: 20px;">🎨 ProPaint 3.0</div>
             <div class="menu-item" onclick="App.handlers.newProject()">Novo</div>
+            <div class="menu-item" onclick="App.handlers.triggerImport()">📂 Importar Imagem</div>
             <div class="menu-item" onclick="App.handlers.saveProject()">Salvar</div>
-            <div class="menu-item" onclick="App.handlers.openProjectModal()">Abrir</div>
+            <div class="menu-item" onclick="App.handlers.openProjectModal()">Abrir Projeto</div>
             <div class="menu-item" onclick="App.handlers.exportImage('png')">Exportar PNG</div>
-            <div class="menu-item" onclick="App.handlers.toggleTheme()">Tema Claro/Escuro</div>
+            <div class="menu-item" onclick="App.handlers.toggleTheme()">Tema</div>
         </header>
 
         <!-- TOOLBAR -->
@@ -184,7 +187,7 @@
         <!-- PANELS -->
         <div class="panels">
             <div class="panel-section">
-                <div class="panel-title">Propriedades</div>
+                <div class="panel-title">Ferramenta</div>
                 <div class="prop-row">
                     <span>Cor</span>
                     <input type="color" id="color-primary" value="#000000">
@@ -210,7 +213,7 @@
             </div>
 
             <div class="panel-section">
-                <div class="panel-title">Ações</div>
+                <div class="panel-title">Histórico</div>
                 <div class="prop-row">
                     <button class="btn btn-secondary" onclick="App.history.undo()">Desfazer (Ctrl+Z)</button>
                     <button class="btn btn-secondary" onclick="App.history.redo()">Refazer (Ctrl+Y)</button>
@@ -218,6 +221,9 @@
             </div>
         </div>
     </div>
+
+    <!-- HIDDEN INPUT FOR IMPORT -->
+    <input type="file" id="import-file" style="display:none" accept="image/*">
 
     <!-- MODALS -->
     <div id="toast">Notificação</div>
@@ -240,7 +246,7 @@
 
     <script>
         /**
-         * PROPAINT CORRIGIDO
+         * PROPAINT 3.0 - CORRIGIDO E ROBUSTO
          */
 
         // 1. HELPERS
@@ -312,91 +318,90 @@
         // 5. TOOLS CLASSES
         class Tool {
             constructor(name, icon) { this.name = name; this.icon = icon; }
-            onMouseDown(e, ctx, settings) {}
-            onMouseMove(e, ctx, settings) {}
-            onMouseUp(ctx) {}
+            onMouseDown(e, layer, settings) {}
+            onMouseMove(e, layer, settings) {}
+            onMouseUp(layer) {}
         }
 
         class PencilTool extends Tool {
             constructor() { super('Lápis', Icons.pencil); }
-            onMouseDown(e, ctx, s) {
-                ctx.beginPath();
-                ctx.moveTo(e.x, e.y);
-                ctx.lineCap = 'round';
-                ctx.strokeStyle = s.color;
-                ctx.lineWidth = s.size;
-                ctx.globalAlpha = s.opacity;
+            onMouseDown(e, layer, s) {
+                layer.ctx.beginPath();
+                layer.ctx.moveTo(e.x, e.y);
+                layer.ctx.lineCap = 'round';
+                layer.ctx.strokeStyle = s.color;
+                layer.ctx.lineWidth = s.size;
+                layer.ctx.globalAlpha = s.opacity;
             }
-            onMouseMove(e, ctx, s) {
-                ctx.lineTo(e.x, e.y);
-                ctx.stroke();
+            onMouseMove(e, layer, s) {
+                layer.ctx.lineTo(e.x, e.y);
+                layer.ctx.stroke();
             }
-            onMouseUp(ctx) { ctx.closePath(); ctx.globalAlpha = 1.0; }
+            onMouseUp(layer) { layer.ctx.closePath(); layer.ctx.globalAlpha = 1.0; }
         }
 
         class BrushTool extends Tool {
             constructor() { super('Pincel', Icons.brush); }
-            onMouseDown(e, ctx, s) {
-                ctx.beginPath();
-                ctx.moveTo(e.x, e.y);
-                ctx.lineCap = 'round';
-                ctx.strokeStyle = s.color;
-                ctx.lineWidth = s.size;
-                ctx.shadowBlur = s.size/2;
-                ctx.shadowColor = s.color;
-                ctx.globalAlpha = s.opacity;
+            onMouseDown(e, layer, s) {
+                layer.ctx.beginPath();
+                layer.ctx.moveTo(e.x, e.y);
+                layer.ctx.lineCap = 'round';
+                layer.ctx.strokeStyle = s.color;
+                layer.ctx.lineWidth = s.size;
+                layer.ctx.shadowBlur = s.size/2;
+                layer.ctx.shadowColor = s.color;
+                layer.ctx.globalAlpha = s.opacity;
             }
-            onMouseMove(e, ctx, s) {
-                ctx.lineTo(e.x, e.y);
-                ctx.stroke();
+            onMouseMove(e, layer, s) {
+                layer.ctx.lineTo(e.x, e.y);
+                layer.ctx.stroke();
             }
-            onMouseUp(ctx) { 
-                ctx.shadowBlur = 0; 
-                ctx.globalAlpha = 1.0; 
+            onMouseUp(layer) { 
+                layer.ctx.shadowBlur = 0; 
+                layer.ctx.globalAlpha = 1.0; 
             }
         }
 
         class EraserTool extends Tool {
             constructor() { super('Borracha', Icons.eraser); }
-            onMouseDown(e, ctx, s) {
-                ctx.beginPath();
-                ctx.moveTo(e.x, e.y);
-                ctx.lineCap = 'round';
-                ctx.globalCompositeOperation = 'destination-out';
-                ctx.lineWidth = s.size;
-                ctx.globalAlpha = 1.0;
+            onMouseDown(e, layer, s) {
+                layer.ctx.beginPath();
+                layer.ctx.moveTo(e.x, e.y);
+                layer.ctx.lineCap = 'round';
+                layer.ctx.globalCompositeOperation = 'destination-out';
+                layer.ctx.lineWidth = s.size;
+                layer.ctx.globalAlpha = 1.0;
             }
-            onMouseMove(e, ctx, s) {
-                ctx.lineTo(e.x, e.y);
-                ctx.stroke();
+            onMouseMove(e, layer, s) {
+                layer.ctx.lineTo(e.x, e.y);
+                layer.ctx.stroke();
             }
-            onMouseUp(ctx) {
-                ctx.globalCompositeOperation = 'source-over';
+            onMouseUp(layer) {
+                layer.ctx.globalCompositeOperation = 'source-over';
             }
         }
 
         class FillTool extends Tool {
             constructor() { super('Balde', Icons.fill); }
-            onMouseUp(e, ctx, s, w, h) {
-                // Simple fill implementation
+            onMouseUp(e, layer, s) {
                 const color = this.hexToRgb(s.color);
-                const imgData = ctx.getImageData(0,0,w,h);
+                const imgData = layer.ctx.getImageData(0,0,layer.canvas.width, layer.canvas.height);
                 const data = imgData.data;
-                const targetColor = this.getPixel(data, Math.floor(e.x), Math.floor(e.y), w);
+                const targetColor = this.getPixel(data, Math.floor(e.x), Math.floor(e.y), layer.canvas.width);
                 
                 if (this.colorsMatch(targetColor, color)) return;
 
                 const stack = [[Math.floor(e.x), Math.floor(e.y)]];
                 while(stack.length) {
                     const [x, y] = stack.pop();
-                    const current = this.getPixel(data, x, y, w);
+                    const current = this.getPixel(data, x, y, layer.canvas.width);
                     
-                    if (x>=0 && x<w && y>=0 && y<h && this.colorsMatch(current, targetColor)) {
+                    if (x>=0 && x<layer.canvas.width && y>=0 && y<layer.canvas.height && this.colorsMatch(current, targetColor)) {
                         this.setPixel(data, x, y, color);
                         stack.push([x+1, y], [x-1, y], [x, y+1], [x, y-1]);
                     }
                 }
-                ctx.putImageData(imgData, 0, 0);
+                layer.ctx.putImageData(imgData, 0, 0);
             }
             hexToRgb(hex) {
                 const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
@@ -415,26 +420,35 @@
 
         class RectTool extends Tool {
             constructor() { super('Retângulo', Icons.rect); }
-            onMouseDown(e, ctx, s) { this.start = e; this.snapshot = ctx.getImageData(0,0, 9999, 9999); } // Simplified area
-            onMouseMove(e, ctx, s, w, h) {
-                ctx.putImageData(this.snapshot, 0, 0); // Restore
-                ctx.strokeStyle = s.color;
-                ctx.lineWidth = s.size;
-                ctx.strokeRect(this.start.x, this.start.y, e.x - this.start.x, e.y - this.start.y);
+            onMouseDown(e, layer, s) { 
+                this.start = e; 
+                // Snapshot usando tamanho CORRETO da camada
+                this.snapshot = layer.ctx.getImageData(0, 0, layer.canvas.width, layer.canvas.height); 
+            }
+            onMouseMove(e, layer, s) {
+                // Restaurar estado inicial
+                layer.ctx.putImageData(this.snapshot, 0, 0); 
+                // Desenhar novo preview
+                layer.ctx.strokeStyle = s.color;
+                layer.ctx.lineWidth = s.size;
+                layer.ctx.strokeRect(this.start.x, this.start.y, e.x - this.start.x, e.y - this.start.y);
             }
         }
 
         class CircleTool extends Tool {
             constructor() { super('Círculo', Icons.circle); }
-            onMouseDown(e, ctx, s) { this.start = e; this.snapshot = ctx.getImageData(0,0, 9999, 9999); }
-            onMouseMove(e, ctx, s) {
-                ctx.putImageData(this.snapshot, 0, 0);
-                ctx.strokeStyle = s.color;
-                ctx.lineWidth = s.size;
-                ctx.beginPath();
+            onMouseDown(e, layer, s) { 
+                this.start = e; 
+                this.snapshot = layer.ctx.getImageData(0, 0, layer.canvas.width, layer.canvas.height); 
+            }
+            onMouseMove(e, layer, s) {
+                layer.ctx.putImageData(this.snapshot, 0, 0);
+                layer.ctx.strokeStyle = s.color;
+                layer.ctx.lineWidth = s.size;
+                layer.ctx.beginPath();
                 const r = Math.sqrt(Math.pow(e.x - this.start.x, 2) + Math.pow(e.y - this.start.y, 2));
-                ctx.arc(this.start.x, this.start.y, r, 0, 2 * Math.PI);
-                ctx.stroke();
+                layer.ctx.arc(this.start.x, this.start.y, r, 0, 2 * Math.PI);
+                layer.ctx.stroke();
             }
         }
 
@@ -446,15 +460,12 @@
                 opacity: 1.0,
                 width: 800,
                 height: 600,
-                zoom: 1,
-                pan: {x:0, y:0}
             },
             
             tools: {
                 list: {},
                 current: null,
                 isDrawing: false,
-                start: null
             },
 
             layers: [],
@@ -462,10 +473,9 @@
             history: { undoStack: [], redoStack: [] },
 
             async init() {
-                console.log("App iniciando...");
+                console.log("Iniciando ProPaint 3.0...");
                 await DB.init();
                 
-                // Setup Defaults
                 this.addLayer();
                 this.resizeCanvas(800, 600);
                 this.setupTools();
@@ -515,27 +525,31 @@
                 $('#tool-size').oninput = (e) => { this.state.size = parseInt(e.target.value); $('#tool-size-val').innerText = this.state.size + 'px'; };
                 $('#tool-opacity').oninput = (e) => this.state.opacity = parseInt(e.target.value) / 100;
 
+                // Import File Listener
+                $('#import-file').addEventListener('change', this.handlers.handleImport.bind(this.handlers));
+
                 // Canvas Interactions
                 const container = $('#canvas-container');
                 
                 const getPos = (e) => {
                     const rect = $('#main-canvas').getBoundingClientRect();
                     return {
-                        x: (e.clientX - rect.left) / this.state.zoom,
-                        y: (e.clientY - rect.top) / this.state.zoom
+                        x: e.clientX - rect.left,
+                        y: e.clientY - rect.top
                     };
                 };
 
                 container.addEventListener('mousedown', (e) => {
-                    if(e.button !== 0) return; // Left click only
+                    if(e.button !== 0) return; 
                     const layer = this.getActiveLayer();
                     if(!layer || !layer.visible) return;
 
                     this.tools.isDrawing = true;
-                    this.saveHistory(); // Save before draw
-                    const pos = getPos(e);
+                    // Salvar histórico ANTES de começar a desenhar
+                    this.saveHistory(); 
                     
-                    this.tools.current.onMouseDown(pos, layer.ctx, this.state);
+                    const pos = getPos(e);
+                    this.tools.current.onMouseDown(pos, layer, this.state);
                     this.render();
                 });
 
@@ -545,7 +559,7 @@
                     if(!layer) return;
                     
                     const pos = getPos(e);
-                    this.tools.current.onMouseMove(pos, layer.ctx, this.state);
+                    this.tools.current.onMouseMove(pos, layer, this.state);
                     this.render();
                 });
 
@@ -553,14 +567,14 @@
                     if(this.tools.isDrawing) {
                         this.tools.isDrawing = false;
                         const layer = this.getActiveLayer();
-                        if(layer) this.tools.current.onMouseUp(layer.ctx, this.state);
+                        if(layer) this.tools.current.onMouseUp(layer, this.state);
                     }
                 });
                 
                 // Shortcuts
                 window.addEventListener('keydown', (e) => {
-                    if (e.ctrlKey && e.key === 'z') { e.preventDefault(); this.undo(); }
-                    if (e.ctrlKey && e.key === 'y') { e.preventDefault(); this.redo(); }
+                    if (e.ctrlKey && e.key === 'z') { e.preventDefault(); this.history.undo(); }
+                    if (e.ctrlKey && e.key === 'y') { e.preventDefault(); this.history.redo(); }
                 });
             },
 
@@ -577,7 +591,10 @@
             },
 
             deleteLayer() {
-                if(this.layers.length <= 1) return;
+                if(this.layers.length <= 1) {
+                    Toast.show("Mantenha pelo menos uma camada.");
+                    return;
+                }
                 this.layers = this.layers.filter(l => l.id !== this.activeLayerId);
                 this.activeLayerId = this.layers[this.layers.length-1].id;
                 this.renderLayersUI();
@@ -592,8 +609,9 @@
                 $('#canvas-wrapper').style.width = w + 'px';
                 $('#canvas-wrapper').style.height = h + 'px';
                 
-                // Resize existing layers (preserving content)
+                // Resize existing layers
                 this.layers.forEach(l => {
+                    // Salvar conteúdo
                     const temp = l.canvas.toDataURL();
                     l.canvas.width = w;
                     l.canvas.height = h;
@@ -636,10 +654,9 @@
             // --- HISTORY ---
             saveHistory() {
                 if(this.history.undoStack.length > 10) this.history.undoStack.shift();
-                // Simple implementation: Save active layer state
                 const l = this.getActiveLayer();
                 if(l) this.history.undoStack.push({id: l.id, data: l.canvas.toDataURL()});
-                this.history.redoStack = [];
+                this.history.redoStack = []; // Limpar redo ao fazer nova ação
             },
 
             undo() {
@@ -660,7 +677,19 @@
             },
 
             redo() {
-                // Implement similar to undo but reading from redoStack
+                const state = this.history.redoStack.pop();
+                if(!state) return;
+                const l = this.layers.find(x => x.id === state.id);
+                if(l) {
+                    this.history.undoStack.push({id: l.id, data: l.canvas.toDataURL()});
+                    const img = new Image();
+                    img.src = state.data;
+                    img.onload = () => {
+                        l.ctx.clearRect(0,0,l.canvas.width, l.canvas.height);
+                        l.ctx.drawImage(img, 0, 0);
+                        this.render();
+                    };
+                }
             },
 
             // --- HANDLERS ---
@@ -678,6 +707,35 @@
                     }
                 },
                 toggleTheme() { document.body.classList.toggle('light-theme'); },
+                
+                // IMPORT LOGIC
+                triggerImport() {
+                    $('#import-file').click();
+                },
+                
+                handleImport(event) {
+                    const file = event.target.files[0];
+                    if(!file) return;
+
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        const img = new Image();
+                        img.onload = () => {
+                            // Redimensionar canvas para a imagem
+                            App.resizeCanvas(img.width, img.height);
+                            App.layers = [];
+                            App.addLayer("Imagem Importada");
+                            
+                            const layer = App.getActiveLayer();
+                            layer.ctx.drawImage(img, 0, 0);
+                            App.render();
+                            Toast.show("Imagem carregada!");
+                        };
+                        img.src = e.target.result;
+                    };
+                    reader.readAsDataURL(file);
+                },
+
                 async saveProject() {
                     const p = {
                         id: Date.now(),
@@ -693,16 +751,19 @@
                     const list = $('#projects-list');
                     list.innerHTML = '';
                     const projects = await DB.getAll();
+                    if(projects.length === 0) list.innerHTML = "Nenhum projeto salvo.";
                     projects.forEach(p => {
                         const d = document.createElement('div');
-                        d.innerHTML = `<button class="btn" onclick="App.loadProject(${p.id})">Abrir ${p.name}</button>`;
+                        d.style.padding = "10px 0";
+                        d.style.borderBottom = "1px solid var(--border)";
+                        d.innerHTML = `<button class="btn" style="width:100%" onclick="App.loadProject(${p.id})">Abrir ${p.name} (${p.w}x${p.h})</button>`;
                         list.appendChild(d);
                     });
                     $('#modal-open').style.display = 'flex';
                 },
                 exportImage(format) {
                     const link = document.createElement('a');
-                    link.download = 'art.png';
+                    link.download = 'propaint-art.png';
                     link.href = $('#main-canvas').toDataURL();
                     link.click();
                 }
