@@ -308,3 +308,139 @@ canvas {
     font-weight: bold;
     cursor: pointer;
 }
+
+/* Container */
+.container {
+    max-width: 480px;
+    margin: 20px auto;
+    padding: 20px;
+    background: rgba(0,0,0,0.15);
+    border-radius: 16px;
+    color: #fff;
+    font-family: 'Arial', sans-serif;
+}
+
+/* Inputs */
+.inputs input {
+    width: 100%;
+    padding: 14px;
+    margin-bottom: 12px;
+    border-radius: 12px;
+    border: none;
+    font-size: 1rem;
+    background: rgba(255,255,255,0.1);
+    color: #fff;
+}
+
+.inputs label {
+    font-weight: bold;
+    margin-bottom: 4px;
+    display: block;
+}
+
+/* Botão calcular */
+.btn-calcular {
+    width: 100%;
+    padding: 14px;
+    border-radius: 12px;
+    border: none;
+    background: linear-gradient(135deg, #38f9d7, #0f52ba);
+    color: white;
+    font-size: 1rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: 0.2s;
+    margin-bottom: 20px;
+}
+
+.btn-calcular:hover {
+    transform: scale(1.02);
+}
+
+/* Resultado tabela */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 12px;
+}
+
+th, td {
+    padding: 8px;
+    text-align: left;
+}
+
+/* Histórico */
+.historico {
+    margin-top: 20px;
+    background: rgba(0,0,0,0.2);
+    border-radius: 14px;
+    padding: 12px;
+}
+
+.historico-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+/* Botão toggle */
+.btn-toggle {
+    padding: 6px 12px;
+    font-size: 0.85rem;
+    border-radius: 8px;
+    border: none;
+    background: rgba(255,255,255,0.2);
+    color: #fff;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.btn-toggle:hover {
+    background: rgba(255,255,255,0.35);
+}
+
+/* Corpo do histórico (slide) */
+.historico-body {
+    overflow: hidden;
+    transition: max-height 0.4s ease, padding 0.4s ease;
+}
+
+/* Item do histórico */
+.item-historico {
+    background: rgba(255,255,255,0.12);
+    border-radius: 10px;
+    padding: 12px;
+    margin-bottom: 10px;
+    font-size: 0.85rem;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.item-historico:hover {
+    transform: scale(1.02);
+    box-shadow: 0 10px 25px rgba(0,0,0,0.25);
+}
+
+/* Botão limpar */
+.btn-limpar {
+    margin-top: 10px;
+    width: 100%;
+    padding: 12px;
+    border-radius: 10px;
+    border: none;
+    background: linear-gradient(135deg, #ff6a6a, #ff4757);
+    color: white;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+/* Canvas responsivo */
+canvas {
+    width: 100% !important;
+    height: 300px !important;
+    margin-bottom: 20px;
+}
+
+/* Resumo */
+.resumo p {
+    margin: 4px 0;
+}
