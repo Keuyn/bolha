@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Simulador de Investimentos</title>
+
+    <!-- CSS externo -->
+    <link rel="stylesheet" href="style.css">
+
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+
+<div class="container">
+    <h1>📊 Simulador de Investimentos</h1>
+
+    <!-- Inputs -->
+    <label>Depósito inicial (R$)</label>
+    <input type="number" id="deposito_inicial" step="0.01">
+
+    <label>Aumento mensal (%)</label>
+    <input type="number" id="aumento_mensal" step="0.01">
+
+    <label>Número de meses</label>
+    <input type="number" id="meses_totais">
+
+    <button onclick="calcular()">Calcular</button>
+
+    <!-- Resultado -->
+    <div id="resultado"></div>
+
+    <!-- Gráfico -->
+    <canvas id="grafico"></canvas>
+
+    <!-- Histórico colapsável com slide -->
+    <div class="historico">
+        <div class="historico-header">
+            <h2>📚 Histórico de Simulações</h2>
+            <button id="toggleHistorico" class="btn-toggle">Ocultar</button>
+        </div>
+        <div id="listaHistorico" class="historico-body"></div>
+        <button class="btn-limpar" onclick="limparHistorico()">Limpar histórico</button>
+    </div>
+</div>
+
+<script>
+let chart = null;
+
+/* ===== FUNÇÃO PRINCIPAL ===== */
+function calcular() {
+    const depositoInicial = parseFloat(document.getElementById("deposito_inicial").value);
+    const aumentoMensal = parseFloat(document.getElementById("aumento_mensal").value) / 100;
+    const mesesTotais = parseInt(document.getElementById("meses_totais").value);
+
+    if (isNaN(depositoInicial) || isNaN(aumentoMensal) || isNaN(mesesTotais)) {
+        alert("Preencha todos os campos corretamente.");
+        return;
+    }
+
+    let total = 0;
+    let meses = [];
+    let valores = [];
+
+    let html = `
+        <table>
+            <tr>
+                <th>Mês</th>
+                <th>Depósito (R$)</th>
+            </tr>
+    `;
+
+    for (let mes = 1; mes <= mesesTotais; mes++) {
+        const valor = depositoInicial * Math.pow(1 + aumentoMensal, mes - 1);
+        total += valor;
+
+        meses.push(`Mês ${mes}`);
+        valores.push(valor.toFixed(2));
+
+        html += `
+            <tr>
+                <td>${mes}</td>
+                <td>R$ ${valor.toFixed(2)}</td>
+            </tr>
+        `;
+    }
+
+    html += `
+        </table>
+        <div class="resumo">
+            <p>Último mês: R$ ${valores[valores.length - 1]}</p>
+            <p>Total investido: R$ ${total.toFixed(2)}</p>
+        </div>
+    `;
+
+    document.getElementById("resultado").innerHTML = html;
+
+    salvarNoHistorico(depositoInicial, aumentoMensal * 100, mesesTotais, total);
+    renderizarGrafico(meses, valores);
+    carregarHistorico();
+}
+
+/* ===== GRÁFICO ===== */
+function renderizarGrafico(labels, data) {
+    const ctx = document.getElementById("grafico");
+
+    if (chart) chart.destroy();
+
+    chart = new Chart(ctx, {
+        type: "line",
+        data: {
+            labels: labels,
+            datasets: [{
+                label: "Evolução do Depósito (R$)",
+                data: data,
+                borderColor: "#38f9d7",
+                backgroundColor: "rgba(56,249,215,0.25)",
+                tension: 0.4,
+                fill: true,
+                pointRadius: 4
+            }]
+        },
+        options: {
+            animation: { duration: 1200, easing: "easeOutQuart" },
+            plugins: { legend: { labels: { color: "#fff" } } },
+            scales: {
+                x: { ticks: { color: "#fff" } },
+                y: { ticks: { color: "#fff" } }
+            }
+        }
+    });
+}
+
+/* ===== HISTÓRICO ===== */
+function salvarNoHistorico(dep, aumento, meses, total) {
+    const historico = JSON.parse(localStorage.getItem("historicoSimulacoes")) || [];
+    historico.unshift({
+        dep,
+        aumento,
+        meses,
+        total,
+        data: new Date().toLocaleString()
+    });
+    localStorage.setItem("historicoSimulacoes", JSON.stringify(historico));
+}
+
+function carregarHistorico() {
+    const lista = document.getElementById("listaHistorico");
+    const historico = JSON.parse(localStorage.getItem("historicoSimulacoes")) || [];
+
+    if (historico.length === 0) {
+        lista.innerHTML = "<p>Nenhuma simulação registrada.</p>";
+        return;
+    }
+
+    lista.innerHTML = historico.map((item, index) => `
+        <div class="item-historico">
+            <strong>#${index + 1}</strong> — ${item.data}<br>
+            💰 R$ ${item.dep} | 📈 ${item.aumento}% | ⏳ ${item.meses} meses<br>
+            🏁 Total: <strong>R$ ${item.total.toFixed(2)}</strong>
+        </div>
+    `).join("");
+}
+
+function limparHistorico() {
+    if (confirm("Tem certeza que deseja apagar todo o histórico?")) {
+        localStorage.removeItem("historicoSimulacoes");
+        carregarHistorico();
+    }
+}
+
+/* ===== TOGGLE COM SLIDE ===== */
+const toggleBtn = document.getElementById("toggleHistorico");
+const historicoBody = document.getElementById("listaHistorico");
+
+toggleBtn.addEventListener("click", () => {
+    if (historicoBody.style.maxHeight && historicoBody.style.maxHeight !== "0px") {
+        // Ocultar com slide
+        historicoBody.style.maxHeight = "0";
+        historicoBody.style.padding = "0 12px";
+        toggleBtn.textContent = "Mostrar";
+    } else {
+        // Mostrar com slide
+        historicoBody.style.maxHeight = historicoBody.scrollHeight + "px";
+        historicoBody.style.padding = "12px";
+        toggleBtn.textContent = "Ocultar";
+    }
+});
+
+/* Carrega histórico ao abrir */
+window.addEventListener("load", () => {
+    carregarHistorico();
+    // Inicializa slide aberto
+    historicoBody.style.maxHeight = historicoBody.scrollHeight + "px";
+    historicoBody.style.padding = "12px";
+});
+</script>
+
+</body>
+</html>
