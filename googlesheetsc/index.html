@@ -1,0 +1,560 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Google Sheets Master - Guia de Fórmulas</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <!-- Ícones -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        :root {
+            --gs-green: #0F9D58;
+            --gs-dark: #0B8043;
+            --gs-light: #E6F4EA;
+            --bg-color: #f8f9fa;
+            --card-bg: #ffffff;
+            --text-main: #202124;
+            --text-secondary: #5f6368;
+            --shadow-sm: 0 1px 2px 0 rgba(60,64,67,0.3), 0 1px 3px 1px rgba(60,64,67,0.15);
+            --shadow-md: 0 4px 6px rgba(50, 50, 93, 0.11), 0 1px 3px rgba(0, 0, 0, 0.08);
+            --shadow-lg: 0 10px 20px rgba(0,0,0,0.1);
+            --radius: 16px;
+            --radius-sm: 8px;
+            --transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            min-height: 100vh;
+            line-height: 1.5;
+            padding-bottom: 40px;
+        }
+
+        /* --- Header --- */
+        header {
+            text-align: center;
+            padding: 3rem 1rem 2rem;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .logo-area {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 1rem;
+            background: var(--gs-green);
+            color: white;
+            padding: 8px 24px;
+            border-radius: 50px;
+            font-weight: 500;
+            letter-spacing: 0.5px;
+            box-shadow: 0 4px 12px rgba(15, 157, 88, 0.3);
+        }
+
+        h1 {
+            font-size: 2.8rem;
+            font-weight: 700;
+            color: var(--text-main);
+            margin-bottom: 0.5rem;
+        }
+
+        .subtitle {
+            color: var(--text-secondary);
+            font-size: 1.15rem;
+            margin-bottom: 2.5rem;
+        }
+
+        /* --- Search Bar --- */
+        .search-container {
+            position: relative;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 16px 20px 16px 54px;
+            font-size: 1rem;
+            border: 1px solid #dadce0;
+            border-radius: 8px;
+            background: white;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+            transition: var(--transition);
+            outline: none;
+            font-family: 'Roboto', sans-serif;
+        }
+
+        .search-input:focus {
+            border-color: var(--gs-green);
+            box-shadow: 0 4px 12px rgba(15, 157, 88, 0.2);
+            background: #fff;
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 18px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--gs-green);
+            font-size: 1.2rem;
+        }
+
+        /* --- Filters / Tabs --- */
+        .filter-container {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin: 2rem 1rem;
+            padding: 0 1rem;
+            max-width: 1200px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .filter-btn {
+            background: white;
+            border: 1px solid #dadce0;
+            padding: 8px 16px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: 500;
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            transition: var(--transition);
+        }
+
+        .filter-btn:hover {
+            background: var(--gs-light);
+            border-color: var(--gs-green);
+            color: var(--gs-dark);
+        }
+
+        .filter-btn.active {
+            background: var(--gs-green);
+            color: white;
+            border-color: var(--gs-green);
+            box-shadow: 0 2px 6px rgba(15, 157, 88, 0.3);
+        }
+
+        /* --- Main Grid --- */
+        main {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        .cards-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 20px;
+        }
+
+        /* --- Card Styles --- */
+        .card {
+            background: var(--card-bg);
+            border-radius: var(--radius);
+            padding: 20px;
+            border: 1px solid #eee;
+            box-shadow: var(--shadow-sm);
+            transition: var(--transition);
+            position: relative;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-lg);
+            border-color: var(--gs-light);
+        }
+
+        /* Border accent based on category */
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: var(--gs-green);
+            border-radius: var(--radius) var(--radius) 0 0;
+            opacity: 0;
+            transition: var(--transition);
+        }
+
+        .card:hover::before {
+            opacity: 1;
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 10px;
+        }
+
+        .card-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--text-main);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .card-category {
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--gs-green);
+            font-weight: 600;
+            background: var(--gs-light);
+            padding: 4px 8px;
+            border-radius: 4px;
+        }
+
+        .card-exclusive .card-category {
+            background: #E8F0FE;
+            color: #1967D2; /* Blue for exclusive */
+        }
+
+        .card-description {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            margin-bottom: 16px;
+            flex-grow: 1;
+            line-height: 1.5;
+        }
+
+        /* --- Code Blocks --- */
+        .syntax-block {
+            background: #f1f3f4;
+            border-left: 3px solid var(--gs-green);
+            padding: 10px 12px;
+            border-radius: 0 4px 4px 0;
+            margin-bottom: 12px;
+        }
+
+        .syntax-label {
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            color: var(--text-secondary);
+            margin-bottom: 4px;
+            display: block;
+            font-weight: 500;
+        }
+
+        .code {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.85rem;
+            color: #d93025; /* Google Redish for formulas */
+            word-break: break-all;
+        }
+
+        .example-box {
+            background: #FCE8E6;
+            color: #C5221F;
+            padding: 10px;
+            border-radius: var(--radius-sm);
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+
+        /* --- Shortcuts --- */
+        .shortcut-card .example-box {
+            background: #f8f9fa;
+            color: var(--text-main);
+            border: 1px solid #eee;
+        }
+
+        .keys {
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+            margin-top: 4px;
+        }
+
+        .kbd {
+            background: #fff;
+            border: 1px solid #ccc;
+            border-bottom: 2px solid #ccc;
+            border-radius: 4px;
+            padding: 2px 6px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.8rem;
+            font-weight: bold;
+            color: #333;
+            box-shadow: 0 1px 0 rgba(0,0,0,0.2);
+        }
+
+        /* --- Empty State --- */
+        .no-results {
+            grid-column: 1 / -1;
+            text-align: center;
+            padding: 4rem;
+            color: var(--text-secondary);
+            display: none;
+        }
+        
+        .no-results i {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            color: #dadce0;
+        }
+
+        /* --- Footer --- */
+        footer {
+            text-align: center;
+            padding: 3rem 1rem;
+            margin-top: 3rem;
+            border-top: 1px solid #eee;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        /* --- Responsividade --- */
+        @media (max-width: 768px) {
+            h1 { font-size: 2rem; }
+            .cards-grid { grid-template-columns: 1fr; }
+            .filter-container { gap: 6px; }
+            .filter-btn { font-size: 0.8rem; padding: 6px 12px; }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="logo-area">
+            <i class="fa-brands fa-google"></i> Google Sheets
+        </div>
+        <h1>Comandos e Fórmulas</h1>
+        <p class="subtitle">Guia completo, rápido e prático para dominar o Sheets</p>
+        
+        <div class="search-container">
+            <i class="fa-solid fa-magnifying-glass search-icon"></i>
+            <input type="text" id="searchInput" class="search-input" placeholder="Busque por função, categoria ou descrição...">
+        </div>
+    </header>
+
+    <nav class="filter-container">
+        <button class="filter-btn active" data-filter="all">Todos</button>
+        <button class="filter-btn" data-filter="basic">Básicas</button>
+        <button class="filter-btn" data-filter="logic">Lógicas</button>
+        <button class="filter-btn" data-filter="text">Texto</button>
+        <button class="filter-btn" data-filter="date">Data</button>
+        <button class="filter-btn" data-filter="lookup">Procura</button>
+        <button class="filter-btn" data-filter="math">Matemática</button>
+        <button class="filter-btn" data-filter="stats">Estatística</button>
+        <button class="filter-btn" data-filter="finance">Financeira</button>
+        <button class="filter-btn" data-filter="exclusive" style="border-color: #1967D2; color:#1967D2;">Exclusivas</button>
+        <button class="filter-btn" data-filter="shortcut">Atalhos</button>
+    </nav>
+
+    <main>
+        <div class="cards-grid" id="cardsGrid">
+            <!-- Cards gerados via JavaScript -->
+        </div>
+        <div class="no-results" id="noResults">
+            <i class="fa-regular fa-face-frown"></i>
+            <p>Nenhum comando encontrado com esse termo.</p>
+        </div>
+    </main>
+
+    <footer>
+        <p>Feito para facilitar sua vida no Google Sheets.</p>
+    </footer>
+
+    <script>
+        // --- Base de Dados ---
+        const commands = [
+            // --- Básicas ---
+            { name: "SOMA", cat: "basic", label: "Básicas", syntax: "=SOMA(valor1; [valor2]; ...)", desc: "Soma uma série de números ou células.", ex: "=SOMA(A1:A10)" },
+            { name: "MÉDIA", cat: "basic", label: "Básicas", syntax: "=MÉDIA(valor1; [valor2]; ...)", desc: "Calcula a média aritmética dos valores.", ex: "=MÉDIA(B1:B20)" },
+            { name: "MÍNIMO", cat: "basic", label: "Básicas", syntax: "=MÍN(valor1; [valor2]; ...)", desc: "Retorna o menor valor numérico em um conjunto.", ex: "=MÍNIMO(C1:C5)" },
+            { name: "MÁXIMO", cat: "basic", label: "Básicas", syntax: "=MÁX(valor1; [valor2]; ...)", desc: "Retorna o maior valor numérico em um conjunto.", ex: "=MÁXIMO(D1:D5)" },
+            { name: "CONT.VALORES", cat: "basic", label: "Básicas", syntax: "=CONT.VALORES(valor1; ...)", desc: "Conta quantos valores existem em um intervalo.", ex: "=CONT.VALORES(A1:A10)" },
+            { name: "CONT.NÚM", cat: "basic", label: "Básicas", syntax: "=CONT.NÚM(valor1; ...)", desc: "Conta quantos números existem em um intervalo.", ex: "=CONT.NÚM(A1:A10)" },
+
+            // --- Lógicas ---
+            { name: "SE", cat: "logic", label: "Lógicas", syntax: "=SE(teste_lógico; valor_se_verdadeiro; valor_se_falso)", desc: "Retorna um valor se a condição for verdadeira e outro se for falsa.", ex: "=SE(A1>10; \"Alto\"; \"Baixo\")" },
+            { name: "IFS", cat: "logic", label: "Lógicas", syntax: "=IFS(teste1; valor1; [teste2; valor2]; ...)", desc: "Avalia múltiplas condições de uma vez (versão melhorada do SE aninhado).", ex: "=IFS(A1>90; \"A\"; A1>80; \"B\")" },
+            { name: "E", cat: "logic", label: "Lógicas", syntax: "=E(lógico1; [lógico2]; ...)", desc: "Retorna VERDADEIRO se todos os argumentos forem verdadeiros.", ex: "=E(A1>1; A1<100)" },
+            { name: "OU", cat: "logic", label: "Lógicas", syntax: "=OU(lógico1; [lógico2]; ...)", desc: "Retorna VERDADEIRO se pelo menos um argumento for verdadeiro.", ex: "=OU(A1=1; B1=1)" },
+            { name: "NÃO", cat: "logic", label: "Lógicas", syntax: "=NÃO(lógico)", desc: "Inverte o valor lógico (verdadeiro vira falso e vice-versa).", ex: "=NÃO(A1=100)" },
+
+            // --- Texto ---
+            { name: "CONCAT", cat: "text", label: "Texto", syntax: "=CONCAT(valor1; valor2)", desc: "Junta strings de texto de diferentes células.", ex: "=CONCAT(A2; \" \"; B2)" },
+            { name: "CONCATENAR", cat: "text", label: "Texto", syntax: "=CONCATENAR(string1; [string2]; ...)", desc: "Junta várias strings em uma só (legado, usar CONCAT é melhor).", ex: "=CONCATENAR(A1; B1)" },
+            { name: "ESQUERDA", cat: "text", label: "Texto", syntax: "=ESQUERDA(string; [núm_caract])", desc: "Retorna uma substring do início da string.", ex: "=ESQUERDA(A1; 3)" },
+            { name: "DIREITA", cat: "text", label: "Texto", syntax: "=DIREITA(string; [núm_caract])", desc: "Retorna uma substring do final da string.", ex: "=DIREITA(A1; 2)" },
+            { name: "LOCALIZAR", cat: "text", label: "Texto", syntax: "=LOCALIZAR(texto_buscado; texto_dentro; [núm_inicial])", desc: "Retorna a posição onde o texto buscado aparece.", ex: "=LOCALIZAR(\"c\"; \"Excel\")" },
+            { name: "SUBSTITUIR", cat: "text", label: "Texto", syntax: "=SUBSTITUIR(texto; texto_antigo; novo_texto; [núm_ocorrência])", desc: "Substitui texto existente por novo texto em uma string.", ex: "=SUBSTITUIR(A1; \"2022\"; \"2023\")" },
+
+            // --- Data e Hora ---
+            { name: "HOJE", cat: "date", label: "Data", syntax: "=HOJE()", desc: "Retorna a data atual no formato de data.", ex: "=HOJE()" },
+            { name: "AGORA", cat: "date", label: "Data", syntax: "=AGORA()", desc: "Retorna a data e hora atual.", ex: "=AGORA()" },
+            { name: "DATA", cat: "date", label: "Data", syntax: "=DATA(ano; mês; dia)", desc: "Cria uma data a partir de ano, mês e dia.", ex: "=DATA(2023; 12; 25)" },
+            { name: "DIAS", cat: "date", label: "Data", syntax: "=DIAS(data_final; data_inicial)", desc: "Calcula o número de dias entre duas datas.", ex: "=DIAS(A2; A1)" },
+            { name: "DIATRABALHOTOTAL", cat: "date", label: "Data", syntax: "=DIATRABALHOTOTAL(data_inicial; data_final; [feriados])", desc: "Calcula o número de dias úteis entre duas datas.", ex: "=DIATRABALHOTOTAL(A1; B1)" },
+
+            // --- Procura e Referência ---
+            { name: "PROCV", cat: "lookup", label: "Procura", syntax: "=PROCV(chave; intervalo; índice; [classificação])", desc: "Procura verticalmente por uma chave e retorna um valor na mesma linha.", ex: "=PROCV(\"João\"; A2:B10; 2; FALSO)" },
+            { name: "PROCX (XLOOKUP)", cat: "lookup", label: "Procura", syntax: "=PROCX(chave_buscada; vetor_pesquisa; vetor_retorno; [não_encontrado])", desc: "A evolução do PROCV. Busca em qualquer direção.", ex: "=PROCX(E2; A2:A10; C2:C10; \"N/A\")" },
+            { name: "ÍNDICE", cat: "lookup", label: "Procura", syntax: "=ÍNDICE(intervalo; linha; [coluna])", desc: "Retorna o conteúdo de uma célula específica por linha e coluna.", ex: "=ÍNDICE(A1:B10; 5; 2)" },
+            { name: "CORRESP", cat: "lookup", label: "Procura", syntax: "=CORRESP(chave; intervalo; [tipo_corresp])", desc: "Retorna a posição relativa de um item em um intervalo.", ex: "=CORRESP(\"Maçã\"; A1:A5; 0)" },
+
+            // --- Matemáticas ---
+            { name: "ARRED", cat: "math", label: "Matemática", syntax: "=ARRED(valor; [casas_decimais])", desc: "Arredonda um número para um número específico de casas decimais.", ex: "=ARRED(10.567; 2)" },
+            { name: "ARRED.PARA.CIMA", cat: "math", label: "Matemática", syntax: "=ARRED.PARA.CIMA(valor; [casas])", desc: "Arredonda sempre para cima.", ex: "=ARRED.PARA.CIMA(4.2; 0)" },
+            { name: "ARRED.PARA.BAIXO", cat: "math", label: "Matemática", syntax: "=ARRED.PARA.BAIXO(valor; [casas])", desc: "Arredonda sempre para baixo.", ex: "=ARRED.PARA.BAIXO(4.9; 0)" },
+            { name: "POTÊNCIA", cat: "math", label: "Matemática", syntax: "=POTÊNCIA(base; expoente)", desc: "Eleva um número a uma potência.", ex: "=POTÊNCIA(5; 2)" },
+            { name: "RAIZ", cat: "math", label: "Matemática", syntax: "=RAIZ(valor)", desc: "Retorna a raiz quadrada positiva de um número.", ex: "=RAIZ(64)" },
+
+            // --- Estatísticas ---
+            { name: "CONT.SE", cat: "stats", label: "Estatística", syntax: "=CONT.SE(intervalo; critério)", desc: "Conta quantas células atendem a uma condição.", ex: "=CONT.SE(A1:A10; \">10\")" },
+            { name: "SOMASE", cat: "stats", label: "Estatística", syntax: "=SOMASE(intervalo; critério; [intervalo_soma])", desc: "Soma valores baseados em um critério.", ex: "=SOMASE(B1:B10; \"Vendas\"; A1:A10)" },
+            { name: "MÉDIASE", cat: "stats", label: "Estatística", syntax: "=MÉDIASE(intervalo; critério; [intervalo_média])", desc: "Calcula a média de células que atendem a um critério.", ex: "=MÉDIASE(A1:A10; \">100\")" },
+            { name: "CONT.SES", cat: "stats", label: "Estatística", syntax: "=CONT.SES(intervalo1; critério1; ...)", desc: "Conta células baseadas em múltiplos critérios.", ex: "=CONT.SES(A1:A10; \">5\"; B1:B10; \"Sim\")" },
+
+            // --- Financeiras ---
+            { name: "PGTO", cat: "finance", label: "Financeira", syntax: "=PGTO(taxa; nper; vp; [vf]; [tipo])", desc: "Calcula o pagamento mensal de um empréstimo.", ex: "=PGTO(5%/12; 60; 50000)" },
+            { name: "VP", cat: "finance", label: "Financeira", syntax: "=VP(taxa; nper; pgto; [vf]; [tipo])", desc: "Calcula o valor presente de um investimento.", ex: "=VP(5%/12; 60; 500)" },
+            { name: "VF", cat: "finance", label: "Financeira", syntax: "=VF(taxa; nper; pgto; [vp]; [tipo])", desc: "Calcula o valor futuro de um investimento.", ex: "=VF(5%/12; 10; 100)" },
+            { name: "TAXA", cat: "finance", label: "Financeira", syntax: "=TAXA(nper; pgto; vp; [vf]; [tipo]; [estimativa])", desc: "Calcula a taxa de juros de um empréstimo.", ex: "=TAXA(12; -1000; 9000)" },
+
+            // --- EXCLUSIVAS GOOGLE SHEETS ---
+            { name: "IMPORTRANGE", cat: "exclusive", label: "Exclusivas", syntax: "=IMPORTRANGE(spreadsheet_url; intervalo_string)", desc: "Importa um intervalo de células de uma planilha especificada.", ex: "=IMPORTRANGE(\"https...\", \"A1:C10\")" },
+            { name: "QUERY", cat: "exclusive", label: "Exclusivas", syntax: "=QUERY(dados; consulta; [cabeçalhos])", desc: "Executa consulta tipo SQL em um intervalo de dados. Muito poderosa.", ex: "=QUERY(A1:F20; \"SELECT B WHERE C > 500\")" },
+            { name: "ARRAYFORMULA", cat: "exclusive", label: "Exclusivas", syntax: "=ARRAYFORMULA(fórmula_array)", desc: "Permite que fórmulas não-matriciais sejam usadas em matrizes.", ex: "=ARRAYFORMULA(A1:A10 * B1:B10)" },
+            { name: "SPLIT", cat: "exclusive", label: "Exclusivas", syntax: "=SPLIT(texto; delimitador; [dividir_por_texto]; [remover_vazio])", desc: "Divide o texto ao redor de um caractere ou string especificado.", ex: "=SPLIT(A1; \",\")" },
+            { name: "JOIN", cat: "exclusive", label: "Exclusivas", syntax: "=JOIN(delimitador; valor_ou_array1; ...)", desc: "Concatena os elementos de uma ou mais dimensões usando um delimitador.", ex: "=JOIN(\"; \"; A1:A5)" },
+            { name: "UNIQUE", cat: "exclusive", label: "Exclusivas", syntax: "=UNIQUE(intervalo)", desc: "Retorna linhas ou colunas únicas do intervalo especificado.", ex: "=UNIQUE(A1:A20)" },
+            { name: "FILTRO", cat: "exclusive", label: "Exclusivas", syntax: "=FILTRO(intervalo; condição1; [condição2]; ...)", desc: "Filtra um intervalo com base em condições fornecidas.", ex: "=FILTRO(A:B; B:B>100)" },
+            { name: "CLASSIFICAR (SORT)", cat: "exclusive", label: "Exclusivas", syntax: "=CLASSIFICAR(intervalo; coluna_ordenar; [ascendente])", desc: "Ordena as linhas de um intervalo específico.", ex: "=CLASSIFICAR(A2:C; 2; VERDADEIRO)" },
+
+            // --- Atalhos ---
+            { name: "Copiar / Colar", cat: "shortcut", label: "Atalhos", syntax: "Ctrl + C / Ctrl + V", desc: "Copia e cola conteúdo.", ex: "Uso diário" },
+            { name: "Desfazer / Refazer", cat: "shortcut", label: "Atalhos", syntax: "Ctrl + Z / Ctrl + Y", desc: "Volta ou avança uma ação.", ex: "Corrige erros rápidos" },
+            { name: "Atalho Ajuda", cat: "shortcut", label: "Atalhos", syntax: "Ctrl + /", desc: "Abre o menu de atalhos completo.", ex: "Essencial para lembrar tudo" },
+            { name: "Preencher Abaixo", cat: "shortcut", label: "Atalhos", syntax: "Ctrl + Enter", desc: "Preenche a célula ativa com o conteúdo acima ou fórmula.", ex: "Preenche colunas rapidamente" }
+        ];
+
+        // --- Lógica ---
+        const grid = document.getElementById('cardsGrid');
+        const searchInput = document.getElementById('searchInput');
+        const filterBtns = document.querySelectorAll('.filter-btn');
+        const noResults = document.getElementById('noResults');
+
+        let currentFilter = 'all';
+
+        function renderCards(data) {
+            grid.innerHTML = '';
+            
+            if (data.length === 0) {
+                noResults.style.display = 'block';
+                return;
+            } else {
+                noResults.style.display = 'none';
+            }
+
+            data.forEach(cmd => {
+                const isShortcut = cmd.cat === 'shortcut';
+                const isExclusive = cmd.cat === 'exclusive';
+                
+                let extraClass = isExclusive ? 'card-exclusive' : '';
+                let cardClass = isShortcut ? `card shortcut-card ${extraClass}` : `card ${extraClass}`;
+                
+                let contentHTML = '';
+
+                if (isShortcut) {
+                    // Render para atalhos
+                    const keys = cmd.syntax.replace(' / ', '</span> <span class="kbd">').replace(' + ', '</span> <span class="kbd">');
+                    contentHTML = `
+                        <div class="syntax-block">
+                            <span class="syntax-label">Combinação</span>
+                            <div class="keys">
+                                <span class="kbd">${keys}</span>
+                            </div>
+                        </div>
+                        <div class="example-box">
+                            ${cmd.ex}
+                        </div>
+                    `;
+                } else {
+                    // Render para fórmulas
+                    contentHTML = `
+                        <div class="syntax-block">
+                            <span class="syntax-label">Sintaxe</span>
+                            <div class="code">${cmd.syntax}</div>
+                        </div>
+                        <div class="example-box">
+                            ${cmd.ex}
+                        </div>
+                    `;
+                }
+
+                const card = document.createElement('article');
+                card.className = cardClass;
+                card.innerHTML = `
+                    <div class="card-header">
+                        <h3 class="card-title">
+                            ${isExclusive ? '<i class="fa-solid fa-star" style="font-size:0.8em; color:#1967D2;"></i>' : ''} 
+                            ${cmd.name}
+                        </h3>
+                        <span class="card-category">${cmd.label}</span>
+                    </div>
+                    <p class="card-description">${cmd.desc}</p>
+                    ${contentHTML}
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        function filterCommands() {
+            const term = searchInput.value.toLowerCase();
+            
+            const filtered = commands.filter(cmd => {
+                const matchCat = currentFilter === 'all' || cmd.cat === currentFilter;
+                const matchTerm = 
+                    cmd.name.toLowerCase().includes(term) || 
+                    cmd.desc.toLowerCase().includes(term) ||
+                    cmd.ex.toLowerCase().includes(term);
+                
+                return matchCat && matchTerm;
+            });
+
+            renderCards(filtered);
+        }
+
+        // --- Eventos ---
+        searchInput.addEventListener('input', filterCommands);
+
+        filterBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                filterBtns.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                currentFilter = btn.getAttribute('data-filter');
+                filterCommands();
+            });
+        });
+
+        // Inicialização
+        renderCards(commands);
+
+    </script>
+</body>
+</html>
