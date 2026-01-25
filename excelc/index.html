@@ -49,6 +49,7 @@
             padding: 3rem 1rem 2rem;
             max-width: 800px;
             margin: 0 auto;
+            position: relative; /* Necessário para posicionar o botão de idioma */
         }
 
         .logo-area {
@@ -77,6 +78,34 @@
             color: var(--text-secondary);
             font-size: 1.1rem;
             margin-bottom: 2rem;
+        }
+
+        /* --- Botão de Troca de Idioma (NOVO) --- */
+        .lang-switcher {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            text-decoration: none;
+            background: white;
+            color: var(--excel-green);
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 0.85rem;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            box-shadow: var(--shadow-sm);
+            border: 1px solid #e0e0e0;
+            transition: var(--transition);
+            z-index: 100;
+        }
+
+        .lang-switcher:hover {
+            background: var(--excel-green);
+            color: white;
+            transform: translateY(-2px);
+            border-color: var(--excel-green);
         }
 
         /* --- Search Bar --- */
@@ -322,12 +351,26 @@
             .cards-grid { grid-template-columns: 1fr; }
             .filter-container { gap: 8px; }
             .filter-btn { font-size: 0.8rem; padding: 8px 16px; }
+            
+            /* Ajuste do botão de idioma para mobile */
+            .lang-switcher {
+                position: relative;
+                top: 0;
+                right: 0;
+                display: inline-flex;
+                margin-top: 10px;
+            }
         }
     </style>
 </head>
 <body>
 
     <header>
+        <!-- Link para a versão em inglês -->
+        <a href="https://keuyn.github.io/bolha/excelc/en" class="lang-switcher" title="Switch to English version">
+            <i class="fa-solid fa-globe"></i> English Version
+        </a>
+
         <div class="logo-area">
             <i class="fa-solid fa-table"></i> Excel Master
         </div>
