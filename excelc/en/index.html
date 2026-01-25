@@ -1,0 +1,831 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Excel Master - Complete Commands Guide</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        :root {
+            --excel-green: #217346;
+            --excel-dark: #103f25;
+            --excel-light: #e6f3eb;
+            --bg-color: #f0f2f5;
+            --card-bg: #ffffff;
+            --text-main: #333333;
+            --text-secondary: #666666;
+            --shadow-sm: 0 2px 4px rgba(0,0,0,0.05);
+            --shadow-md: 0 4px 12px rgba(0,0,0,0.08);
+            --shadow-lg: 0 8px 24px rgba(33, 115, 70, 0.15);
+            --radius: 12px;
+            --transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-color);
+            background-image: 
+                radial-gradient(at 0% 0%, hsla(145,40%,92%,1) 0, transparent 50%), 
+                radial-gradient(at 100% 100%, hsla(145,60%,85%,1) 0, transparent 50%);
+            color: var(--text-main);
+            min-height: 100vh;
+            line-height: 1.6;
+        }
+
+        /* --- Header --- */
+        header {
+            text-align: center;
+            padding: 3rem 1rem 2rem;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .logo-area {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 1rem;
+            background: var(--excel-green);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 50px;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            box-shadow: var(--shadow-md);
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: var(--excel-dark);
+            margin-bottom: 0.5rem;
+            letter-spacing: -0.02em;
+        }
+
+        .subtitle {
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+            margin-bottom: 2rem;
+        }
+
+        /* --- Search Bar --- */
+        .search-container {
+            position: relative;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 16px 24px;
+            padding-left: 50px;
+            font-size: 1rem;
+            border: 2px solid transparent;
+            border-radius: 50px;
+            background: white;
+            box-shadow: var(--shadow-md);
+            transition: var(--transition);
+            outline: none;
+        }
+
+        .search-input:focus {
+            border-color: var(--excel-green);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-secondary);
+            font-size: 1.2rem;
+        }
+
+        /* --- Filters / Tabs --- */
+        .filter-container {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin: 2rem 1rem;
+            padding: 0 1rem;
+        }
+
+        .filter-btn {
+            background: white;
+            border: 1px solid #e0e0e0;
+            padding: 10px 20px;
+            border-radius: 30px;
+            cursor: pointer;
+            font-weight: 500;
+            color: var(--text-secondary);
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.9rem;
+        }
+
+        .filter-btn:hover {
+            border-color: var(--excel-green);
+            color: var(--excel-green);
+            transform: translateY(-2px);
+        }
+
+        .filter-btn.active {
+            background: var(--excel-green);
+            color: white;
+            border-color: var(--excel-green);
+            box-shadow: 0 4px 10px rgba(33, 115, 70, 0.3);
+        }
+
+        /* --- Main Grid --- */
+        main {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px 40px;
+        }
+
+        .cards-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+            gap: 24px;
+        }
+
+        /* --- Card Styles --- */
+        .card {
+            background: var(--card-bg);
+            border-radius: var(--radius);
+            padding: 24px;
+            box-shadow: var(--shadow-sm);
+            transition: var(--transition);
+            border: 1px solid rgba(0,0,0,0.03);
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+            background: var(--excel-green);
+            opacity: 0.8;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 12px;
+        }
+
+        .card-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--excel-dark);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .card-category {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--excel-green);
+            font-weight: 600;
+            background: var(--excel-light);
+            padding: 4px 8px;
+            border-radius: 4px;
+        }
+
+        .card-description {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            margin-bottom: 16px;
+            flex-grow: 1;
+        }
+
+        .code-block {
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 6px;
+            padding: 12px;
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-size: 0.85rem;
+            color: #d63384;
+            position: relative;
+            margin-bottom: 12px;
+            overflow-x: auto;
+        }
+
+        .code-block .code-label {
+            position: absolute;
+            top: 0;
+            right: 0;
+            background: #e9ecef;
+            color: #6c757d;
+            font-size: 0.65rem;
+            padding: 2px 6px;
+            border-bottom-left-radius: 4px;
+        }
+
+        .example-box {
+            background: #f0fff4;
+            border-left: 3px solid #38b2ac;
+            padding: 10px;
+            font-size: 0.85rem;
+            color: #2c7a7b;
+            border-radius: 0 4px 4px 0;
+        }
+
+        .example-label {
+            font-weight: 700;
+            display: block;
+            margin-bottom: 4px;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            color: var(--excel-dark);
+        }
+
+        /* --- Keyboard Shortcuts Special Style --- */
+        .card.shortcut-card {
+            border-top: 4px solid #333;
+        }
+        .card.shortcut-card::before {
+            display: none;
+        }
+        
+        .shortcut-keys {
+            display: flex;
+            gap: 8px;
+            margin-top: 10px;
+            flex-wrap: wrap;
+        }
+
+        .kbd {
+            background: #fff;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-shadow: 0 2px 0 #ddd;
+            padding: 4px 8px;
+            font-family: monospace;
+            font-weight: bold;
+            color: #333;
+            font-size: 0.9rem;
+        }
+
+        /* --- Empty State --- */
+        .no-results {
+            grid-column: 1 / -1;
+            text-align: center;
+            padding: 3rem;
+            color: var(--text-secondary);
+            display: none;
+        }
+
+        /* --- Footer --- */
+        footer {
+            text-align: center;
+            padding: 2rem;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            border-top: 1px solid #e0e0e0;
+            margin-top: 2rem;
+        }
+
+        /* --- Responsiveness --- */
+        @media (max-width: 768px) {
+            h1 { font-size: 2rem; }
+            .cards-grid { grid-template-columns: 1fr; }
+            .filter-container { gap: 8px; }
+            .filter-btn { font-size: 0.8rem; padding: 8px 16px; }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="logo-area">
+            <i class="fa-solid fa-table"></i> Excel Master
+        </div>
+        <h1>Commands & Formulas</h1>
+        <p class="subtitle">Complete guide and cheat sheet to master Excel</p>
+        
+        <div class="search-container">
+            <i class="fa-solid fa-magnifying-glass search-icon"></i>
+            <input type="text" id="searchInput" class="search-input" placeholder="Search for a formula, category, or example...">
+        </div>
+    </header>
+
+    <nav class="filter-container" id="filterContainer">
+        <button class="filter-btn active" data-filter="all">
+            <i class="fa-solid fa-layer-group"></i> All
+        </button>
+        <button class="filter-btn" data-filter="basic">
+            <i class="fa-solid fa-calculator"></i> Basics
+        </button>
+        <button class="filter-btn" data-filter="logic">
+            <i class="fa-solid fa-code-branch"></i> Logic
+        </button>
+        <button class="filter-btn" data-filter="text">
+            <i class="fa-solid fa-font"></i> Text
+        </button>
+        <button class="filter-btn" data-filter="search">
+            <i class="fa-solid fa-crosshairs"></i> Lookup
+        </button>
+        <button class="filter-btn" data-filter="math">
+            <i class="fa-solid fa-square-root-variable"></i> Math
+        </button>
+        <button class="filter-btn" data-filter="date">
+            <i class="fa-regular fa-calendar"></i> Date
+        </button>
+        <button class="filter-btn" data-filter="financial">
+            <i class="fa-solid fa-sack-dollar"></i> Financial
+        </button>
+        <button class="filter-btn" data-filter="stats">
+            <i class="fa-solid fa-chart-pie"></i> Statistics
+        </button>
+        <button class="filter-btn" data-filter="shortcut">
+            <i class="fa-regular fa-keyboard"></i> Shortcuts
+        </button>
+    </nav>
+
+    <main>
+        <div class="cards-grid" id="cardsGrid">
+            <!-- Cards generated via JavaScript -->
+        </div>
+        <div class="no-results" id="noResults">
+            <i class="fa-regular fa-folder-open" style="font-size: 3rem; margin-bottom: 1rem; opacity: 0.5;"></i>
+            <p>No commands found with this term.</p>
+        </div>
+    </main>
+
+    <footer>
+        <p>&copy; 2023 Excel Master Guide - Built for quick reference.</p>
+    </footer>
+
+    <script>
+        // --- Command Data (English Version) ---
+        const commands = [
+            // --- Basics ---
+            {
+                name: "SUM",
+                category: "basic",
+                catLabel: "Basics",
+                syntax: "=SUM(number1, [number2], ...)",
+                desc: "Adds all the numbers in a range of cells.",
+                example: "=SUM(A1:A10)"
+            },
+            {
+                name: "AVERAGE",
+                category: "basic",
+                catLabel: "Basics",
+                syntax: "=AVERAGE(number1, [number2], ...)",
+                desc: "Returns the average (arithmetic mean) of the arguments.",
+                example: "=AVERAGE(B1:B20)"
+            },
+            {
+                name: "MIN",
+                category: "basic",
+                catLabel: "Basics",
+                syntax: "=MIN(number1, [number2], ...)",
+                desc: "Returns the smallest number in a set of values.",
+                example: "=MIN(C1:C5)"
+            },
+            {
+                name: "MAX",
+                category: "basic",
+                catLabel: "Basics",
+                syntax: "=MAX(number1, [number2], ...)",
+                desc: "Returns the largest number in a set of values.",
+                example: "=MAX(D1:D5)"
+            },
+            {
+                name: "COUNTA",
+                category: "basic",
+                catLabel: "Basics",
+                syntax: "=COUNTA(value1, ...)",
+                desc: "Counts how many values are not empty in a range.",
+                example: "=COUNTA(A1:A10)"
+            },
+
+            // --- Logic ---
+            {
+                name: "IF",
+                category: "logic",
+                catLabel: "Logic",
+                syntax: "=IF(logical_test, value_if_true, value_if_false)",
+                desc: "Checks whether a condition is met, and returns one value if True and another if False.",
+                example: "=IF(A1>10, \"Approved\", \"Rejected\")"
+            },
+            {
+                name: "IFS",
+                category: "logic",
+                catLabel: "Logic",
+                syntax: "=IFS(logical_test1, value1, [logical_test2, value2], ...)",
+                desc: "Evaluates multiple conditions and returns a value corresponding to the first True condition.",
+                example: "=IFS(A1>90, \"A\", A1>80, \"B\", \"C\")"
+            },
+            {
+                name: "AND",
+                category: "logic",
+                catLabel: "Logic",
+                syntax: "=AND(logical1, [logical2], ...)",
+                desc: "Returns TRUE if all arguments are TRUE.",
+                example: "=AND(A1>1, A1<100)"
+            },
+            {
+                name: "OR",
+                category: "logic",
+                catLabel: "Logic",
+                syntax: "=OR(logical1, [logical2], ...)",
+                desc: "Returns TRUE if any argument is TRUE.",
+                example: "=OR(A1=1, B1=1)"
+            },
+            {
+                name: "NOT",
+                category: "logic",
+                catLabel: "Logic",
+                syntax: "=NOT(logical)",
+                desc: "Reverses the logic of its argument.",
+                example: "=NOT(A1=100)"
+            },
+
+            // --- Text ---
+            {
+                name: "CONCAT",
+                category: "text",
+                catLabel: "Text",
+                syntax: "=CONCAT(text1, [text2], ...)",
+                desc: "Joins text from several ranges and/or strings.",
+                example: "=CONCAT(A2, \" \", B2)"
+            },
+            {
+                name: "LEFT",
+                category: "text",
+                catLabel: "Text",
+                syntax: "=LEFT(text, [num_chars])",
+                desc: "Returns the specified number of characters from the start of a text string.",
+                example: "=LEFT(A1, 3)"
+            },
+            {
+                name: "RIGHT",
+                category: "text",
+                catLabel: "Text",
+                syntax: "=RIGHT(text, [num_chars])",
+                desc: "Returns the specified number of characters from the end of a text string.",
+                example: "=RIGHT(A1, 2)"
+            },
+            {
+                name: "FIND",
+                category: "text",
+                catLabel: "Text",
+                syntax: "=FIND(find_text, within_text, [start_num])",
+                desc: "Returns the starting position of one text string within another.",
+                example: "=FIND(\"c\", \"Excel\")"
+            },
+            {
+                name: "REPLACE",
+                category: "text",
+                catLabel: "Text",
+                syntax: "=REPLACE(old_text, start_num, num_chars, new_text)",
+                desc: "Replaces part of a text string with a different text string.",
+                example: "=REPLACE(A1, 1, 1, \"A\")"
+            },
+
+            // --- Date and Time ---
+            {
+                name: "TODAY",
+                category: "date",
+                catLabel: "Date",
+                syntax: "=TODAY()",
+                desc: "Returns the current date.",
+                example: "=TODAY()"
+            },
+            {
+                name: "NOW",
+                category: "date",
+                catLabel: "Date",
+                syntax: "=NOW()",
+                desc: "Returns the current date and time.",
+                example: "=NOW()"
+            },
+            {
+                name: "DATE",
+                category: "date",
+                catLabel: "Date",
+                syntax: "=DATE(year, month, day)",
+                desc: "Returns the serial number of a particular date.",
+                example: "=DATE(2023, 12, 25)"
+            },
+            {
+                name: "DAYS",
+                category: "date",
+                catLabel: "Date",
+                syntax: "=DAYS(end_date, start_date)",
+                desc: "Returns the number of days between two dates.",
+                example: "=DAYS(A2, A1)"
+            },
+            {
+                name: "DAY / MONTH / YEAR",
+                category: "date",
+                catLabel: "Date",
+                syntax: "=DAY(serial_number)",
+                desc: "Converts a serial number to a day, month, or year.",
+                example: "=YEAR(DATE(2023,1,1))"
+            },
+
+            // --- Lookup and Reference ---
+            {
+                name: "VLOOKUP",
+                category: "search",
+                catLabel: "Lookup",
+                syntax: "=VLOOKUP(lookup_value, table_array, col_index_num, [range_lookup])",
+                desc: "Looks for a value in the leftmost column and returns a value in the same row from a column you specify.",
+                example: "=VLOOKUP(\"John\", A1:C10, 3, FALSE)"
+            },
+            {
+                name: "XLOOKUP",
+                category: "search",
+                catLabel: "Lookup",
+                syntax: "=XLOOKUP(lookup_value, lookup_array, return_array, [if_not_found])",
+                desc: "Modern and robust replacement for VLOOKUP. Searches in any direction.",
+                example: "=XLOOKUP(E2, A2:A10, C2:C10, \"Not found\")"
+            },
+            {
+                name: "INDEX",
+                category: "search",
+                catLabel: "Lookup",
+                syntax: "=INDEX(array, row_num, [column_num])",
+                desc: "Returns the value of an element in a table or array, selected by the row and column number indexes.",
+                example: "=INDEX(A1:C10, 5, 2)"
+            },
+            {
+                name: "MATCH",
+                category: "search",
+                catLabel: "Lookup",
+                syntax: "=MATCH(lookup_value, lookup_array, [match_type])",
+                desc: "Returns the relative position of an item in an array.",
+                example: "=MATCH(\"Orange\", A1:A5, 0)"
+            },
+
+            // --- Math ---
+            {
+                name: "ROUND",
+                category: "math",
+                catLabel: "Math",
+                syntax: "=ROUND(number, num_digits)",
+                desc: "Rounds a number to a specified number of digits.",
+                example: "=ROUND(10.567, 2)"
+            },
+            {
+                name: "ROUNDUP",
+                category: "math",
+                catLabel: "Math",
+                syntax: "=ROUNDUP(number, num_digits)",
+                desc: "Rounds a number up, away from zero.",
+                example: "=ROUNDUP(3.2, 0)"
+            },
+            {
+                name: "POWER",
+                category: "math",
+                catLabel: "Math",
+                syntax: "=POWER(number, power)",
+                desc: "Returns the result of a number raised to a power.",
+                example: "=POWER(5, 2)"
+            },
+            {
+                name: "SQRT",
+                category: "math",
+                catLabel: "Math",
+                syntax: "=SQRT(number)",
+                desc: "Returns a positive square root.",
+                example: "=SQRT(64)"
+            },
+
+            // --- Financial ---
+            {
+                name: "PMT",
+                category: "financial",
+                catLabel: "Financial",
+                syntax: "=PMT(rate, nper, pv, [fv], [type])",
+                desc: "Calculates the payment for a loan based on constant payments and a constant interest rate.",
+                example: "=PMT(5%/12, 60, 50000)"
+            },
+            {
+                name: "PV",
+                category: "financial",
+                catLabel: "Financial",
+                syntax: "=PV(rate, nper, pmt, [fv], [type])",
+                desc: "Returns the present value of an investment: the total amount that a series of future payments is worth now.",
+                example: "=PV(5%/12, 60, 500)"
+            },
+            {
+                name: "FV",
+                category: "financial",
+                catLabel: "Financial",
+                syntax: "=FV(rate, nper, pmt, [pv], [type])",
+                desc: "Returns the future value of an investment based on periodic, constant payments and a constant interest rate.",
+                example: "=FV(5%/12, 10, 100)"
+            },
+
+            // --- Statistics ---
+            {
+                name: "COUNTIF",
+                category: "stats",
+                catLabel: "Statistics",
+                syntax: "=COUNTIF(range, criteria)",
+                desc: "Counts the number of cells within a range that meet a single condition.",
+                example: "=COUNTIF(A1:A10, \">5\")"
+            },
+            {
+                name: "SUMIF",
+                category: "stats",
+                catLabel: "Statistics",
+                syntax: "=SUMIF(range, criteria, [sum_range])",
+                desc: "Adds the cells in a range that meet the specified criteria.",
+                example: "=SUMIF(B1:B10, \"Sales\", A1:A10)"
+            },
+            {
+                name: "AVERAGEIF",
+                category: "stats",
+                catLabel: "Statistics",
+                syntax: "=AVERAGEIF(range, criteria, [average_range])",
+                desc: "Returns the average (arithmetic mean) of all the cells that meet a given criteria.",
+                example: "=AVERAGEIF(A1:A10, \">100\")"
+            },
+            {
+                name: "STDEV.P",
+                category: "stats",
+                catLabel: "Statistics",
+                syntax: "=STDEV.P(number1, [number2], ...)",
+                desc: "Calculates standard deviation based on the entire population.",
+                example: "=STDEV.P(A1:A20)"
+            },
+
+            // --- Shortcuts ---
+            {
+                name: "Copy / Paste",
+                category: "shortcut",
+                catLabel: "Shortcuts",
+                syntax: "Ctrl + C / Ctrl + V",
+                desc: "Copies the selection to the clipboard and pastes the copied content.",
+                example: "Essential for quick data movement."
+            },
+            {
+                name: "Undo",
+                category: "shortcut",
+                catLabel: "Shortcuts",
+                syntax: "Ctrl + Z",
+                desc: "Undoes the last action performed.",
+                example: "Saves lives when you delete something wrong."
+            },
+            {
+                name: "Filters",
+                category: "shortcut",
+                catLabel: "Shortcuts",
+                syntax: "Ctrl + Shift + L",
+                desc: "Turns filters on or off in the selected range.",
+                example: "Quick access to filter tables."
+            },
+            {
+                name: "AutoSum",
+                category: "shortcut",
+                catLabel: "Shortcuts",
+                syntax: "Alt + =",
+                desc: "Enters the SUM function automatically.",
+                example: "Instantly sums the column above."
+            },
+            {
+                name: "Edit Cell",
+                category: "shortcut",
+                catLabel: "Shortcuts",
+                syntax: "F2",
+                desc: "Edits the active cell and puts the insertion point at the end of its contents.",
+                example: "Allows editing parts of the formula without rewriting."
+            }
+        ];
+
+        // --- DOM Elements ---
+        const cardsGrid = document.getElementById('cardsGrid');
+        const searchInput = document.getElementById('searchInput');
+        const filterBtns = document.querySelectorAll('.filter-btn');
+        const noResults = document.getElementById('noResults');
+
+        let currentFilter = 'all';
+
+        // --- Render Function ---
+        function renderCards(data) {
+            cardsGrid.innerHTML = '';
+            
+            if (data.length === 0) {
+                noResults.style.display = 'block';
+                return;
+            } else {
+                noResults.style.display = 'none';
+            }
+
+            data.forEach(cmd => {
+                const isShortcut = cmd.category === 'shortcut';
+                const cardClass = isShortcut ? 'card shortcut-card' : 'card';
+                
+                let contentBlock = '';
+
+                if (isShortcut) {
+                    // Specific rendering for shortcuts
+                    contentBlock = `
+                        <div class="shortcut-keys">
+                            <span class="kbd">${cmd.syntax.replace(' / ', '</span><span class="kbd">').replace(' + ', '</span><span style="font-size:0.8em; display:flex;align-items:center;">+</span><span class="kbd">')}</span>
+                        </div>
+                    `;
+                } else {
+                    // Standard rendering for formulas
+                    contentBlock = `
+                        <div class="code-block">
+                            <span class="code-label">Syntax</span>
+                            ${cmd.syntax}
+                        </div>
+                        <div class="example-box">
+                            <span class="example-label">Practical Example</span>
+                            ${cmd.example}
+                        </div>
+                    `;
+                }
+
+                const cardHTML = `
+                    <article class="${cardClass}">
+                        <div class="card-header">
+                            <h3 class="card-title">
+                                ${isShortcut ? '<i class="fa-regular fa-keyboard"></i>' : '<i class="fa-solid fa-function"></i>'} 
+                                ${cmd.name}
+                            </h3>
+                            <span class="card-category">${cmd.catLabel}</span>
+                        </div>
+                        <p class="card-description">${cmd.desc}</p>
+                        ${contentBlock}
+                    </article>
+                `;
+                
+                cardsGrid.innerHTML += cardHTML;
+            });
+        }
+
+        // --- Filter Function ---
+        function filterData() {
+            const searchTerm = searchInput.value.toLowerCase();
+            
+            const filtered = commands.filter(cmd => {
+                const matchesCategory = currentFilter === 'all' || cmd.category === currentFilter;
+                const matchesSearch = 
+                    cmd.name.toLowerCase().includes(searchTerm) ||
+                    cmd.desc.toLowerCase().includes(searchTerm) ||
+                    cmd.syntax.toLowerCase().includes(searchTerm) ||
+                    cmd.example.toLowerCase().includes(searchTerm);
+
+                return matchesCategory && matchesSearch;
+            });
+
+            renderCards(filtered);
+        }
+
+        // --- Event Listeners ---
+        searchInput.addEventListener('input', filterData);
+
+        filterBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                filterBtns.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                currentFilter = btn.getAttribute('data-filter');
+                filterData();
+            });
+        });
+
+        // Initial Render
+        renderCards(commands);
+
+    </script>
+</body>
+</html>
