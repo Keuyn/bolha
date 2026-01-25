@@ -1,0 +1,844 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Microsoft Master | Guia Definitivo de Comandos</title>
+    <!-- Ícones -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Fonte Segoe UI (Standard Microsoft) e Roboto -->
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&family=Segoe+UI:wght@400;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            /* Cores Microsoft 365 */
+            --primary: #0078D4; /* Azul Padrão M365 */
+            --bg-body: #f3f2f1;
+            --bg-card: #ffffff;
+            --text-main: #323130;
+            --text-light: #605e5c;
+            --border: #e1dfdd;
+            --sidebar-width: 260px;
+            --header-height: 60px;
+            
+            /* Cores das Ferramentas */
+            --excel: #217346;
+            --word: #2b579a;
+            --ppt: #d24726;
+            --outlook: #0078d4;
+            --teams: #6264a7;
+            --onenote: #80397b;
+            --sharepoint: #0364b8;
+            --onedrive: #094ab2;
+            --powerbi: #f2c811;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Segoe UI', 'Roboto', sans-serif;
+            background-color: var(--bg-body);
+            color: var(--text-main);
+            overflow-x: hidden;
+        }
+
+        /* --- Layout Geral --- */
+        .app-container {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* --- Sidebar de Navegação --- */
+        .sidebar {
+            width: var(--sidebar-width);
+            background: #201f1e; /* Dark Microsoft Sidebar */
+            color: white;
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+            z-index: 1000;
+            transition: transform 0.3s ease;
+        }
+
+        .brand {
+            padding: 20px;
+            font-size: 1.2rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            border-bottom: 1px solid #3b3a39;
+        }
+
+        .nav-menu {
+            list-style: none;
+            padding: 10px 0;
+        }
+
+        .nav-item {
+            padding: 12px 20px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            transition: background 0.2s;
+            font-size: 0.95rem;
+        }
+
+        .nav-item:hover {
+            background: #3b3a39;
+        }
+
+        .nav-item.active {
+            background: var(--primary);
+            border-left: 4px solid white;
+        }
+
+        .nav-icon {
+            width: 20px;
+            text-align: center;
+        }
+
+        /* --- Conteúdo Principal --- */
+        .main-content {
+            margin-left: var(--sidebar-width);
+            flex: 1;
+            padding: 0;
+            min-height: 100vh;
+        }
+
+        /* --- Header Topo --- */
+        .top-bar {
+            background: white;
+            height: var(--header-height);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 30px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            position: sticky;
+            top: 0;
+            z-index: 900;
+        }
+
+        .breadcrumbs {
+            font-size: 0.9rem;
+            color: var(--text-light);
+        }
+        .breadcrumbs span {
+            margin: 0 5px;
+        }
+
+        .search-box {
+            position: relative;
+            width: 300px;
+        }
+
+        .search-box input {
+            width: 100%;
+            padding: 8px 15px 8px 35px;
+            border-radius: 4px;
+            border: 1px solid var(--border);
+            font-family: inherit;
+        }
+
+        .search-box i {
+            position: absolute;
+            left: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-light);
+        }
+
+        /* --- Páginas --- */
+        .page {
+            display: none; /* Esconde todas por padrão */
+            padding: 30px;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .page.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* --- HOME: Grid de Ferramentas --- */
+        .tools-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .tool-card {
+            background: white;
+            padding: 20px;
+            border-radius: 4px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            border-top: 4px solid transparent;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        .tool-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 15px rgba(0,0,0,0.1);
+        }
+
+        .tool-card i {
+            font-size: 2rem;
+            margin-bottom: 15px;
+        }
+
+        .tool-card h3 {
+            font-size: 1.2rem;
+            margin-bottom: 5px;
+        }
+
+        .tool-card p {
+            font-size: 0.85rem;
+            color: var(--text-light);
+            line-height: 1.4;
+        }
+
+        /* --- Tool Page Styles --- */
+        .tool-header {
+            background: white;
+            padding: 40px;
+            border-radius: 4px;
+            margin-bottom: 30px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            display: flex;
+            align-items: center;
+            gap: 30px;
+            border-left: 8px solid; /* Cor dinâmica via JS */
+        }
+
+        .tool-icon-lg {
+            font-size: 4rem;
+            opacity: 0.9;
+        }
+
+        .section-title {
+            font-size: 1.5rem;
+            margin: 40px 0 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid var(--border);
+            color: var(--text-main);
+        }
+
+        /* --- Command Card --- */
+        .commands-list {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .command-item {
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: 0.2s;
+        }
+
+        .command-item:hover {
+            border-color: var(--primary);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.05);
+        }
+
+        .cmd-left h4 {
+            font-size: 1.1rem;
+            margin-bottom: 5px;
+            color: var(--text-main);
+        }
+
+        .cmd-desc {
+            font-size: 0.9rem;
+            color: var(--text-light);
+        }
+
+        .cmd-right {
+            text-align: right;
+            min-width: 150px;
+        }
+
+        .kbd {
+            background: #f8f9fa;
+            border: 1px solid #d0d0d0;
+            border-bottom: 2px solid #b0b0b0;
+            border-radius: 4px;
+            padding: 4px 8px;
+            font-family: monospace;
+            font-weight: bold;
+            display: inline-block;
+            margin-bottom: 5px;
+            color: #333;
+        }
+
+        .formula-code {
+            font-family: Consolas, monospace;
+            color: #d63384;
+            font-size: 0.9rem;
+            background: #fff0f6;
+            padding: 4px 8px;
+            border-radius: 4px;
+            display: inline-block;
+        }
+
+        /* --- Mobile --- */
+        .mobile-toggle {
+            display: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            margin-right: 15px;
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-100%);
+            }
+            .sidebar.open {
+                transform: translateX(0);
+            }
+            .main-content {
+                margin-left: 0;
+            }
+            .mobile-toggle {
+                display: block;
+            }
+            .tool-header {
+                flex-direction: column;
+                text-align: center;
+                padding: 20px;
+            }
+        }
+
+        /* --- Scroll to top --- */
+        #scrollTopBtn {
+            display: none;
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            z-index: 99;
+            border: none;
+            outline: none;
+            background: var(--primary);
+            color: white;
+            cursor: pointer;
+            padding: 15px;
+            border-radius: 50%;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+            font-size: 1.2rem;
+        }
+    </style>
+</head>
+<body>
+
+<div class="app-container">
+    <!-- SIDEBAR -->
+    <nav class="sidebar" id="sidebar">
+        <div class="brand">
+            <i class="fa-brands fa-microsoft"></i> Microsoft Master
+        </div>
+        <ul class="nav-menu" id="navMenu">
+            <!-- Gerado via JS -->
+        </ul>
+    </nav>
+
+    <!-- MAIN CONTENT -->
+    <main class="main-content">
+        <!-- HEADER FIXO -->
+        <div class="top-bar">
+            <div style="display: flex; align-items: center;">
+                <i class="fa-solid fa-bars mobile-toggle" id="mobileToggle"></i>
+                <div class="breadcrumbs" id="breadcrumbs">Home</div>
+            </div>
+            <div class="search-box">
+                <i class="fa-solid fa-magnifying-glass"></i>
+                <input type="text" id="globalSearch" placeholder="Buscar em todo o portal...">
+            </div>
+        </div>
+
+        <!-- PÁGINA: HOME -->
+        <div id="home-page" class="page active">
+            <header style="padding: 40px 0; text-align: center;">
+                <h1 style="font-size: 2.5rem; margin-bottom: 10px;">Guia Completo de Comandos Microsoft</h1>
+                <p style="font-size: 1.2rem; color: var(--text-light);">Todas as ferramentas Microsoft em um só lugar. Selecione uma ferramenta para começar.</p>
+            </header>
+            
+            <div class="tools-grid" id="toolsGrid">
+                <!-- Cards gerados via JS -->
+            </div>
+        </div>
+
+        <!-- PÁGINA: FERRAMENTA GENÉRICA (Template) -->
+        <div id="tool-page" class="page">
+            <div id="toolContent">
+                <!-- Conteúdo injetado dinamicamente -->
+            </div>
+        </div>
+        
+        <!-- PÁGINA: RESULTADOS DE BUSCA -->
+        <div id="search-page" class="page">
+            <h2 class="section-title">Resultados da Busca</h2>
+            <div class="commands-list" id="searchResults"></div>
+        </div>
+
+    </main>
+</div>
+
+<button id="scrollTopBtn" title="Voltar ao topo"><i class="fa-solid fa-arrow-up"></i></button>
+
+<script>
+    // --- BANCO DE DADOS COMPLETO ---
+    const db = {
+        excel: {
+            name: "Microsoft Excel",
+            color: "var(--excel)",
+            icon: "fa-solid fa-table",
+            desc: "A ferramenta mais poderosa para análise de dados, planilhas e cálculos complexos.",
+            categories: [
+                {
+                    title: "Funções Essenciais",
+                    type: "formula",
+                    items: [
+                        { name: "PROCV", desc: "Procura um valor na primeira coluna e retorna um valor na mesma linha.", code: "=PROCV(valor; tabela; col_index; [falso])" },
+                        { name: "SOMASE", desc: "Soma valores que atendem a um critério específico.", code: "=SOMASE(intervalo; critério; [intervalo_soma])" },
+                        { name: "SE", desc: "Testa uma condição e retorna um valor se verdadeiro e outro se falso.", code: "=SE(teste; valor_se_verdadeiro; valor_se_falso)" },
+                        { name: "PROCX", desc: "A evolução do PROCV, busca em qualquer direção.", code: "=PROCX(valor_buscado; vetor_busca; vetor_retorno)" }
+                    ]
+                },
+                {
+                    title: "Atalhos de Teclado",
+                    type: "shortcut",
+                    items: [
+                        { name: "Soma Rápida", desc: "Soma os números acima da célula selecionada.", code: "Alt + =" },
+                        { name: "Editar Célula", desc: "Edita a célula ativa.", code: "F2" },
+                        { name: "Filtro", desc: "Ativa os filtros na tabela.", code: "Ctrl + Shift + L" },
+                        { name: "Selecionar Tudo", desc: "Seleciona todo o conteúdo.", code: "Ctrl + A" }
+                    ]
+                }
+            ]
+        },
+        word: {
+            name: "Microsoft Word",
+            color: "var(--word)",
+            icon: "fa-solid fa-file-word",
+            desc: "O processador de texto padrão para criação de documentos profissionais.",
+            categories: [
+                {
+                    title: "Formatação",
+                    type: "shortcut",
+                    items: [
+                        { name: "Negrito", desc: "Aplica negrito ao texto selecionado.", code: "Ctrl + N" },
+                        { name: "Itálico", desc: "Aplica itálico ao texto selecionado.", code: "Ctrl + I" },
+                        { name: "Sublinhado", desc: "Sublinha o texto selecionado.", code: "Ctrl + S" },
+                        { name: "Justificar", desc: "Alinha o texto nas margens esquerda e direita.", code: "Ctrl + J" }
+                    ]
+                },
+                {
+                    title: "Navegação",
+                    type: "shortcut",
+                    items: [
+                        { name: "Ir para o Início", desc: "Move o cursor para o início do documento.", code: "Ctrl + Home" },
+                        { name: "Ir para o Fim", desc: "Move o cursor para o fim do documento.", code: "Ctrl + End" },
+                        { name: "Copiar Formatação", desc: "Copia a formatação de um texto para aplicar em outro.", code: "Ctrl + Shift + C" }
+                    ]
+                }
+            ]
+        },
+        powerpoint: {
+            name: "Microsoft PowerPoint",
+            color: "var(--ppt)",
+            icon: "fa-solid fa-file-powerpoint",
+            desc: "Criação de apresentações visuais impactantes.",
+            categories: [
+                {
+                    title: "Apresentação",
+                    type: "shortcut",
+                    items: [
+                        { name: "Iniciar Apresentação", desc: "Começa a apresentação do slide atual.", code: "F5" },
+                        { name: "Apresentar a partir do atual", desc: "Começa a apresentação do slide atual.", code: "Shift + F5" },
+                        { name: "Tela Preta", desc: "Pausa a apresentação com tela preta.", code: "B" },
+                        { name: "Tela Branca", desc: "Pausa a apresentação com tela branca.", code: "W" }
+                    ]
+                },
+                {
+                    title: "Design",
+                    type: "shortcut",
+                    items: [
+                        { name: "Duplicar Slide", desc: "Duplica o slide selecionado.", code: "Ctrl + D" },
+                        { name: "Nova Slide", desc: "Adiciona um novo slide.", code: "Ctrl + M" }
+                    ]
+                }
+            ]
+        },
+        outlook: {
+            name: "Microsoft Outlook",
+            color: "var(--outlook)",
+            icon: "fa-solid fa-envelope",
+            desc: "Gestão de e-mails, calendários e contatos corporativos.",
+            categories: [
+                {
+                    title: "E-mail",
+                    type: "shortcut",
+                    items: [
+                        { name: "Novo E-mail", desc: "Abre uma janela para novo e-mail.", code: "Ctrl + Shift + M" },
+                        { name: "Responder", desc: "Responde ao remetente.", code: "Ctrl + R" },
+                        { name: "Encaminhar", desc: "Encaminha a mensagem.", code: "Ctrl + F" }
+                    ]
+                },
+                {
+                    title: "Calendário",
+                    type: "shortcut",
+                    items: [
+                        { name: "Ir para Calendário", desc: "Abre a visualização de calendário.", code: "Ctrl + 2" },
+                        { name: "Nova Reunião", desc: "Cria um novo convite de reunião.", code: "Ctrl + Shift + Q" }
+                    ]
+                }
+            ]
+        },
+        teams: {
+            name: "Microsoft Teams",
+            color: "var(--teams)",
+            icon: "fa-brands fa-microsoft",
+            desc: "Plataforma de colaboração e reuniões híbridas.",
+            categories: [
+                {
+                    title: "Reuniões",
+                    type: "shortcut",
+                    items: [
+                        { name: "Aceitar Chamada", desc: "Aceita uma chamada entrante.", code: "Ctrl + Shift + S" },
+                        { name: "Recusar Chamada", desc: "Recusa uma chamada entrante.", code: "Ctrl + Shift + D" },
+                        { name: "Silenciar", desc: "Liga/Desliga o microfone.", code: "Ctrl + Shift + M" }
+                    ]
+                }
+            ]
+        },
+        powerbi: {
+            name: "Microsoft Power BI",
+            color: "var(--powerbi)",
+            icon: "fa-solid fa-chart-pie",
+            desc: "Análise de dados avançada e business intelligence.",
+            categories: [
+                {
+                    title: "DAX",
+                    type: "formula",
+                    items: [
+                        { name: "CALCULAR", desc: "Avalia uma expressão em um contexto de filtro modificado.", code: "=CALCULAR([Medida]; FILTRO(Tabela; Tabela[Col] = 'X'))" },
+                        { name: "SOMARX", desc: "Itera uma tabela e soma os resultados de uma expressão.", code: "=SOMARX(Vendas; Vendas[Qtd] * Vendas[Preço])" }
+                    ]
+                }
+            ]
+        },
+        onedrive: {
+            name: "Microsoft OneDrive",
+            color: "var(--onedrive)",
+            icon: "fa-solid fa-cloud",
+            desc: "Armazenamento de arquivos na nuvem e sincronização.",
+            categories: [
+                {
+                    title: "Gerenciamento",
+                    type: "info",
+                    items: [
+                        { name: "Sincronização", desc: "Use o botão 'Sincronizar' na barra de ferramentas para baixar pastas para o PC.", code: "Interface do Botão" },
+                        { name: "Compartilhar", desc: "Clique com o botão direito no arquivo > Compartilhar.", code: "Menu de Contexto" }
+                    ]
+                }
+            ]
+        },
+        sharepoint: {
+            name: "Microsoft SharePoint",
+            color: "var(--sharepoint)",
+            icon: "fa-brands fa-microsoft", 
+            desc: "Plataforma para intranet e gestão de documentos.",
+            categories: [
+                {
+                    title: "Administração",
+                    type: "info",
+                    items: [
+                        { name: "Permissões", desc: "Gerencie quem pode visualizar ou editar as bibliotecas.", code: "Guia Compartilhar > Permissões de Biblioteca" },
+                        { name: "Versões", desc: "Visualize o histórico de versões dos documentos.", code: "Guia Arquivo > Histórico de Versões" }
+                    ]
+                }
+            ]
+        },
+        onenote: {
+            name: "Microsoft OneNote",
+            color: "var(--onenote)",
+            icon: "fa-solid fa-book-open",
+            desc: "Anotações digitais e organização de ideias.",
+            categories: [
+                {
+                    title: "Anotação",
+                    type: "shortcut",
+                    items: [
+                        { name: "Nova Página", desc: "Cria uma nova página abaixo da atual.", code: "Ctrl + N" },
+                        { name: "Mover Página para Baixo", desc: "Move a aba da página.", code: "Ctrl + Alt + Down" }
+                    ]
+                }
+            ]
+        }
+    };
+
+    // --- INICIALIZAÇÃO E NAVEGAÇÃO ---
+    const navMenu = document.getElementById('navMenu');
+    const toolsGrid = document.getElementById('toolsGrid');
+    const mobileToggle = document.getElementById('mobileToggle');
+    const sidebar = document.getElementById('sidebar');
+    const breadcrumbs = document.getElementById('breadcrumbs');
+
+    // Renderizar Menu e Home
+    function init() {
+        // Adicionar Home ao menu
+        navMenu.innerHTML += `<li class="nav-item active" onclick="navigateTo('home')"><div class="nav-icon"><i class="fa-solid fa-house"></i></div> Home</li>`;
+
+        // Loop para criar itens de menu e cards
+        for (const key in db) {
+            const tool = db[key];
+            
+            // Sidebar Item
+            const li = document.createElement('li');
+            li.className = 'nav-item';
+            li.onclick = () => navigateTo(key);
+            li.innerHTML = `<div class="nav-icon"><i class="${tool.icon}" style="color: ${tool.color}"></i></div> ${tool.name}`;
+            li.id = `nav-${key}`;
+            navMenu.appendChild(li);
+
+            // Home Card
+            const card = document.createElement('div');
+            card.className = 'tool-card';
+            card.style.borderTopColor = tool.color;
+            card.onclick = () => navigateTo(key);
+            card.innerHTML = `
+                <i class="${tool.icon}" style="color: ${tool.color}"></i>
+                <h3>${tool.name}</h3>
+                <p>${tool.desc}</p>
+            `;
+            toolsGrid.appendChild(card);
+        }
+
+        // Verificar URL Hash ao carregar
+        const hash = window.location.hash.replace('#', '');
+        if (hash && db[hash]) {
+            navigateTo(hash);
+        }
+    }
+
+    // Função de Roteamento (Fake Routing)
+    function navigateTo(pageId) {
+        // Atualizar URL sem recarregar
+        window.location.hash = pageId;
+
+        // Atualizar Menu Active
+        document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
+        const activeNav = document.getElementById(`nav-${pageId}`);
+        if (activeNav) activeNav.classList.add('active');
+        else if (pageId === 'home') document.querySelector('.nav-item').classList.add('active');
+
+        // Esconder todas as páginas
+        document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+
+        // Lógica de Exibição
+        if (pageId === 'home') {
+            document.getElementById('home-page').classList.add('active');
+            breadcrumbs.innerHTML = 'Home';
+        } else if (pageId === 'search') {
+            document.getElementById('search-page').classList.add('active');
+            breadcrumbs.innerHTML = 'Home > Busca Global';
+        } else {
+            renderToolPage(pageId);
+        }
+
+        // Fechar menu mobile se aberto
+        if (window.innerWidth <= 768) {
+            sidebar.classList.remove('open');
+        }
+        window.scrollTo(0,0);
+    }
+
+    // Renderizar Página da Ferramenta
+    function renderToolPage(key) {
+        const tool = db[key];
+        const contentDiv = document.getElementById('toolContent');
+        
+        breadcrumbs.innerHTML = `Home > ${tool.name}`;
+        
+        let categoriesHTML = '';
+        
+        tool.categories.forEach(cat => {
+            let itemsHTML = '';
+            
+            cat.items.forEach(item => {
+                if(cat.type === 'formula') {
+                    itemsHTML += `
+                        <div class="command-item">
+                            <div class="cmd-left">
+                                <h4>${item.name}</h4>
+                                <p class="cmd-desc">${item.desc}</p>
+                            </div>
+                            <div class="cmd-right">
+                                <span class="formula-code">${item.code}</span>
+                            </div>
+                        </div>
+                    `;
+                } else if (cat.type === 'shortcut') {
+                    itemsHTML += `
+                        <div class="command-item">
+                            <div class="cmd-left">
+                                <h4>${item.name}</h4>
+                                <p class="cmd-desc">${item.desc}</p>
+                            </div>
+                            <div class="cmd-right">
+                                <span class="kbd">${item.code}</span>
+                            </div>
+                        </div>
+                    `;
+                } else {
+                    // Info geral
+                    itemsHTML += `
+                        <div class="command-item">
+                            <div class="cmd-left">
+                                <h4>${item.name}</h4>
+                                <p class="cmd-desc">${item.desc}</p>
+                            </div>
+                            <div class="cmd-right" style="color: var(--primary); font-size: 0.9rem;">
+                                ${item.code}
+                            </div>
+                        </div>
+                    `;
+                }
+            });
+
+            categoriesHTML += `
+                <h2 class="section-title">${cat.title}</h2>
+                <div class="commands-list">
+                    ${itemsHTML}
+                </div>
+            `;
+        });
+
+        const pageHTML = `
+            <div class="tool-header" style="border-color: ${tool.color}">
+                <i class="${tool.icon} tool-icon-lg" style="color: ${tool.color}"></i>
+                <div>
+                    <h1 style="color: ${tool.color}; font-size: 2.5rem; margin-bottom: 5px;">${tool.name}</h1>
+                    <p style="font-size: 1.1rem; color: var(--text-light); max-width: 600px;">${tool.desc}</p>
+                </div>
+            </div>
+            ${categoriesHTML}
+        `;
+
+        contentDiv.innerHTML = pageHTML;
+        document.getElementById('tool-page').classList.add('active');
+    }
+
+    // --- FUNÇÃO DE BUSCA GLOBAL ---
+    const searchInput = document.getElementById('globalSearch');
+    
+    searchInput.addEventListener('input', (e) => {
+        const query = e.target.value.toLowerCase();
+        if (query.length < 2) {
+            if (window.location.hash === '#search') {
+                navigateTo('home');
+            }
+            return;
+        }
+
+        const results = [];
+        
+        // Varre todo o DB
+        for (const key in db) {
+            const tool = db[key];
+            tool.categories.forEach(cat => {
+                cat.items.forEach(item => {
+                    // Verifica nome, descrição e código
+                    if (item.name.toLowerCase().includes(query) || 
+                        item.desc.toLowerCase().includes(query) || 
+                        item.code.toLowerCase().includes(query)) {
+                        
+                        results.push({
+                            toolName: tool.name,
+                            toolColor: tool.color,
+                            catTitle: cat.title,
+                            item: item,
+                            type: cat.type
+                        });
+                    }
+                });
+            });
+        }
+
+        renderSearchResults(results);
+    });
+
+    function renderSearchResults(results) {
+        navigateTo('search');
+        const container = document.getElementById('searchResults');
+        
+        if (results.length === 0) {
+            container.innerHTML = '<p style="text-align:center; padding: 20px; color: var(--text-light)">Nenhum comando encontrado.</p>';
+            return;
+        }
+
+        let html = '';
+        results.forEach(r => {
+            let codeDisplay = '';
+            if (r.type === 'formula') codeDisplay = `<span class="formula-code">${r.item.code}</span>`;
+            else if (r.type === 'shortcut') codeDisplay = `<span class="kbd">${r.item.code}</span>`;
+            else codeDisplay = `<span style="color: ${r.toolColor}">${r.item.code}</span>`;
+
+            html += `
+                <div class="command-item" style="border-left: 4px solid ${r.toolColor}">
+                    <div class="cmd-left">
+                        <h4>${r.item.name} <small style="color:${r.toolColor}; font-weight:400; font-size:0.8em">(${r.toolName})</small></h4>
+                        <p class="cmd-desc">${r.item.desc} <br><small style="opacity:0.7">Categoria: ${r.catTitle}</small></p>
+                    </div>
+                    <div class="cmd-right">
+                        ${codeDisplay}
+                    </div>
+                </div>
+            `;
+        });
+        container.innerHTML = html;
+    }
+
+    // --- EVENTOS UTILITÁRIOS ---
+    mobileToggle.addEventListener('click', () => {
+        sidebar.classList.toggle('open');
+    });
+
+    window.onscroll = function() {
+        const btn = document.getElementById("scrollTopBtn");
+        if (document.body.scrollTop > 200 || document.documentElement.scrollTop > 200) {
+            btn.style.display = "block";
+        } else {
+            btn.style.display = "none";
+        }
+    };
+
+    document.getElementById("scrollTopBtn").addEventListener("click", function() {
+        window.scrollTo({top: 0, behavior: 'smooth'});
+    });
+
+    // Iniciar App
+    init();
+
+</script>
+</body>
+</html>
