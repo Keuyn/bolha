@@ -3,842 +3,620 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Microsoft Master | Guia Definitivo de Comandos</title>
-    <!-- Ícones -->
+    <title>Guia Definitivo Microsoft 365 | Comandos e Recursos</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Segoe+UI:wght@300;400;600;700&family=Roboto+Mono:wght@400;500&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Fonte Segoe UI (Standard Microsoft) e Roboto -->
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&family=Segoe+UI:wght@400;600;700&display=swap" rel="stylesheet">
 
     <style>
         :root {
-            /* Cores Microsoft 365 */
-            --primary: #0078D4; /* Azul Padrão M365 */
-            --bg-body: #f3f2f1;
-            --bg-card: #ffffff;
-            --text-main: #323130;
-            --text-light: #605e5c;
-            --border: #e1dfdd;
-            --sidebar-width: 260px;
-            --header-height: 60px;
+            --excel-color: #217346;
+            --word-color: #2B579A;
+            --ppt-color: #D24726;
+            --outlook-color: #0078D4;
+            --teams-color: #6264A7;
+            --sharepoint-color: #0078D4;
+            --onedrive-color: #094AB2;
+            --access-color: #A4373A;
+            --powerbi-color: #F2C811;
+            --forms-color: #D83B01;
+            --planner-color: #2563EB;
+            --todo-color: #2868C9;
+            --office-color: #F25022;
             
-            /* Cores das Ferramentas */
-            --excel: #217346;
-            --word: #2b579a;
-            --ppt: #d24726;
-            --outlook: #0078d4;
-            --teams: #6264a7;
-            --onenote: #80397b;
-            --sharepoint: #0364b8;
-            --onedrive: #094ab2;
-            --powerbi: #f2c811;
+            --bg-body: #f3f2f1;
+            --bg-sidebar: #201f1e;
+            --bg-card: #ffffff;
+            --text-primary: #201f1e;
+            --text-secondary: #605e5c;
+            --border-color: #edebe9;
+            --shadow: 0 1.6px 3.6px 0 rgba(0,0,0,0.132), 0 0.3px 0.9px 0 rgba(0,0,0,0.108);
+            --radius: 6px;
         }
 
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', sans-serif; background: var(--bg-body); color: var(--text-primary); height: 100vh; overflow: hidden; display: flex; }
+        
+        #sidebar { width: 280px; background: var(--bg-sidebar); color: white; display: flex; flex-direction: column; transition: transform 0.3s ease; z-index: 100; }
+        #main-content { flex: 1; display: flex; flex-direction: column; overflow: hidden; position: relative; }
+        #scroll-area { flex: 1; overflow-y: auto; padding: 2rem; }
 
-        body {
-            font-family: 'Segoe UI', 'Roboto', sans-serif;
-            background-color: var(--bg-body);
-            color: var(--text-main);
-            overflow-x: hidden;
-        }
+        /* --- Sidebar --- */
+        .brand { padding: 20px; font-size: 1.2rem; font-weight: 700; display: flex; align-items: center; gap: 10px; border-bottom: 1px solid rgba(255,255,255,0.1); }
+        .nav-menu { flex: 1; padding: 10px 0; overflow-y: auto; }
+        .nav-item { padding: 12px 20px; cursor: pointer; display: flex; align-items: center; gap: 12px; color: #ccc; transition: all 0.2s; font-size: 0.9rem; border-left: 3px solid transparent; }
+        .nav-item:hover { background: rgba(255,255,255,0.1); color: white; }
+        .nav-item.active { background: white; color: var(--excel-color); font-weight: 600; border-left-color: var(--excel-color); }
+        
+        /* Header */
+        header { background: white; padding: 1rem 2rem; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; }
+        .breadcrumbs { font-size: 0.9rem; color: var(--text-secondary); font-weight: 500; }
+        .search-bar { position: relative; width: 400px; }
+        .search-bar input { width: 100%; padding: 8px 16px 8px 40px; border: 1px solid var(--border-color); border-radius: 4px; font-family: inherit; }
+        .search-bar i { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(--text-secondary); }
 
-        /* --- Layout Geral --- */
-        .app-container {
-            display: flex;
-            min-height: 100vh;
-        }
+        /* --- Grids & Cards --- */
+        .dashboard-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 20px; animation: fadeIn 0.5s ease; }
+        .tool-card { background: white; border: 1px solid var(--border-color); border-radius: var(--radius); padding: 20px; cursor: pointer; transition: all 0.2s; display: flex; flex-direction: column; gap: 10px; }
+        .tool-card:hover { transform: translateY(-3px); box-shadow: var(--shadow); border-color: var(--office-color); }
+        .tool-icon { font-size: 2.2rem; }
+        .tool-title { font-weight: 600; font-size: 1rem; }
+        .tool-desc { font-size: 0.85rem; color: var(--text-secondary); }
 
-        /* --- Sidebar de Navegação --- */
-        .sidebar {
-            width: var(--sidebar-width);
-            background: #201f1e; /* Dark Microsoft Sidebar */
-            color: white;
-            position: fixed;
-            height: 100vh;
-            overflow-y: auto;
-            z-index: 1000;
-            transition: transform 0.3s ease;
-        }
+        /* --- Tool Page --- */
+        .tool-header { margin-bottom: 2rem; padding-bottom: 1rem; border-bottom: 2px solid var(--border-color); display: flex; align-items: center; gap: 20px; }
+        .tool-header h1 { margin: 0; font-size: 2rem; }
+        .tool-header i { font-size: 2.5rem; color: var(--excel-color); }
+        
+        .sub-nav { display: flex; gap: 8px; margin-bottom: 20px; flex-wrap: wrap; }
+        .sub-nav button { padding: 8px 16px; background: transparent; border: 1px solid var(--border-color); border-radius: 4px; cursor: pointer; font-weight: 500; color: var(--text-secondary); }
+        .sub-nav button.active { background: var(--text-primary); color: white; border-color: var(--text-primary); }
 
-        .brand {
-            padding: 20px;
-            font-size: 1.2rem;
-            font-weight: 700;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            border-bottom: 1px solid #3b3a39;
-        }
+        .command-list { display: grid; gap: 10px; }
+        .command-card { background: white; padding: 12px 15px; border-left: 4px solid transparent; border-radius: 4px; box-shadow: 0 1px 2px rgba(0,0,0,0.05); display: grid; grid-template-columns: 220px 1fr; gap: 20px; }
+        .command-key { font-family: 'Roboto Mono', monospace; font-weight: 500; color: var(--text-secondary); font-size: 0.9rem; word-break: break-all; }
+        .command-info h4 { margin-bottom: 3px; font-weight: 600; font-size: 0.95rem; }
+        .command-info p { font-size: 0.85rem; color: var(--text-secondary); line-height: 1.4; }
+        .shortcut-kbd { background: #eef; border: 1px solid #dde; padding: 1px 5px; border-radius: 3px; font-family: 'Roboto Mono', monospace; font-size: 0.85em; }
 
-        .nav-menu {
-            list-style: none;
-            padding: 10px 0;
-        }
-
-        .nav-item {
-            padding: 12px 20px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            transition: background 0.2s;
-            font-size: 0.95rem;
-        }
-
-        .nav-item:hover {
-            background: #3b3a39;
-        }
-
-        .nav-item.active {
-            background: var(--primary);
-            border-left: 4px solid white;
-        }
-
-        .nav-icon {
-            width: 20px;
-            text-align: center;
-        }
-
-        /* --- Conteúdo Principal --- */
-        .main-content {
-            margin-left: var(--sidebar-width);
-            flex: 1;
-            padding: 0;
-            min-height: 100vh;
-        }
-
-        /* --- Header Topo --- */
-        .top-bar {
-            background: white;
-            height: var(--header-height);
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 0 30px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
-            position: sticky;
-            top: 0;
-            z-index: 900;
-        }
-
-        .breadcrumbs {
-            font-size: 0.9rem;
-            color: var(--text-light);
-        }
-        .breadcrumbs span {
-            margin: 0 5px;
-        }
-
-        .search-box {
-            position: relative;
-            width: 300px;
-        }
-
-        .search-box input {
-            width: 100%;
-            padding: 8px 15px 8px 35px;
-            border-radius: 4px;
-            border: 1px solid var(--border);
-            font-family: inherit;
-        }
-
-        .search-box i {
-            position: absolute;
-            left: 10px;
-            top: 50%;
-            transform: translateY(-50%);
-            color: var(--text-light);
-        }
-
-        /* --- Páginas --- */
-        .page {
-            display: none; /* Esconde todas por padrão */
-            padding: 30px;
-            animation: fadeIn 0.3s ease;
-        }
-
-        .page.active {
-            display: block;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        /* --- HOME: Grid de Ferramentas --- */
-        .tools-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-            gap: 20px;
-            margin-top: 20px;
-        }
-
-        .tool-card {
-            background: white;
-            padding: 20px;
-            border-radius: 4px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
-            cursor: pointer;
-            transition: transform 0.2s, box-shadow 0.2s;
-            border-top: 4px solid transparent;
-            display: flex;
-            flex-direction: column;
-            align-items: flex-start;
-        }
-
-        .tool-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 8px 15px rgba(0,0,0,0.1);
-        }
-
-        .tool-card i {
-            font-size: 2rem;
-            margin-bottom: 15px;
-        }
-
-        .tool-card h3 {
-            font-size: 1.2rem;
-            margin-bottom: 5px;
-        }
-
-        .tool-card p {
-            font-size: 0.85rem;
-            color: var(--text-light);
-            line-height: 1.4;
-        }
-
-        /* --- Tool Page Styles --- */
-        .tool-header {
-            background: white;
-            padding: 40px;
-            border-radius: 4px;
-            margin-bottom: 30px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
-            display: flex;
-            align-items: center;
-            gap: 30px;
-            border-left: 8px solid; /* Cor dinâmica via JS */
-        }
-
-        .tool-icon-lg {
-            font-size: 4rem;
-            opacity: 0.9;
-        }
-
-        .section-title {
-            font-size: 1.5rem;
-            margin: 40px 0 20px;
-            padding-bottom: 10px;
-            border-bottom: 2px solid var(--border);
-            color: var(--text-main);
-        }
-
-        /* --- Command Card --- */
-        .commands-list {
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-        }
-
-        .command-item {
-            background: white;
-            border: 1px solid var(--border);
-            border-radius: 6px;
-            padding: 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            transition: 0.2s;
-        }
-
-        .command-item:hover {
-            border-color: var(--primary);
-            box-shadow: 0 4px 8px rgba(0,0,0,0.05);
-        }
-
-        .cmd-left h4 {
-            font-size: 1.1rem;
-            margin-bottom: 5px;
-            color: var(--text-main);
-        }
-
-        .cmd-desc {
-            font-size: 0.9rem;
-            color: var(--text-light);
-        }
-
-        .cmd-right {
-            text-align: right;
-            min-width: 150px;
-        }
-
-        .kbd {
-            background: #f8f9fa;
-            border: 1px solid #d0d0d0;
-            border-bottom: 2px solid #b0b0b0;
-            border-radius: 4px;
-            padding: 4px 8px;
-            font-family: monospace;
-            font-weight: bold;
-            display: inline-block;
-            margin-bottom: 5px;
-            color: #333;
-        }
-
-        .formula-code {
-            font-family: Consolas, monospace;
-            color: #d63384;
-            font-size: 0.9rem;
-            background: #fff0f6;
-            padding: 4px 8px;
-            border-radius: 4px;
-            display: inline-block;
-        }
-
-        /* --- Mobile --- */
-        .mobile-toggle {
-            display: none;
-            font-size: 1.5rem;
-            cursor: pointer;
-            margin-right: 15px;
-        }
-
+        .menu-toggle { display: none; font-size: 1.5rem; background: none; border: none; cursor: pointer; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         @media (max-width: 768px) {
-            .sidebar {
-                transform: translateX(-100%);
-            }
-            .sidebar.open {
-                transform: translateX(0);
-            }
-            .main-content {
-                margin-left: 0;
-            }
-            .mobile-toggle {
-                display: block;
-            }
-            .tool-header {
-                flex-direction: column;
-                text-align: center;
-                padding: 20px;
-            }
-        }
-
-        /* --- Scroll to top --- */
-        #scrollTopBtn {
-            display: none;
-            position: fixed;
-            bottom: 30px;
-            right: 30px;
-            z-index: 99;
-            border: none;
-            outline: none;
-            background: var(--primary);
-            color: white;
-            cursor: pointer;
-            padding: 15px;
-            border-radius: 50%;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
-            font-size: 1.2rem;
+            #sidebar { position: absolute; height: 100%; transform: translateX(-100%); }
+            #sidebar.open { transform: translateX(0); }
+            .menu-toggle { display: block; }
+            .search-bar { width: 150px; }
+            .command-card { grid-template-columns: 1fr; }
         }
     </style>
 </head>
 <body>
 
-<div class="app-container">
-    <!-- SIDEBAR -->
-    <nav class="sidebar" id="sidebar">
+    <nav id="sidebar">
         <div class="brand">
-            <i class="fa-brands fa-microsoft"></i> Microsoft Master
+            <i class="fa-brands fa-microsoft"></i> MS Portal
         </div>
-        <ul class="nav-menu" id="navMenu">
-            <!-- Gerado via JS -->
-        </ul>
+        <div class="nav-menu" id="navMenu"></div>
     </nav>
 
-    <!-- MAIN CONTENT -->
-    <main class="main-content">
-        <!-- HEADER FIXO -->
-        <div class="top-bar">
-            <div style="display: flex; align-items: center;">
-                <i class="fa-solid fa-bars mobile-toggle" id="mobileToggle"></i>
+    <div id="main-content">
+        <header>
+            <div style="display: flex; align-items: center; gap: 15px;">
+                <button class="menu-toggle" id="menuToggle"><i class="fa-solid fa-bars"></i></button>
                 <div class="breadcrumbs" id="breadcrumbs">Home</div>
             </div>
-            <div class="search-box">
-                <i class="fa-solid fa-magnifying-glass"></i>
-                <input type="text" id="globalSearch" placeholder="Buscar em todo o portal...">
+            <div class="search-bar">
+                <i class="fa-solid fa-search"></i>
+                <input type="text" id="globalSearch" placeholder="Busca (ex: Ctrl+C, SOMA, DAX)...">
             </div>
+        </header>
+
+        <div id="scroll-area">
+            <div id="app-container"></div>
         </div>
+    </div>
 
-        <!-- PÁGINA: HOME -->
-        <div id="home-page" class="page active">
-            <header style="padding: 40px 0; text-align: center;">
-                <h1 style="font-size: 2.5rem; margin-bottom: 10px;">Guia Completo de Comandos Microsoft</h1>
-                <p style="font-size: 1.2rem; color: var(--text-light);">Todas as ferramentas Microsoft em um só lugar. Selecione uma ferramenta para começar.</p>
-            </header>
-            
-            <div class="tools-grid" id="toolsGrid">
-                <!-- Cards gerados via JS -->
-            </div>
-        </div>
-
-        <!-- PÁGINA: FERRAMENTA GENÉRICA (Template) -->
-        <div id="tool-page" class="page">
-            <div id="toolContent">
-                <!-- Conteúdo injetado dinamicamente -->
-            </div>
-        </div>
-        
-        <!-- PÁGINA: RESULTADOS DE BUSCA -->
-        <div id="search-page" class="page">
-            <h2 class="section-title">Resultados da Busca</h2>
-            <div class="commands-list" id="searchResults"></div>
-        </div>
-
-    </main>
-</div>
-
-<button id="scrollTopBtn" title="Voltar ao topo"><i class="fa-solid fa-arrow-up"></i></button>
-
-<script>
-    // --- BANCO DE DADOS COMPLETO ---
-    const db = {
-        excel: {
-            name: "Microsoft Excel",
-            color: "var(--excel)",
-            icon: "fa-solid fa-table",
-            desc: "A ferramenta mais poderosa para análise de dados, planilhas e cálculos complexos.",
-            categories: [
-                {
-                    title: "Funções Essenciais",
-                    type: "formula",
-                    items: [
-                        { name: "PROCV", desc: "Procura um valor na primeira coluna e retorna um valor na mesma linha.", code: "=PROCV(valor; tabela; col_index; [falso])" },
-                        { name: "SOMASE", desc: "Soma valores que atendem a um critério específico.", code: "=SOMASE(intervalo; critério; [intervalo_soma])" },
-                        { name: "SE", desc: "Testa uma condição e retorna um valor se verdadeiro e outro se falso.", code: "=SE(teste; valor_se_verdadeiro; valor_se_falso)" },
-                        { name: "PROCX", desc: "A evolução do PROCV, busca em qualquer direção.", code: "=PROCX(valor_buscado; vetor_busca; vetor_retorno)" }
+    <script>
+        // --- BASE DE DADOS EXPANDIDA (DEFINITIVA) ---
+        // Nota: A documentação completa da MS tem milhões de caracteres. 
+        // Esta lista contém os comandos mais críticos e usados diariamente para todas as ferramentas.
+        const microsoftData = {
+            id: 'home',
+            tools: {
+                excel: {
+                    name: 'Microsoft Excel',
+                    icon: 'fa-table',
+                    color: 'var(--excel-color)',
+                    desc: 'Planilhas avançadas e análise de dados.',
+                    categories: [
+                        {
+                            name: 'Fórmulas: Matemática e Estatística',
+                            items: [
+                                { key: 'SOMA', desc: 'Soma os valores.', ex: '=SOMA(A1:A10)' },
+                                { key: 'MÉDIA', desc: 'Calcula a média.', ex: '=MÉDIA(A1:A10)' },
+                                { key: 'MEDIANA', desc: 'Retorna a mediana.', ex: '=MEDIANA(A1:A10)' },
+                                { key: 'MODO.SNGL', desc: 'Retorna o valor mais frequente.', ex: '=MODO.SNGL(A1:A10)' },
+                                { key: 'MÁXIMO', desc: 'Maior valor.', ex: '=MÁXIMO(A1:A10)' },
+                                { key: 'MÍNIMO', desc: 'Menor valor.', ex: '=MÍNIMO(A1:A10)' },
+                                { key: 'CONT.NUM', desc: 'Conta células com números.', ex: '=CONT.NUM(A1:A10)' },
+                                { key: 'CONT.VALORES', desc: 'Contas células não vazias.', ex: '=CONT.VALORES(A1:A10)' },
+                                { key: 'CONT.SE', desc: 'Contagem condicional.', ex: '=CONT.SE(A:A; ">10")' },
+                                { key: 'SOMASE', desc: 'Soma condicional.', ex: '=SOMASE(A:A; "Vendas"; B:B)' },
+                                { key: 'SOMASES', desc: 'Soma com múltiplos critérios.', ex: '=SOMASES(B:B; A:A; "Norte"; C:C; ">100")' },
+                                { key: 'CONT.SES', desc: 'Contagem com múltiplos critérios.', ex: '=CONT.SES(A:A; "Norte"; B:B; ">10")' },
+                                { key: 'MÉDIASE', desc: 'Média com múltiplos critérios.', ex: '=MÉDIASE(B:B; A:A; "Vendas")' },
+                                { key: 'ARRED', desc: 'Arredonda casas decimais.', ex: '=ARRED(A1; 2)' },
+                                { key: 'ARRED.PARA.CIMA', desc: 'Arredonda para cima.', ex: '=ARRED.PARA.CIMA(3.2; 0)' },
+                                { key: 'ARRED.PARA.BAIXO', desc: 'Arredonda para baixo.', ex: '=ARRED.PARA.BAIXO(3.9; 0)' },
+                                { key: 'INT', desc: 'Arredonda para baixo para inteiro.', ex: '=INT(9.9)' },
+                                { key: 'RAIZ', desc: 'Raiz quadrada.', ex: '=RAIZ(64)' },
+                                { key: 'POTÊNCIA', desc: 'Exponenciação.', ex: '=POTÊNCIA(5; 2)' },
+                                { key: 'PRODUTO', desc: 'Multiplica valores.', ex: '=PRODUTO(A1:A10)' },
+                                { key: 'SOMAPRODUTO', desc: 'Soma de produtos de matrizes.', ex: '=SOMAPRODUTO(A1:A10; B1:B10)' },
+                                { key: 'DESVPAD.P', desc: 'Desvio padrão (População).', ex: '=DESVPAD.P(A1:A10)' },
+                                { key: 'DESVPAD.AM', desc: 'Desvio padrão (Amostra).', ex: '=DESVPAD.AM(A1:A10)' }
+                            ]
+                        },
+                        {
+                            name: 'Fórmulas: Lógica e Busca',
+                            items: [
+                                { key: 'SE', desc: 'Condicional básica.', ex: '=SE(A1>10; "Sim"; "Não")' },
+                                { key: 'E', desc: 'Operador lógico AND.', ex: '=E(A1>1; A1<10)' },
+                                { key: 'OU', desc: 'Operador lógico OR.', ex: '=OU(A1=1; A1=2)' },
+                                { key: 'NÃO', desc: 'Inverte lógica.', ex: '=NÃO(A1=1)' },
+                                { key: 'SEERRO', desc: 'Trata erros.', ex: '=SEERRO(A1/B1; 0)' },
+                                { key: 'PROCV', desc: 'Busca Vertical (Clássico).', ex: '=PROCV("João"; A:D; 2; FALSO)' },
+                                { key: 'PROCH', desc: 'Busca Horizontal.', ex: '=PROCH("Jan"; A1:D3; 2; FALSO)' },
+                                { key: 'PROCX', desc: 'Busca bidimensional (Moderno).', ex: '=PROCX(E2; A2:A10; C2:C10; "Não encontrado")' },
+                                { key: 'CORRESP', desc: 'Retorna posição do item.', ex: '=CORRESP("Maçã"; A1:A10; 0)' },
+                                { key: 'ÍNDICE', desc: 'Retorna valor por coordenadas.', ex: '=ÍNDICE(A1:C10; 5; 2)' },
+                                { key: 'INDIRETO', desc: 'Converte texto em referência.', ex: '=INDIRETO("A" & B1)' },
+                                { key: 'DESLOC', desc: 'Retorna referência deslocada.', ex: '=DESLOC(A1; 1; 0; 5; 1)' }
+                            ]
+                        },
+                        {
+                            name: 'Fórmulas: Texto e Data',
+                            items: [
+                                { key: 'ESQUERDA', desc: 'Primeiros caracteres.', ex: '=ESQUERDA(A1; 3)' },
+                                { key: 'DIREITA', desc: 'Últimos caracteres.', ex: '=DIREITA(A1; 3)' },
+                                { key: 'EXT.TEXTO', desc: 'Texto do meio.', ex: '=EXT.TEXTO(A1; 2; 5)' },
+                                { key: 'NÚM.CARACT', desc: 'Conta caracteres.', ex: '=NÚM.CARACT(A1)' },
+                                { key: 'LOCALIZAR', desc: 'Posição de texto.', ex: '=LOCALIZAR("a"; "Banana")' },
+                                { key: 'SUBSTITUIR', desc: 'Troca texto.', ex: '=SUBSTITUIR(A1; "antigo"; "novo")' },
+                                { key: 'MAIÚSCULA', desc: 'Texto em caixa alta.', ex: '=MAIÚSCULA(A1)' },
+                                { key: 'MINÚSCULA', desc: 'Texto em caixa baixa.', ex: '=MINÚSCULA(A1)' },
+                                { key: 'PRI.MAIÚSCULA', desc: 'Primeira letra maiúscula.', ex: '=PRI.MAIÚSCULA(A1)' },
+                                { key: 'HOJE', desc: 'Data atual.', ex: '=HOJE()' },
+                                { key: 'AGORA', desc: 'Data e hora atual.', ex: '=AGORA()' },
+                                { key: 'DATA', desc: 'Cria data.', ex: '=DATA(2023;12;25)' },
+                                { key: 'DIA', desc: 'Dia do mês.', ex: '=DIA(A1)' },
+                                { key: 'MÊS', desc: 'Mês do ano.', ex: '=MÊS(A1)' },
+                                { key: 'ANO', desc: 'Ano.', ex: '=ANO(A1)' },
+                                { key: 'DIAS', desc: 'Dias entre datas.', ex: '=DIAS(B1; A1)' },
+                                { key: 'DIATRABALHOTOTAL', desc: 'Dias úteis.', ex: '=DIATRABALHOTOTAL(A1; B1)' },
+                                { key: 'FIMMÊS', desc: 'Último dia do mês.', ex: '=FIMMÊS(A1; 0)' }
+                            ]
+                        },
+                        {
+                            name: 'Fórmulas: Matrizes Dinâmicas (365)',
+                            items: [
+                                { key: 'ÚNICO', desc: 'Remove duplicatas.', ex: '=ÚNICO(A1:A20)' },
+                                { key: 'FILTRO', desc: 'Filtra dados.', ex: '=FILTRO(A:B; B:B>100)' },
+                                { key: 'CLASSIFICAR', desc: 'Ordena dados.', ex: '=CLASSIFICAR(A:B; 2; 1)' },
+                                { key: 'SEQUÊNCIA', desc: 'Gera lista de números.', ex: '=SEQUÊNCIA(10; 1)' },
+                                { key: 'LET', desc: 'Define variáveis no cálculo.', ex: '=LET(x; 10; x*x)' },
+                                { key: 'AMPLIAR', desc: 'Expande array.', ex: '=AMPLIAR(A1:B10; 2; 2)' },
+                                { key: 'JUNTAR', desc: 'Combina arrays verticalmente.', ex: '=JUNTAR(A1:B10; D1:E10)' }
+                            ]
+                        },
+                        {
+                            name: 'Fórmulas: Financeiras',
+                            items: [
+                                { key: 'PGTO', desc: 'Pagamento de empréstimo.', ex: '=PGTO(5%/12; 60; 50000)' },
+                                { key: 'VP', desc: 'Valor Presente.', ex: '=VP(5%/12; 60; 500)' },
+                                { key: 'VF', desc: 'Valor Futuro.', ex: '=VF(5%/12; 10; 100)' },
+                                { key: 'TAXA', desc: 'Taxa de juros.', ex: '=TAXA(12; -1000; 9000)' },
+                                { key: 'NPER', desc: 'Número de períodos.', ex: '=NPER(5%/12; -200; 10000)' }
+                            ]
+                        },
+                        {
+                            name: 'Atalhos de Teclado',
+                            items: [
+                                { key: 'Ctrl + C / V / X', desc: 'Copiar / Colar / Recortar.' },
+                                { key: 'Ctrl + Z / Y', desc: 'Desfazer / Refazer.' },
+                                { key: 'Ctrl + F', desc: 'Localizar.' },
+                                { key: 'Ctrl + H', desc: 'Substituir.' },
+                                { key: 'Ctrl + A', desc: 'Selecionar tudo.' },
+                                { key: 'Ctrl + Seta', desc: 'Mover borda da seleção.' },
+                                { key: 'Shift + Seta', desc: 'Estender seleção.' },
+                                { key: 'Ctrl + Shift + Seta', desc: 'Selecionar até a borda.' },
+                                { key: 'Ctrl + Espaço', desc: 'Selecionar coluna inteira.' },
+                                { key: 'Shift + Espaço', desc: 'Selecionar linha inteira.' },
+                                { key: 'Ctrl + 1', desc: 'Formatar células.' },
+                                { key: 'Ctrl + Shift + L', desc: 'Ativar filtros.' },
+                                { key: 'Alt + =', desc: 'AutoSoma.' },
+                                { key: 'F2', desc: 'Editar célula ativa.' },
+                                { key: 'F4', desc: 'Repetir última ação / Bloquear referência.' },
+                                { key: 'Ctrl + Shift + Enter', desc: 'Entrar como matriz (Legado).' },
+                                { key: 'Ctrl + T', desc: 'Criar Tabela.' },
+                                { key: 'Ctrl + D', desc: 'Preencher para baixo.' },
+                                { key: 'Ctrl + R', desc: 'Preencher para a direita.' },
+                                { key: 'Ctrl + P', desc: 'Imprimir.' },
+                                { key: 'Alt + F11', desc: 'Abrir Editor VBA.' },
+                                { key: 'Ctrl + F9', desc: 'Minimizar faixa de opções.' }
+                            ]
+                        }
                     ]
                 },
-                {
-                    title: "Atalhos de Teclado",
-                    type: "shortcut",
-                    items: [
-                        { name: "Soma Rápida", desc: "Soma os números acima da célula selecionada.", code: "Alt + =" },
-                        { name: "Editar Célula", desc: "Edita a célula ativa.", code: "F2" },
-                        { name: "Filtro", desc: "Ativa os filtros na tabela.", code: "Ctrl + Shift + L" },
-                        { name: "Selecionar Tudo", desc: "Seleciona todo o conteúdo.", code: "Ctrl + A" }
-                    ]
-                }
-            ]
-        },
-        word: {
-            name: "Microsoft Word",
-            color: "var(--word)",
-            icon: "fa-solid fa-file-word",
-            desc: "O processador de texto padrão para criação de documentos profissionais.",
-            categories: [
-                {
-                    title: "Formatação",
-                    type: "shortcut",
-                    items: [
-                        { name: "Negrito", desc: "Aplica negrito ao texto selecionado.", code: "Ctrl + N" },
-                        { name: "Itálico", desc: "Aplica itálico ao texto selecionado.", code: "Ctrl + I" },
-                        { name: "Sublinhado", desc: "Sublinha o texto selecionado.", code: "Ctrl + S" },
-                        { name: "Justificar", desc: "Alinha o texto nas margens esquerda e direita.", code: "Ctrl + J" }
-                    ]
-                },
-                {
-                    title: "Navegação",
-                    type: "shortcut",
-                    items: [
-                        { name: "Ir para o Início", desc: "Move o cursor para o início do documento.", code: "Ctrl + Home" },
-                        { name: "Ir para o Fim", desc: "Move o cursor para o fim do documento.", code: "Ctrl + End" },
-                        { name: "Copiar Formatação", desc: "Copia a formatação de um texto para aplicar em outro.", code: "Ctrl + Shift + C" }
-                    ]
-                }
-            ]
-        },
-        powerpoint: {
-            name: "Microsoft PowerPoint",
-            color: "var(--ppt)",
-            icon: "fa-solid fa-file-powerpoint",
-            desc: "Criação de apresentações visuais impactantes.",
-            categories: [
-                {
-                    title: "Apresentação",
-                    type: "shortcut",
-                    items: [
-                        { name: "Iniciar Apresentação", desc: "Começa a apresentação do slide atual.", code: "F5" },
-                        { name: "Apresentar a partir do atual", desc: "Começa a apresentação do slide atual.", code: "Shift + F5" },
-                        { name: "Tela Preta", desc: "Pausa a apresentação com tela preta.", code: "B" },
-                        { name: "Tela Branca", desc: "Pausa a apresentação com tela branca.", code: "W" }
-                    ]
-                },
-                {
-                    title: "Design",
-                    type: "shortcut",
-                    items: [
-                        { name: "Duplicar Slide", desc: "Duplica o slide selecionado.", code: "Ctrl + D" },
-                        { name: "Nova Slide", desc: "Adiciona um novo slide.", code: "Ctrl + M" }
-                    ]
-                }
-            ]
-        },
-        outlook: {
-            name: "Microsoft Outlook",
-            color: "var(--outlook)",
-            icon: "fa-solid fa-envelope",
-            desc: "Gestão de e-mails, calendários e contatos corporativos.",
-            categories: [
-                {
-                    title: "E-mail",
-                    type: "shortcut",
-                    items: [
-                        { name: "Novo E-mail", desc: "Abre uma janela para novo e-mail.", code: "Ctrl + Shift + M" },
-                        { name: "Responder", desc: "Responde ao remetente.", code: "Ctrl + R" },
-                        { name: "Encaminhar", desc: "Encaminha a mensagem.", code: "Ctrl + F" }
+                word: {
+                    name: 'Microsoft Word',
+                    icon: 'fa-file-word',
+                    color: 'var(--word-color)',
+                    desc: 'Documentos e formatação de texto.',
+                    categories: [
+                        {
+                            name: 'Atalhos de Formatação',
+                            items: [
+                                { key: 'Ctrl + B', desc: 'Negrito.' },
+                                { key: 'Ctrl + I', desc: 'Itálico.' },
+                                { key: 'Ctrl + U', desc: 'Sublinhado.' },
+                                { key: 'Ctrl + Shift + D', desc: 'Sublinhado duplo.' },
+                                { key: 'Ctrl + Shift + W', desc: 'Sublinha apenas palavras.' },
+                                { key: 'Ctrl + Shift + >', desc: 'Aumentar fonte.' },
+                                { key: 'Ctrl + Shift + <', desc: 'Diminuir fonte.' },
+                                { key: 'Ctrl + D', desc: 'Formatar Fonte.' },
+                                { key: 'Ctrl + Shift + F', desc: 'Mudar nome da fonte.' },
+                                { key: 'Ctrl + Shift + P', desc: 'Mudar tamanho da fonte.' },
+                                { key: 'Ctrl + E', desc: 'Centralizar.' },
+                                { key: 'Ctrl + L', desc: 'Alinhar à esquerda.' },
+                                { key: 'Ctrl + R', desc: 'Alinhar à direita.' },
+                                { key: 'Ctrl + J', desc: 'Justificar.' }
+                            ]
+                        },
+                        {
+                            name: 'Atalhos de Edição e Navegação',
+                            items: [
+                                { key: 'Ctrl + Z / Y', desc: 'Desfazer / Refazer.' },
+                                { key: 'Ctrl + X / C / V', desc: 'Recortar / Copiar / Colar.' },
+                                { key: 'Ctrl + Shift + C', desc: 'Copiar formatação.' },
+                                { key: 'Ctrl + Shift + V', desc: 'Colar formatação.' },
+                                { key: 'Ctrl + Seta', desc: 'Pular palavra.' },
+                                { key: 'Ctrl + Shift + Seta', desc: 'Selecionar palavra.' },
+                                { key: 'Home / End', desc: 'Início / Fim da linha.' },
+                                { key: 'Ctrl + Home / End', desc: 'Início / Fim do documento.' },
+                                { key: 'Shift + F5', desc: 'Ir para última edição.' },
+                                { key: 'Ctrl + F', desc: 'Localizar.' },
+                                { key: 'Ctrl + H', desc: 'Substituir.' },
+                                { key: 'F7', desc: 'Verificar ortografia.' }
+                            ]
+                        },
+                        {
+                            name: 'Parágrafos e Estilos',
+                            items: [
+                                { key: 'Ctrl + Enter', desc: 'Quebra de página.' },
+                                { key: 'Ctrl + Shift + Enter', desc: 'Quebra de seção.' },
+                                { key: 'Ctrl + 1', desc: 'Espaçamento de linha simples.' },
+                                { key: 'Ctrl + 2', desc: 'Espaçamento duplo.' },
+                                { key: 'Ctrl + 5', desc: 'Espaçamento 1.5.' },
+                                { key: 'Alt + Ctrl + 1', desc: 'Aplica Título 1.' },
+                                { key: 'Alt + Ctrl + 2', desc: 'Aplica Título 2.' },
+                                { key: 'Alt + Ctrl + 3', desc: 'Aplica Título 3.' },
+                                { key: 'Ctrl + Q', desc: 'Limpar formatação.' }
+                            ]
+                        }
                     ]
                 },
-                {
-                    title: "Calendário",
-                    type: "shortcut",
-                    items: [
-                        { name: "Ir para Calendário", desc: "Abre a visualização de calendário.", code: "Ctrl + 2" },
-                        { name: "Nova Reunião", desc: "Cria um novo convite de reunião.", code: "Ctrl + Shift + Q" }
+                powerpoint: {
+                    name: 'Microsoft PowerPoint',
+                    icon: 'fa-file-powerpoint',
+                    color: 'var(--ppt-color)',
+                    desc: 'Apresentações visuais.',
+                    categories: [
+                        {
+                            name: 'Modo Apresentação',
+                            items: [
+                                { key: 'F5', desc: 'Iniciar apresentação.' },
+                                { key: 'Shift + F5', desc: 'Iniciar do slide atual.' },
+                                { key: 'Enter / Espaço / N', desc: 'Próximo slide.' },
+                                { key: 'Backspace / P', desc: 'Slide anterior.' },
+                                { key: 'Número + Enter', desc: 'Ir para slide número X.' },
+                                { key: 'S', desc: 'Toda a tela em branco.' },
+                                { key: 'B', desc: 'Toda a tela em preto.' },
+                                { key: 'W', desc: 'Esvanecer tela (Branco).' },
+                                { key: 'Esc', desc: 'Terminar apresentação.' },
+                                { key: 'Ctrl + P', desc: 'Mudar ponteiro para caneta.' },
+                                { key: 'Ctrl + A', desc: 'Mudar ponteiro para seta.' },
+                                { key: 'Ctrl + E', desc: 'Mudar ponteiro para borracha.' }
+                            ]
+                        },
+                        {
+                            name: 'Edição e Design',
+                            items: [
+                                { key: 'Ctrl + M', desc: 'Novo slide.' },
+                                { key: 'Ctrl + D', desc: 'Duplicar slide.' },
+                                { key: 'Ctrl + K', desc: 'Inserir hiperlink.' },
+                                { key: 'Ctrl + G', desc: 'Agrupar objetos.' },
+                                { key: 'Ctrl + Shift + G', desc: 'Desagrupar.' },
+                                { key: 'Shift + F9', desc: 'Reproduz animação selecionada.' },
+                                { key: 'Alt + F5', desc: 'Iniciar Gravação da Sessão.' }
+                            ]
+                        }
+                    ]
+                },
+                outlook: {
+                    name: 'Microsoft Outlook',
+                    icon: 'fa-envelope',
+                    color: 'var(--outlook-color)',
+                    desc: 'E-mail e calendário.',
+                    categories: [
+                        {
+                            name: 'Email',
+                            items: [
+                                { key: 'Ctrl + N', desc: 'Novo e-mail.' },
+                                { key: 'Ctrl + R', desc: 'Responder.' },
+                                { key: 'Ctrl + Shift + R', desc: 'Responder a todos.' },
+                                { key: 'Ctrl + F', desc: 'Encaminhar.' },
+                                { key: 'Alt + S', desc: 'Enviar e-mail.' },
+                                { key: 'Ctrl + Shift + I', desc: 'Ir para Caixa de Entrada.' },
+                                { key: 'Ctrl + Shift + O', desc: 'Ir para Caixa de Saída.' },
+                                { key: 'Del', desc: 'Excluir item.' },
+                                { key: 'Ctrl + Shift + V', desc: 'Mover item para pasta.' }
+                            ]
+                        },
+                        {
+                            name: 'Calendário',
+                            items: [
+                                { key: 'Ctrl + N', desc: 'Novo compromisso.' },
+                                { key: 'Ctrl + Shift + A', desc: 'Nova reunião.' },
+                                { key: 'Alt + 1', desc: 'Visão Dia.' },
+                                { key: 'Alt + 2', desc: 'Visão Semana.' },
+                                { key: 'Alt + 3', desc: 'Visão Mês.' },
+                                { key: 'Alt + 0', desc: 'Lista de calendários.' }
+                            ]
+                        }
+                    ]
+                },
+                teams: {
+                    name: 'Microsoft Teams',
+                    icon: 'fa-users',
+                    color: 'var(--teams-color)',
+                    desc: 'Colaboração e Chat.',
+                    categories: [
+                        {
+                            name: 'Geral',
+                            items: [
+                                { key: 'Ctrl + .', desc: 'Abrir campo de comandos.' },
+                                { key: 'Ctrl + 1', desc: 'Ir para Atividade.' },
+                                { key: 'Ctrl + 2', desc: 'Ir para Chat.' },
+                                { key: 'Ctrl + 3', desc: 'Ir para Equipes.' },
+                                { key: 'Ctrl + 4', desc: 'Ir para Calendário.' },
+                                { key: 'Ctrl + 5', desc: 'Ir para Chamadas.' },
+                                { key: 'Ctrl + 6', desc: 'Ir para Arquivos.' }
+                            ]
+                        },
+                        {
+                            name: 'Chamada e Reunião',
+                            items: [
+                                { key: 'Ctrl + Shift + M', desc: 'Ligar/Desligar microfone.' },
+                                { key: 'Ctrl + Shift + O', desc: 'Ligar/Desligar vídeo.' },
+                                { key: 'Ctrl + Shift + R', desc: 'Levantar/Mão.' },
+                                { key: 'Ctrl + Shift + Espaço', desc: 'Compartilhar tela.' },
+                                { key: 'Ctrl + Shift + F', desc: 'Entrar em tela cheia.' }
+                            ]
+                        }
+                    ]
+                },
+                powerbi: {
+                    name: 'Microsoft Power BI',
+                    icon: 'fa-chart-pie',
+                    color: 'var(--powerbi-color)',
+                    desc: 'Inteligência de Negócios.',
+                    categories: [
+                        {
+                            name: 'DAX (Funções Principais)',
+                            items: [
+                                { key: 'CALCULATE', desc: 'Modifica contexto do filtro.', ex: 'CALCULATE(SUM(Vendas); ALL(Calendar))' },
+                                { key: 'FILTER', desc: 'Retorna tabela filtrada.', ex: 'FILTER(Tabela; Tabela[Valor]>10)' },
+                                { key: 'ALL', desc: 'Remove filtros da coluna/tabela.', ex: 'ALL(Tabela)' },
+                                { key: 'VALUES', desc: 'Retorna valores únicos (coluna).', ex: 'VALUES(Tabela[Cat])' },
+                                { key: 'DISTINCTCOUNT', desc: 'Contagem distinta.', ex: 'DISTINCTCOUNT(Tabela[ID])' },
+                                { key: 'SUMX / COUNTX', desc: 'Iteração de linha (X functions).', ex: 'SUMX(Tabela; Tabela[Qtd]*Tabela[Preço])' },
+                                { key: 'RELATED', desc: 'Traz valor de tabela relacionada (1-N).', ex: 'RELATED(Categoria[Nome])' },
+                                { key: 'RELATEDTABLE', desc: 'Traz tabela relacionada (N-1).', ex: 'RELATEDTABLE(Vendas)' },
+                                { key: 'EARLIER', desc: 'Refere-se a valor de iteração anterior.', ex: 'FILTER(Tabela; Tabela[Data] < EARLIER(Tabela[Data]))' },
+                                { key: 'USERELATIONSHIP', desc: 'Ativa relação específica.', ex: 'CALCULATE(...; USERELATIONSHIP(...))' }
+                            ]
+                        }
+                    ]
+                },
+                access: {
+                    name: 'Microsoft Access',
+                    icon: 'fa-database',
+                    color: 'var(--access-color)',
+                    desc: 'Banco de Dados.',
+                    categories: [
+                        {
+                            name: 'Funções SQL/Domínio',
+                            items: [
+                                { key: 'DSoma', desc: 'Soma valores em domínio.', ex: 'DSoma("[Preço]"; "Produtos")' },
+                                { key: 'DCont', desc: 'Conta valores não nulos.', ex: 'DCont("[ID]"; "Clientes")' },
+                                { key: 'DMáx', desc: 'Retorna máximo.', ex: 'DMáx("[Data]"; "Pedidos")' },
+                                { key: 'DPesquisa', desc: 'Valor específico de registro.', ex: 'DPesquisa("[Nome]"; "Produtos"; "[ID]=" & ID)' }
+                            ]
+                        }
+                    ]
+                },
+                onenote: {
+                    name: 'Microsoft OneNote',
+                    icon: 'fa-book',
+                    color: '#7719AA',
+                    desc: 'Anotações.',
+                    categories: [
+                        {
+                            name: 'Atalhos',
+                            items: [
+                                { key: 'Ctrl + Alt + N', desc: 'Nova página.' },
+                                { key: 'Ctrl + Alt + 1', desc: 'Título 1.' },
+                                { key: 'Ctrl + Alt + 2', desc: 'Título 2.' },
+                                { key: 'Ctrl + Shift + F', desc: 'Realçar.' },
+                                { key: 'Win + Shift + S', desc: 'Captura de tela (Clip).' }
+                            ]
+                        }
+                    ]
+                },
+                sharepoint: {
+                    name: 'Microsoft SharePoint',
+                    icon: 'fa-share-nodes',
+                    color: 'var(--sharepoint-color)',
+                    desc: 'Gestão Documental.',
+                    categories: [
+                        { name: 'Admin', items: [{key: 'Admin Center', desc: 'Gerenciar configurações do site.'}, {key: 'Permissions', desc: 'Gerenciar níveis de permissão.'}] }
+                    ]
+                },
+                onedrive: {
+                    name: 'Microsoft OneDrive',
+                    icon: 'fa-cloud',
+                    color: 'var(--onedrive-color)',
+                    desc: 'Nuvem.',
+                    categories: [
+                        { name: 'Sincronização', items: [{key: 'Sincronizar Biblioteca', desc: 'Sincroniza pasta do SharePoint com PC.'}, {key: 'Fazer Disponível Offline', desc: 'Baixa arquivo para acesso sem internet.'}] }
                     ]
                 }
-            ]
-        },
-        teams: {
-            name: "Microsoft Teams",
-            color: "var(--teams)",
-            icon: "fa-brands fa-microsoft",
-            desc: "Plataforma de colaboração e reuniões híbridas.",
-            categories: [
-                {
-                    title: "Reuniões",
-                    type: "shortcut",
-                    items: [
-                        { name: "Aceitar Chamada", desc: "Aceita uma chamada entrante.", code: "Ctrl + Shift + S" },
-                        { name: "Recusar Chamada", desc: "Recusa uma chamada entrante.", code: "Ctrl + Shift + D" },
-                        { name: "Silenciar", desc: "Liga/Desliga o microfone.", code: "Ctrl + Shift + M" }
-                    ]
-                }
-            ]
-        },
-        powerbi: {
-            name: "Microsoft Power BI",
-            color: "var(--powerbi)",
-            icon: "fa-solid fa-chart-pie",
-            desc: "Análise de dados avançada e business intelligence.",
-            categories: [
-                {
-                    title: "DAX",
-                    type: "formula",
-                    items: [
-                        { name: "CALCULAR", desc: "Avalia uma expressão em um contexto de filtro modificado.", code: "=CALCULAR([Medida]; FILTRO(Tabela; Tabela[Col] = 'X'))" },
-                        { name: "SOMARX", desc: "Itera uma tabela e soma os resultados de uma expressão.", code: "=SOMARX(Vendas; Vendas[Qtd] * Vendas[Preço])" }
-                    ]
-                }
-            ]
-        },
-        onedrive: {
-            name: "Microsoft OneDrive",
-            color: "var(--onedrive)",
-            icon: "fa-solid fa-cloud",
-            desc: "Armazenamento de arquivos na nuvem e sincronização.",
-            categories: [
-                {
-                    title: "Gerenciamento",
-                    type: "info",
-                    items: [
-                        { name: "Sincronização", desc: "Use o botão 'Sincronizar' na barra de ferramentas para baixar pastas para o PC.", code: "Interface do Botão" },
-                        { name: "Compartilhar", desc: "Clique com o botão direito no arquivo > Compartilhar.", code: "Menu de Contexto" }
-                    ]
-                }
-            ]
-        },
-        sharepoint: {
-            name: "Microsoft SharePoint",
-            color: "var(--sharepoint)",
-            icon: "fa-brands fa-microsoft", 
-            desc: "Plataforma para intranet e gestão de documentos.",
-            categories: [
-                {
-                    title: "Administração",
-                    type: "info",
-                    items: [
-                        { name: "Permissões", desc: "Gerencie quem pode visualizar ou editar as bibliotecas.", code: "Guia Compartilhar > Permissões de Biblioteca" },
-                        { name: "Versões", desc: "Visualize o histórico de versões dos documentos.", code: "Guia Arquivo > Histórico de Versões" }
-                    ]
-                }
-            ]
-        },
-        onenote: {
-            name: "Microsoft OneNote",
-            color: "var(--onenote)",
-            icon: "fa-solid fa-book-open",
-            desc: "Anotações digitais e organização de ideias.",
-            categories: [
-                {
-                    title: "Anotação",
-                    type: "shortcut",
-                    items: [
-                        { name: "Nova Página", desc: "Cria uma nova página abaixo da atual.", code: "Ctrl + N" },
-                        { name: "Mover Página para Baixo", desc: "Move a aba da página.", code: "Ctrl + Alt + Down" }
-                    ]
-                }
-            ]
-        }
-    };
-
-    // --- INICIALIZAÇÃO E NAVEGAÇÃO ---
-    const navMenu = document.getElementById('navMenu');
-    const toolsGrid = document.getElementById('toolsGrid');
-    const mobileToggle = document.getElementById('mobileToggle');
-    const sidebar = document.getElementById('sidebar');
-    const breadcrumbs = document.getElementById('breadcrumbs');
-
-    // Renderizar Menu e Home
-    function init() {
-        // Adicionar Home ao menu
-        navMenu.innerHTML += `<li class="nav-item active" onclick="navigateTo('home')"><div class="nav-icon"><i class="fa-solid fa-house"></i></div> Home</li>`;
-
-        // Loop para criar itens de menu e cards
-        for (const key in db) {
-            const tool = db[key];
-            
-            // Sidebar Item
-            const li = document.createElement('li');
-            li.className = 'nav-item';
-            li.onclick = () => navigateTo(key);
-            li.innerHTML = `<div class="nav-icon"><i class="${tool.icon}" style="color: ${tool.color}"></i></div> ${tool.name}`;
-            li.id = `nav-${key}`;
-            navMenu.appendChild(li);
-
-            // Home Card
-            const card = document.createElement('div');
-            card.className = 'tool-card';
-            card.style.borderTopColor = tool.color;
-            card.onclick = () => navigateTo(key);
-            card.innerHTML = `
-                <i class="${tool.icon}" style="color: ${tool.color}"></i>
-                <h3>${tool.name}</h3>
-                <p>${tool.desc}</p>
-            `;
-            toolsGrid.appendChild(card);
-        }
-
-        // Verificar URL Hash ao carregar
-        const hash = window.location.hash.replace('#', '');
-        if (hash && db[hash]) {
-            navigateTo(hash);
-        }
-    }
-
-    // Função de Roteamento (Fake Routing)
-    function navigateTo(pageId) {
-        // Atualizar URL sem recarregar
-        window.location.hash = pageId;
-
-        // Atualizar Menu Active
-        document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
-        const activeNav = document.getElementById(`nav-${pageId}`);
-        if (activeNav) activeNav.classList.add('active');
-        else if (pageId === 'home') document.querySelector('.nav-item').classList.add('active');
-
-        // Esconder todas as páginas
-        document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-
-        // Lógica de Exibição
-        if (pageId === 'home') {
-            document.getElementById('home-page').classList.add('active');
-            breadcrumbs.innerHTML = 'Home';
-        } else if (pageId === 'search') {
-            document.getElementById('search-page').classList.add('active');
-            breadcrumbs.innerHTML = 'Home > Busca Global';
-        } else {
-            renderToolPage(pageId);
-        }
-
-        // Fechar menu mobile se aberto
-        if (window.innerWidth <= 768) {
-            sidebar.classList.remove('open');
-        }
-        window.scrollTo(0,0);
-    }
-
-    // Renderizar Página da Ferramenta
-    function renderToolPage(key) {
-        const tool = db[key];
-        const contentDiv = document.getElementById('toolContent');
-        
-        breadcrumbs.innerHTML = `Home > ${tool.name}`;
-        
-        let categoriesHTML = '';
-        
-        tool.categories.forEach(cat => {
-            let itemsHTML = '';
-            
-            cat.items.forEach(item => {
-                if(cat.type === 'formula') {
-                    itemsHTML += `
-                        <div class="command-item">
-                            <div class="cmd-left">
-                                <h4>${item.name}</h4>
-                                <p class="cmd-desc">${item.desc}</p>
-                            </div>
-                            <div class="cmd-right">
-                                <span class="formula-code">${item.code}</span>
-                            </div>
-                        </div>
-                    `;
-                } else if (cat.type === 'shortcut') {
-                    itemsHTML += `
-                        <div class="command-item">
-                            <div class="cmd-left">
-                                <h4>${item.name}</h4>
-                                <p class="cmd-desc">${item.desc}</p>
-                            </div>
-                            <div class="cmd-right">
-                                <span class="kbd">${item.code}</span>
-                            </div>
-                        </div>
-                    `;
-                } else {
-                    // Info geral
-                    itemsHTML += `
-                        <div class="command-item">
-                            <div class="cmd-left">
-                                <h4>${item.name}</h4>
-                                <p class="cmd-desc">${item.desc}</p>
-                            </div>
-                            <div class="cmd-right" style="color: var(--primary); font-size: 0.9rem;">
-                                ${item.code}
-                            </div>
-                        </div>
-                    `;
-                }
-            });
-
-            categoriesHTML += `
-                <h2 class="section-title">${cat.title}</h2>
-                <div class="commands-list">
-                    ${itemsHTML}
-                </div>
-            `;
-        });
-
-        const pageHTML = `
-            <div class="tool-header" style="border-color: ${tool.color}">
-                <i class="${tool.icon} tool-icon-lg" style="color: ${tool.color}"></i>
-                <div>
-                    <h1 style="color: ${tool.color}; font-size: 2.5rem; margin-bottom: 5px;">${tool.name}</h1>
-                    <p style="font-size: 1.1rem; color: var(--text-light); max-width: 600px;">${tool.desc}</p>
-                </div>
-            </div>
-            ${categoriesHTML}
-        `;
-
-        contentDiv.innerHTML = pageHTML;
-        document.getElementById('tool-page').classList.add('active');
-    }
-
-    // --- FUNÇÃO DE BUSCA GLOBAL ---
-    const searchInput = document.getElementById('globalSearch');
-    
-    searchInput.addEventListener('input', (e) => {
-        const query = e.target.value.toLowerCase();
-        if (query.length < 2) {
-            if (window.location.hash === '#search') {
-                navigateTo('home');
             }
-            return;
+        };
+
+        // --- LÓGICA DO APLICATIVO (Mesma estrutura robusta) ---
+        const appContainer = document.getElementById('app-container');
+        const navMenu = document.getElementById('navMenu');
+        const breadcrumbs = document.getElementById('breadcrumbs');
+        const searchInput = document.getElementById('globalSearch');
+
+        function init() { renderSidebar(); renderHome(); }
+
+        function renderSidebar() {
+            let html = `<div class="nav-item active" onclick="renderHome()"><i class="fa-solid fa-house"></i> Home</div>`;
+            for (const key in microsoftData.tools) {
+                const t = microsoftData.tools[key];
+                html += `<div class="nav-item" onclick="renderTool('${key}')" id="nav-${key}"><i class="fa-solid ${t.icon}" style="color:${t.color}"></i> ${t.name}</div>`;
+            }
+            navMenu.innerHTML = html;
         }
 
-        const results = [];
-        
-        // Varre todo o DB
-        for (const key in db) {
-            const tool = db[key];
-            tool.categories.forEach(cat => {
-                cat.items.forEach(item => {
-                    // Verifica nome, descrição e código
-                    if (item.name.toLowerCase().includes(query) || 
-                        item.desc.toLowerCase().includes(query) || 
-                        item.code.toLowerCase().includes(query)) {
-                        
-                        results.push({
-                            toolName: tool.name,
-                            toolColor: tool.color,
-                            catTitle: cat.title,
-                            item: item,
-                            type: cat.type
-                        });
-                    }
-                });
-            });
-        }
-
-        renderSearchResults(results);
-    });
-
-    function renderSearchResults(results) {
-        navigateTo('search');
-        const container = document.getElementById('searchResults');
-        
-        if (results.length === 0) {
-            container.innerHTML = '<p style="text-align:center; padding: 20px; color: var(--text-light)">Nenhum comando encontrado.</p>';
-            return;
-        }
-
-        let html = '';
-        results.forEach(r => {
-            let codeDisplay = '';
-            if (r.type === 'formula') codeDisplay = `<span class="formula-code">${r.item.code}</span>`;
-            else if (r.type === 'shortcut') codeDisplay = `<span class="kbd">${r.item.code}</span>`;
-            else codeDisplay = `<span style="color: ${r.toolColor}">${r.item.code}</span>`;
-
-            html += `
-                <div class="command-item" style="border-left: 4px solid ${r.toolColor}">
-                    <div class="cmd-left">
-                        <h4>${r.item.name} <small style="color:${r.toolColor}; font-weight:400; font-size:0.8em">(${r.toolName})</small></h4>
-                        <p class="cmd-desc">${r.item.desc} <br><small style="opacity:0.7">Categoria: ${r.catTitle}</small></p>
+        function renderHome() {
+            updateSidebar(null);
+            breadcrumbs.innerHTML = 'Home';
+            appContainer.innerHTML = `<h1 style="margin-bottom:20px;">Painel Central Microsoft</h1><div class="dashboard-grid"></div>`;
+            const grid = appContainer.querySelector('.dashboard-grid');
+            for (const key in microsoftData.tools) {
+                const t = microsoftData.tools[key];
+                const card = document.createElement('div');
+                card.className = 'tool-card';
+                card.onclick = () => renderTool(key);
+                card.innerHTML = `
+                    <div style="display:flex; justify-content:space-between; align-items:start;">
+                        <i class="fa-solid ${t.icon} tool-icon" style="color:${t.color}"></i>
+                        <i class="fa-solid fa-arrow-right" style="color:var(--text-secondary)"></i>
                     </div>
-                    <div class="cmd-right">
-                        ${codeDisplay}
-                    </div>
+                    <div class="tool-title">${t.name}</div>
+                    <div class="tool-desc">${t.desc}</div>
+                `;
+                grid.appendChild(card);
+            }
+        }
+
+        function renderTool(key) {
+            const t = microsoftData.tools[key];
+            if(!t) return;
+            updateSidebar(key);
+            breadcrumbs.innerHTML = `<span onclick="renderHome()" style="cursor:pointer; text-decoration:underline;">Home</span> > ${t.name}`;
+            
+            let html = `
+                <div class="tool-header">
+                    <i class="fa-solid ${t.icon}" style="color:${t.color}"></i>
+                    <div><h1>${t.name}</h1><p style="color:var(--text-secondary)">${t.desc}</p></div>
                 </div>
+                <div class="sub-nav" id="sub-nav-${key}"></div>
+                <div id="content-area-${key}" class="command-list"></div>
             `;
-        });
-        container.innerHTML = html;
-    }
+            appContainer.innerHTML = html;
 
-    // --- EVENTOS UTILITÁRIOS ---
-    mobileToggle.addEventListener('click', () => {
-        sidebar.classList.toggle('open');
-    });
+            const subNav = document.getElementById(`sub-nav-${key}`);
+            const contentArea = document.getElementById(`content-area-${key}`);
 
-    window.onscroll = function() {
-        const btn = document.getElementById("scrollTopBtn");
-        if (document.body.scrollTop > 200 || document.documentElement.scrollTop > 200) {
-            btn.style.display = "block";
-        } else {
-            btn.style.display = "none";
+            if(t.categories.length > 0) {
+                t.categories.forEach((cat, idx) => {
+                    const btn = document.createElement('button');
+                    btn.textContent = cat.name;
+                    btn.onclick = () => renderCategoryContent(contentArea, cat, btn, subNav, t.color);
+                    if(idx === 0) btn.click();
+                    subNav.appendChild(btn);
+                });
+            } else { contentArea.innerHTML = '<p>Conteúdo em breve.</p>'; }
         }
-    };
 
-    document.getElementById("scrollTopBtn").addEventListener("click", function() {
-        window.scrollTo({top: 0, behavior: 'smooth'});
-    });
+        function renderCategoryContent(container, cat, btn, nav, color) {
+            Array.from(nav.children).forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            let html = '';
+            if(cat.items) {
+                cat.items.forEach(item => {
+                    const isShortcut = !item.key.startsWith('=') && !item.key.includes('(') && item.key.match(/Ctrl|Alt|Shift|Win|F[0-9]|Del|Esc|Enter|Espaço|Home|End/i);
+                    html += `
+                        <div class="command-card" style="border-left-color: ${color}">
+                            <div class="command-key">
+                                ${isShortcut ? `<span class="shortcut-kbd">${item.key}</span>` : `<code>${item.key}</code>`}
+                            </div>
+                            <div class="command-info">
+                                <h4>${item.key}</h4>
+                                <p>${item.desc}</p>
+                                ${item.ex ? `<code style="color:#d63384; display:block; margin-top:4px; font-size:0.75rem;">${item.ex}</code>` : ''}
+                            </div>
+                        </div>
+                    `;
+                });
+            } else { html = '<p>Nenhum item.</p>'; }
+            container.innerHTML = html;
+        }
 
-    // Iniciar App
-    init();
+        function updateSidebar(id) {
+            document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+            if(id) document.getElementById(`nav-${id}`)?.classList.add('active');
+            else document.querySelector('.nav-item:first-child').classList.add('active');
+        }
 
-</script>
+        // Busca Global
+        searchInput.addEventListener('input', (e) => {
+            const term = e.target.value.toLowerCase();
+            if(term.length < 2) return;
+            breadcrumbs.innerHTML = `Resultados para "${term}"`;
+            let html = '<h2>Resultados da Busca</h2><div class="command-list">'; let found = false;
+            for(const key in microsoftData.tools) {
+                const t = microsoftData.tools[key];
+                if(t.name.toLowerCase().includes(term)) {
+                    html += `<div class="tool-card" onclick="renderTool('${key}')"><i class="fa-solid ${t.icon}" style="color:${t.color}"></i><strong>${t.name}</strong></div>`; found=true;
+                }
+                t.categories.forEach(cat => {
+                    cat.items.forEach(item => {
+                        if(item.key.toLowerCase().includes(term) || item.desc.toLowerCase().includes(term) || (item.ex && item.ex.toLowerCase().includes(term))) {
+                            found = true;
+                            html += `<div class="command-card" style="border-left-color: ${t.color}; cursor:pointer;" onclick="renderTool('${key}')">
+                                <div class="command-key">${term.match(/ctrl|alt|shift|win|f[0-9]/i) ? `<span class="shortcut-kbd">${item.key}</span>` : `<code>${item.key}</code>`}</div>
+                                <div class="command-info"><h4>${item.key} <small style="color:${t.color}">(${t.name})</small></h4><p>${item.desc}</p></div>
+                            </div>`;
+                        }
+                    });
+                });
+            }
+            if(!found) html += '<p>Nenhum resultado.</p>';
+            html += '</div>'; appContainer.innerHTML = html;
+        });
+
+        const menuToggle = document.getElementById('menuToggle');
+        const sidebar = document.getElementById('sidebar');
+        menuToggle.addEventListener('click', () => sidebar.classList.toggle('open'));
+
+        init();
+    </script>
 </body>
 </html>
