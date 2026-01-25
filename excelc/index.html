@@ -1,0 +1,843 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Excel Master - Guia Completo de Comandos</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Ícones -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        :root {
+            --excel-green: #217346;
+            --excel-dark: #103f25;
+            --excel-light: #e6f3eb;
+            --bg-color: #f0f2f5;
+            --card-bg: #ffffff;
+            --text-main: #333333;
+            --text-secondary: #666666;
+            --shadow-sm: 0 2px 4px rgba(0,0,0,0.05);
+            --shadow-md: 0 4px 12px rgba(0,0,0,0.08);
+            --shadow-lg: 0 8px 24px rgba(33, 115, 70, 0.15);
+            --radius: 12px;
+            --transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-color);
+            background-image: 
+                radial-gradient(at 0% 0%, hsla(145,40%,92%,1) 0, transparent 50%), 
+                radial-gradient(at 100% 100%, hsla(145,60%,85%,1) 0, transparent 50%);
+            color: var(--text-main);
+            min-height: 100vh;
+            line-height: 1.6;
+        }
+
+        /* --- Header --- */
+        header {
+            text-align: center;
+            padding: 3rem 1rem 2rem;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .logo-area {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 1rem;
+            background: var(--excel-green);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 50px;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            box-shadow: var(--shadow-md);
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: var(--excel-dark);
+            margin-bottom: 0.5rem;
+            letter-spacing: -0.02em;
+        }
+
+        .subtitle {
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+            margin-bottom: 2rem;
+        }
+
+        /* --- Search Bar --- */
+        .search-container {
+            position: relative;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 16px 24px;
+            padding-left: 50px;
+            font-size: 1rem;
+            border: 2px solid transparent;
+            border-radius: 50px;
+            background: white;
+            box-shadow: var(--shadow-md);
+            transition: var(--transition);
+            outline: none;
+        }
+
+        .search-input:focus {
+            border-color: var(--excel-green);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-secondary);
+            font-size: 1.2rem;
+        }
+
+        /* --- Filters / Tabs --- */
+        .filter-container {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin: 2rem 1rem;
+            padding: 0 1rem;
+        }
+
+        .filter-btn {
+            background: white;
+            border: 1px solid #e0e0e0;
+            padding: 10px 20px;
+            border-radius: 30px;
+            cursor: pointer;
+            font-weight: 500;
+            color: var(--text-secondary);
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.9rem;
+        }
+
+        .filter-btn:hover {
+            border-color: var(--excel-green);
+            color: var(--excel-green);
+            transform: translateY(-2px);
+        }
+
+        .filter-btn.active {
+            background: var(--excel-green);
+            color: white;
+            border-color: var(--excel-green);
+            box-shadow: 0 4px 10px rgba(33, 115, 70, 0.3);
+        }
+
+        /* --- Main Grid --- */
+        main {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px 40px;
+        }
+
+        .cards-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+            gap: 24px;
+        }
+
+        /* --- Card Styles --- */
+        .card {
+            background: var(--card-bg);
+            border-radius: var(--radius);
+            padding: 24px;
+            box-shadow: var(--shadow-sm);
+            transition: var(--transition);
+            border: 1px solid rgba(0,0,0,0.03);
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+            background: var(--excel-green);
+            opacity: 0.8;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 12px;
+        }
+
+        .card-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--excel-dark);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .card-category {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--excel-green);
+            font-weight: 600;
+            background: var(--excel-light);
+            padding: 4px 8px;
+            border-radius: 4px;
+        }
+
+        .card-description {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            margin-bottom: 16px;
+            flex-grow: 1;
+        }
+
+        .code-block {
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 6px;
+            padding: 12px;
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-size: 0.85rem;
+            color: #d63384;
+            position: relative;
+            margin-bottom: 12px;
+            overflow-x: auto;
+        }
+
+        .code-block .code-label {
+            position: absolute;
+            top: 0;
+            right: 0;
+            background: #e9ecef;
+            color: #6c757d;
+            font-size: 0.65rem;
+            padding: 2px 6px;
+            border-bottom-left-radius: 4px;
+        }
+
+        .example-box {
+            background: #f0fff4;
+            border-left: 3px solid #38b2ac;
+            padding: 10px;
+            font-size: 0.85rem;
+            color: #2c7a7b;
+            border-radius: 0 4px 4px 0;
+        }
+
+        .example-label {
+            font-weight: 700;
+            display: block;
+            margin-bottom: 4px;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            color: var(--excel-dark);
+        }
+
+        /* --- Keyboard Shortcuts Special Style --- */
+        .card.shortcut-card {
+            border-top: 4px solid #333;
+        }
+        .card.shortcut-card::before {
+            display: none;
+        }
+        
+        .shortcut-keys {
+            display: flex;
+            gap: 8px;
+            margin-top: 10px;
+            flex-wrap: wrap;
+        }
+
+        .kbd {
+            background: #fff;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-shadow: 0 2px 0 #ddd;
+            padding: 4px 8px;
+            font-family: monospace;
+            font-weight: bold;
+            color: #333;
+            font-size: 0.9rem;
+        }
+
+        /* --- Empty State --- */
+        .no-results {
+            grid-column: 1 / -1;
+            text-align: center;
+            padding: 3rem;
+            color: var(--text-secondary);
+            display: none;
+        }
+
+        /* --- Footer --- */
+        footer {
+            text-align: center;
+            padding: 2rem;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            border-top: 1px solid #e0e0e0;
+            margin-top: 2rem;
+        }
+
+        /* --- Responsividade --- */
+        @media (max-width: 768px) {
+            h1 { font-size: 2rem; }
+            .cards-grid { grid-template-columns: 1fr; }
+            .filter-container { gap: 8px; }
+            .filter-btn { font-size: 0.8rem; padding: 8px 16px; }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="logo-area">
+            <i class="fa-solid fa-table"></i> Excel Master
+        </div>
+        <h1>Comandos e Fórmulas</h1>
+        <p class="subtitle">Guia completo e organizado para dominar o Excel</p>
+        
+        <div class="search-container">
+            <i class="fa-solid fa-magnifying-glass search-icon"></i>
+            <input type="text" id="searchInput" class="search-input" placeholder="Busque por uma fórmula, categoria ou exemplo...">
+        </div>
+    </header>
+
+    <nav class="filter-container" id="filterContainer">
+        <button class="filter-btn active" data-filter="all">
+            <i class="fa-solid fa-layer-group"></i> Todos
+        </button>
+        <button class="filter-btn" data-filter="basic">
+            <i class="fa-solid fa-calculator"></i> Básicas
+        </button>
+        <button class="filter-btn" data-filter="logic">
+            <i class="fa-solid fa-code-branch"></i> Lógicas
+        </button>
+        <button class="filter-btn" data-filter="text">
+            <i class="fa-solid fa-font"></i> Texto
+        </button>
+        <button class="filter-btn" data-filter="search">
+            <i class="fa-solid fa-crosshairs"></i> Procura
+        </button>
+        <button class="filter-btn" data-filter="math">
+            <i class="fa-solid fa-square-root-variable"></i> Matemática
+        </button>
+        <button class="filter-btn" data-filter="date">
+            <i class="fa-regular fa-calendar"></i> Data
+        </button>
+        <button class="filter-btn" data-filter="financial">
+            <i class="fa-solid fa-sack-dollar"></i> Financeiras
+        </button>
+        <button class="filter-btn" data-filter="stats">
+            <i class="fa-solid fa-chart-pie"></i> Estatísticas
+        </button>
+        <button class="filter-btn" data-filter="shortcut">
+            <i class="fa-regular fa-keyboard"></i> Atalhos
+        </button>
+    </nav>
+
+    <main>
+        <div class="cards-grid" id="cardsGrid">
+            <!-- Os cards serão gerados via JavaScript -->
+        </div>
+        <div class="no-results" id="noResults">
+            <i class="fa-regular fa-folder-open" style="font-size: 3rem; margin-bottom: 1rem; opacity: 0.5;"></i>
+            <p>Nenhum comando encontrado com este termo.</p>
+        </div>
+    </main>
+
+    <footer>
+        <p>&copy; 2023 Excel Master Guide - Desenvolvido para consulta rápida.</p>
+    </footer>
+
+    <script>
+        // --- Dados dos Comandos ---
+        const commands = [
+            // --- Básicas ---
+            {
+                name: "SOMA",
+                category: "basic",
+                catLabel: "Básicas",
+                syntax: "=SOMA(núm1; [núm2]; ...)",
+                desc: "Soma todos os números em um intervalo de células.",
+                example: "=SOMA(A1:A10)"
+            },
+            {
+                name: "MÉDIA",
+                category: "basic",
+                catLabel: "Básicas",
+                syntax: "=MÉDIA(núm1; [núm2]; ...)",
+                desc: "Retorna a média aritmética dos argumentos.",
+                example: "=MÉDIA(B1:B20)"
+            },
+            {
+                name: "MÍNIMO",
+                category: "basic",
+                catLabel: "Básicas",
+                syntax: "=MÍN(núm1; [núm2]; ...)",
+                desc: "Retorna o menor valor numérico no conjunto de valores.",
+                example: "=MÍNIMO(C1:C5)"
+            },
+            {
+                name: "MÁXIMO",
+                category: "basic",
+                catLabel: "Básicas",
+                syntax: "=MÁX(núm1; [núm2]; ...)",
+                desc: "Retorna o maior valor numérico no conjunto de valores.",
+                example: "=MÁXIMO(D1:D5)"
+            },
+            {
+                name: "CONT.VALORES",
+                category: "basic",
+                catLabel: "Básicas",
+                syntax: "=CONT.VALORES(valor1; ...)",
+                desc: "Conta quantas células contêm valores (não vazias).",
+                example: "=CONT.VALORES(A1:A10)"
+            },
+
+            // --- Lógicas ---
+            {
+                name: "SE",
+                category: "logic",
+                catLabel: "Lógicas",
+                syntax: "=SE(teste_lógico; valor_se_verdadeiro; valor_se_falso)",
+                desc: "Verifica se uma condição é atendida e retorna um valor se for Verdadeiro e outro se for Falso.",
+                example: "=SE(A1>10; \"Aprovado\"; \"Reprovado\")"
+            },
+            {
+                name: "SES",
+                category: "logic",
+                catLabel: "Lógicas",
+                syntax: "=SES(teste1; valor1; [teste2; valor2]; ...)",
+                desc: "Avalia múltiplas condições e retorna um valor correspondente à primeira condição verdadeira.",
+                example: "=SES(A1>90; \"A\"; A1>80; \"B\"; \"C\")"
+            },
+            {
+                name: "E",
+                category: "logic",
+                catLabel: "Lógicas",
+                syntax: "=E(lógico1; [lógico2]; ...)",
+                desc: "Retorna VERDADEIRO se todos os argumentos forem verdadeiros.",
+                example: "=E(A1>1; A1<100)"
+            },
+            {
+                name: "OU",
+                category: "logic",
+                catLabel: "Lógicas",
+                syntax: "=OU(lógico1; [lógico2]; ...)",
+                desc: "Retorna VERDADEIRO se pelo menos um argumento for verdadeiro.",
+                example: "=OU(A1=1; B1=1)"
+            },
+            {
+                name: "NÃO",
+                category: "logic",
+                catLabel: "Lógicas",
+                syntax: "=NÃO(lógico)",
+                desc: "Inverte o valor lógico do argumento.",
+                example: "=NÃO(A1=100)"
+            },
+
+            // --- Texto ---
+            {
+                name: "CONCAT",
+                category: "text",
+                catLabel: "Texto",
+                syntax: "=CONCAT(texto1; [texto2]; ...)",
+                desc: "Junta textos de vários intervalos e/ou strings.",
+                example: "=CONCAT(A2; \" \"; B2)"
+            },
+            {
+                name: "ESQUERDA",
+                category: "text",
+                catLabel: "Texto",
+                syntax: "=ESQUERDA(texto; [núm_caract])",
+                desc: "Retorna os primeiros caracteres de uma string de texto.",
+                example: "=ESQUERDA(A1; 3)"
+            },
+            {
+                name: "DIREITA",
+                category: "text",
+                catLabel: "Texto",
+                syntax: "=DIREITA(texto; [núm_caract])",
+                desc: "Retorna os últimos caracteres de uma string de texto.",
+                example: "=DIREITA(A1; 2)"
+            },
+            {
+                name: "LOCALIZAR",
+                category: "text",
+                catLabel: "Texto",
+                syntax: "=LOCALIZAR(texto_procurado; no_texto; [núm_inicial])",
+                desc: "Retorna a posição de uma substring específica dentro de uma string.",
+                example: "=LOCALIZAR(\"c\"; \"Excel\")"
+            },
+            {
+                name: "SUBSTITUIR",
+                category: "text",
+                catLabel: "Texto",
+                syntax: "=SUBSTITUIR(texto_antigo; texto_novo; núm_ocorrência)",
+                desc: "Substitui texto antigo por novo texto em uma string.",
+                example: "=SUBSTITUIR(A1; \"ano\"; \"ano\")"
+            },
+
+            // --- Data e Hora ---
+            {
+                name: "HOJE",
+                category: "date",
+                catLabel: "Data",
+                syntax: "=HOJE()",
+                desc: "Retorna a data atual.",
+                example: "=HOJE()"
+            },
+            {
+                name: "AGORA",
+                category: "date",
+                catLabel: "Data",
+                syntax: "=AGORA()",
+                desc: "Retorna a data e a hora atual.",
+                example: "=AGORA()"
+            },
+            {
+                name: "DATA",
+                category: "date",
+                catLabel: "Data",
+                syntax: "=DATA(ano; mês; dia)",
+                desc: "Retorna o número de série de uma data específica.",
+                example: "=DATA(2023; 12; 25)"
+            },
+            {
+                name: "DIAS",
+                category: "date",
+                catLabel: "Data",
+                syntax: "=DIAS(data_fim; data_início)",
+                desc: "Retorna o número de dias entre duas datas.",
+                example: "=DIAS(A2; A1)"
+            },
+            {
+                name: "DIA / MÊS / ANO",
+                category: "date",
+                catLabel: "Data",
+                syntax: "=DIA(núm_série_data)",
+                desc: "Converte um número de série em um dia, mês ou ano.",
+                example: "=ANO(DATA(2023;1;1))"
+            },
+
+            // --- Procura e Referência ---
+            {
+                name: "PROCV",
+                category: "search",
+                catLabel: "Procura",
+                syntax: "=PROCV(valor_procurado; tabela_matriz; núm_índice_col; [correspondência])",
+                desc: "Procura um valor na primeira coluna à esquerda e retorna um valor na mesma linha de uma coluna especificada.",
+                example: "=PROCV(\" João\"; A1:C10; 3; FALSO)"
+            },
+            {
+                name: "PROCX (XLOOKUP)",
+                category: "search",
+                catLabel: "Procura",
+                syntax: "=PROCX(valor_buscado; vetor_busca; vetor_retorno; [se_não_encontrado])",
+                desc: "Versão moderna e robusta do PROCV. Procura em qualquer direção.",
+                example: "=PROCX(E2; A2:A10; C2:C10; \"Não encontrado\")"
+            },
+            {
+                name: "ÍNDICE",
+                category: "search",
+                catLabel: "Procura",
+                syntax: "=ÍNDICE(matriz; núm_linha; [núm_coluna])",
+                desc: "Retorna o valor de uma célula específica em uma matriz com base no número da linha e coluna.",
+                example: "=ÍNDICE(A1:C10; 5; 2)"
+            },
+            {
+                name: "CORRESP",
+                category: "search",
+                catLabel: "Procura",
+                syntax: "=CORRESP(valor_procurado; matriz_procurada; [tipo_correspondência])",
+                desc: "Retorna a posição relativa de um item em uma matriz.",
+                example: "=CORRESP(\"Laranja\"; A1:A5; 0)"
+            },
+
+            // --- Matemáticas ---
+            {
+                name: "ARRED",
+                category: "math",
+                catLabel: "Matemática",
+                syntax: "=ARRED(núm; núm_dígitos)",
+                desc: "Arredonda um número para uma quantidade especificada de dígitos.",
+                example: "=ARRED(10,567; 2)"
+            },
+            {
+                name: "ARRED.PARA.CIMA",
+                category: "math",
+                catLabel: "Matemática",
+                syntax: "=ARRED.PARA.CIMA(núm; núm_dígitos)",
+                desc: "Arredonda um número para cima, afastando-o de zero.",
+                example: "=ARRED.PARA.CIMA(3,2; 0)"
+            },
+            {
+                name: "POTÊNCIA",
+                category: "math",
+                catLabel: "Matemática",
+                syntax: "=POTÊNCIA(núm; potência)",
+                desc: "Retorna o resultado de um número elevado a uma potência.",
+                example: "=POTÊNCIA(5; 2)"
+            },
+            {
+                name: "RAIZ",
+                category: "math",
+                catLabel: "Matemática",
+                syntax: "=RAIZ(núm)",
+                desc: "Retorna a raiz quadrada de um número.",
+                example: "=RAIZ(64)"
+            },
+
+            // --- Financeiras ---
+            {
+                name: "PGTO",
+                category: "financial",
+                catLabel: "Financeiras",
+                syntax: "=PGTO(taxa; nper; vp; [vf]; [tipo])",
+                desc: "Calcula o pagamento periódico de uma anuidade com base em pagamentos constantes e uma taxa de juros constante.",
+                example: "=PGTO(5%/12; 60; 50000)"
+            },
+            {
+                name: "VP",
+                category: "financial",
+                catLabel: "Financeiras",
+                syntax: "=VP(taxa; nper; pgto; [vf]; [tipo])",
+                desc: "Retorna o valor presente de um investimento: o valor total de uma série de pagamentos futuros.",
+                example: "=VP(5%/12; 60; 500)"
+            },
+            {
+                name: "VF",
+                category: "financial",
+                catLabel: "Financeiras",
+                syntax: "=VF(taxa; nper; pgto; [vp]; [tipo])",
+                desc: "Retorna o valor futuro de um investimento com base em pagamentos periódicos constantes e uma taxa de juros constante.",
+                example: "=VF(5%/12; 10; 100)"
+            },
+
+            // --- Estatísticas ---
+            {
+                name: "CONT.SE",
+                category: "stats",
+                catLabel: "Estatísticas",
+                syntax: "=CONT.SE(intervalo; critérios)",
+                desc: "Conta o número de células dentro de um intervalo que atendem a uma condição.",
+                example: "=CONT.SE(A1:A10; \">5\")"
+            },
+            {
+                name: "SOMASE",
+                category: "stats",
+                catLabel: "Estatísticas",
+                syntax: "=SOMASE(intervalo; critérios; [intervalo_soma])",
+                desc: "Soma as células em um intervalo que atendem aos critérios.",
+                example: "=SOMASE(B1:B10; \"Vendas\"; A1:A10)"
+            },
+            {
+                name: "MÉDIASE",
+                category: "stats",
+                catLabel: "Estatísticas",
+                syntax: "=MÉDIASE(intervalo_média; intervalo_critérios; critério)",
+                desc: "Retorna a média (aritmética) de todas as células que atendem a múltiplos critérios.",
+                example: "=MÉDIASE(A1:A10; B1:B10; \">100\")"
+            },
+            {
+                name: "DESVPAD.P",
+                category: "stats",
+                catLabel: "Estatísticas",
+                syntax: "=DESVPAD.P(núm1; [núm2]; ...)",
+                desc: "Calcula o desvio padrão com base na população inteira.",
+                example: "=DESVPAD.P(A1:A20)"
+            },
+
+            // --- Atalhos ---
+            {
+                name: "Copiar / Colar",
+                category: "shortcut",
+                catLabel: "Atalhos",
+                syntax: "Ctrl + C / Ctrl + V",
+                desc: "Copia a seleção para a área de transferência e cola o conteúdo copiado.",
+                example: "Essenciais para movimentação rápida de dados."
+            },
+            {
+                name: "Desfazer",
+                category: "shortcut",
+                catLabel: "Atalhos",
+                syntax: "Ctrl + Z",
+                desc: "Desfaz a última ação executada.",
+                example: "Salva vidas quando você apaga algo errado."
+            },
+            {
+                name: "Filtros",
+                category: "shortcut",
+                catLabel: "Atalhos",
+                syntax: "Ctrl + Shift + L",
+                desc: "Ativa ou desativa os filtros na célula selecionada.",
+                example: "Rápido acesso para filtrar tabelas."
+            },
+            {
+                name: "AutoSoma",
+                category: "shortcut",
+                catLabel: "Atalhos",
+                syntax: "Alt + =",
+                desc: "Insere a fórmula SOMA automaticamente.",
+                example: "Soma a coluna acima instantaneamente."
+            },
+            {
+                name: "Editar Célula",
+                category: "shortcut",
+                catLabel: "Atalhos",
+                syntax: "F2",
+                desc: "Ativa o modo de edição na célula ativa.",
+                example: "Permite alterar partes da fórmula sem reescrever tudo."
+            }
+        ];
+
+        // --- Elementos do DOM ---
+        const cardsGrid = document.getElementById('cardsGrid');
+        const searchInput = document.getElementById('searchInput');
+        const filterBtns = document.querySelectorAll('.filter-btn');
+        const noResults = document.getElementById('noResults');
+
+        let currentFilter = 'all';
+
+        // --- Função para Renderizar Cards ---
+        function renderCards(data) {
+            cardsGrid.innerHTML = '';
+            
+            if (data.length === 0) {
+                noResults.style.display = 'block';
+                return;
+            } else {
+                noResults.style.display = 'none';
+            }
+
+            data.forEach(cmd => {
+                const isShortcut = cmd.category === 'shortcut';
+                const cardClass = isShortcut ? 'card shortcut-card' : 'card';
+                
+                let contentBlock = '';
+
+                if (isShortcut) {
+                    // Renderização específica para atalhos
+                    contentBlock = `
+                        <div class="shortcut-keys">
+                            <span class="kbd">${cmd.syntax.replace(' / ', '</span><span class="kbd">').replace(' + ', '</span><span style="font-size:0.8em; display:flex;align-items:center;">+</span><span class="kbd">')}</span>
+                        </div>
+                    `;
+                } else {
+                    // Renderização padrão para fórmulas
+                    contentBlock = `
+                        <div class="code-block">
+                            <span class="code-label">Sintaxe</span>
+                            ${cmd.syntax}
+                        </div>
+                        <div class="example-box">
+                            <span class="example-label">Exemplo Prático</span>
+                            ${cmd.example}
+                        </div>
+                    `;
+                }
+
+                const cardHTML = `
+                    <article class="${cardClass}">
+                        <div class="card-header">
+                            <h3 class="card-title">
+                                ${isShortcut ? '<i class="fa-regular fa-keyboard"></i>' : '<i class="fa-solid fa-function"></i>'} 
+                                ${cmd.name}
+                            </h3>
+                            <span class="card-category">${cmd.catLabel}</span>
+                        </div>
+                        <p class="card-description">${cmd.desc}</p>
+                        ${contentBlock}
+                    </article>
+                `;
+                
+                cardsGrid.innerHTML += cardHTML;
+            });
+        }
+
+        // --- Função de Filtragem ---
+        function filterData() {
+            const searchTerm = searchInput.value.toLowerCase();
+            
+            const filtered = commands.filter(cmd => {
+                // Filtro por categoria
+                const matchesCategory = currentFilter === 'all' || cmd.category === currentFilter;
+                
+                // Filtro por termo de busca (Nome, Descrição, Sintaxe ou Exemplo)
+                const matchesSearch = 
+                    cmd.name.toLowerCase().includes(searchTerm) ||
+                    cmd.desc.toLowerCase().includes(searchTerm) ||
+                    cmd.syntax.toLowerCase().includes(searchTerm) ||
+                    cmd.example.toLowerCase().includes(searchTerm);
+
+                return matchesCategory && matchesSearch;
+            });
+
+            renderCards(filtered);
+        }
+
+        // --- Event Listeners ---
+        
+        // Busca em tempo real
+        searchInput.addEventListener('input', filterData);
+
+        // Cliques nos botões de categoria
+        filterBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                // Remove active de todos
+                filterBtns.forEach(b => b.classList.remove('active'));
+                // Adiciona active no clicado
+                btn.classList.add('active');
+                
+                // Atualiza filtro atual
+                currentFilter = btn.getAttribute('data-filter');
+                
+                // Executa filtragem
+                filterData();
+            });
+        });
+
+        // Inicialização
+        renderCards(commands);
+
+    </script>
+</body>
+</html>
