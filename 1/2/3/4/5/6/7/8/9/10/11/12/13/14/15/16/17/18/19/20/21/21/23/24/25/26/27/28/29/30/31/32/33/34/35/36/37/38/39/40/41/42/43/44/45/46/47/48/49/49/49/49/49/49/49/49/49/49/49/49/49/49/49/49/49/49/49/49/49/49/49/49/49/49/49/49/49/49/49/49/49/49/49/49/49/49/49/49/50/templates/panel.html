@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Painel AutoClicker PRO</title>
+</head>
+<body>
+  <h2>Licenças PRO</h2>
+
+  <form method="post">
+    <button>Criar nova chave</button>
+  </form>
+
+  <ul>
+    {% for l in licenses %}
+      <li>
+        {{ l.key }} |
+        Ativa: {{ l.active }} |
+        HWID: {{ l.hwid or "—" }}
+      </li>
+    {% endfor %}
+  </ul>
+</body>
+</html>
