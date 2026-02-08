@@ -287,6 +287,7 @@
             transition: transform 0.3s, opacity 0.3s;
             z-index: 1000;
             max-width: 300px;
+            text-align: center;
         }
 
         .toast.show {
@@ -832,14 +833,14 @@
                 <!-- Controles de Câmera e Lanterna -->
                 <div class="scanner-options-row">
                     <select id="cameraSelect">
-                        <option value="">Carregando câmeras...</option>
+                        <option value="">Aguardando...</option>
                     </select>
                     <button id="torchButton" class="secondary-button" disabled>🔦 Lanterna</button>
                 </div>
 
                 <!-- Opção Auto-Open URL -->
                 <div class="auto-open-row">
-                    <label for="autoOpenUrl">Abrir URLs automaticamente ao detectar:</label>
+                    <label for="autoOpenUrl">Abrir URLs automaticamente:</label>
                     <label class="switch">
                         <input type="checkbox" id="autoOpenUrl">
                         <span class="slider"></span>
@@ -928,7 +929,20 @@ Texto 3
             setupEventListeners();
             generateQRCode(); // Gerar QR Code inicial
             renderHistory(); // Renderizar histórico salvo
+            
+            // Verificação de segurança ao carregar
+            checkSecurityContext();
         });
+        
+        // Verifica se o ambiente suporta câmera (HTTPS/Localhost)
+        function checkSecurityContext() {
+            if (location.protocol !== 'https:' && location.hostname !== 'localhost' && location.hostname !== '127.0.0.1') {
+                console.warn("Aviso: O acesso à câmera pode ser bloqueado porque não está usando HTTPS ou Localhost.");
+            }
+            if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+                console.error("Navegador não suporta getUserMedia");
+            }
+        }
         
         // Configurar event listeners
         function setupEventListeners() {
@@ -1003,17 +1017,35 @@ Texto 3
             });
         }
         
-        // --- Lógica de Scanner Avançado ---
+        // --- Lógica de Scanner Avançado (CORRIGIDA) ---
 
         // Listar câmeras disponíveis
         async function getCameraList() {
             const cameraSelect = document.getElementById('cameraSelect');
             
             // Reset
-            cameraSelect.innerHTML = '<option value="">Selecione a câmera...</option>';
+            cameraSelect.innerHTML = '';
             
+            // 1. Verificar suporte básico
+            if (!navigator.mediaDevices || !navigator.mediaDevices.enumerateDevices) {
+                const option = document.createElement('option');
+                option.text = "Navegador incompatível";
+                cameraSelect.add(option);
+                showToast("Erro: Seu navegador não suporta acesso a câmeras.", "error");
+                return;
+            }
+
+            // 2. Verificar contexto de segurança (HTTP vs HTTPS)
+            if (location.protocol !== 'https:' && location.hostname !== 'localhost' && location.hostname !== '127.0.0.1') {
+                 const option = document.createElement('option');
+                option.text = "Requer HTTPS/Localhost";
+                cameraSelect.add(option);
+                showToast("Erro: A câmera só funciona em HTTPS ou Localhost. Use um servidor local.", "error");
+                return;
+            }
+
             try {
-                // Solicitar permissão primeiro para garantir que a lista seja preenchida
+                // Solicitar permissão primeiro (essencial para pegar os labels)
                 await navigator.mediaDevices.getUserMedia({ video: true });
                 
                 const devices = await navigator.mediaDevices.enumerateDevices();
@@ -1023,18 +1055,20 @@ Texto 3
                     const option = document.createElement('option');
                     option.text = "Nenhuma câmera encontrada";
                     cameraSelect.add(option);
+                    showToast("Nenhuma câmera detectada no dispositivo.", "warning");
                     return;
                 }
 
                 videoDevices.forEach((device, index) => {
                     const option = document.createElement('option');
                     option.value = device.deviceId;
+                    // Se não tiver label, usa um padrão
                     option.text = device.label || `Câmera ${index + 1}`;
                     cameraSelect.add(option);
                 });
 
-                // Tenta selecionar a câmera traseira por padrão (environment)
-                const backCamera = videoDevices.find(d => d.label.toLowerCase().includes('back') || d.label.toLowerCase().includes('traseira'));
+                // Tenta selecionar a câmera traseira por padrão
+                const backCamera = videoDevices.find(d => d.label.toLowerCase().includes('back') || d.label.toLowerCase().includes('traseira') || d.label.toLowerCase().includes('environment'));
                 if (backCamera) {
                     cameraSelect.value = backCamera.deviceId;
                 }
@@ -1042,8 +1076,19 @@ Texto 3
             } catch (err) {
                 console.error("Erro ao obter câmeras:", err);
                 const option = document.createElement('option');
-                option.text = "Erro ao acessar câmeras";
+                option.text = "Permissão Negada / Erro";
                 cameraSelect.add(option);
+                
+                let errorMsg = "Erro ao acessar câmeras.";
+                if (err.name === 'NotAllowedError' || err.name === 'PermissionDeniedError') {
+                    errorMsg += " Permissão negada pelo usuário.";
+                } else if (err.name === 'NotFoundError') {
+                    errorMsg += " Nenhuma câmera encontrada.";
+                } else if (location.protocol === 'file:') {
+                    errorMsg += " Você está abrindo o arquivo localmente (file://). Use um servidor local (Live Server) ou HTTPS.";
+                }
+                
+                showToast(errorMsg, "error");
             }
         }
 
@@ -1071,6 +1116,11 @@ Texto 3
             }
 
             try {
+                // Parar stream anterior se existir
+                if (scannerStream) {
+                    scannerStream.getTracks().forEach(track => track.stop());
+                }
+
                 const stream = await navigator.mediaDevices.getUserMedia(constraints);
                 scannerStream = stream;
                 video.srcObject = stream;
@@ -1080,15 +1130,22 @@ Texto 3
                 // Verifica suporte à Lanterna
                 const track = stream.getVideoTracks()[0];
                 const capabilities = track.getCapabilities();
-                if (capabilities.torch) {
+                
+                // Reset botão lanterna
+                torchState = false;
+                torchButton.classList.remove('active');
+
+                if (capabilities && capabilities.torch) {
                     torchButton.disabled = false;
                 } else {
                     torchButton.disabled = true;
                 }
                 
-                showToast('Scanner iniciado. Aponte a câmera para um QR Code.', 'success');
+                showToast('Scanner iniciado.', 'success');
                 
                 // Iniciar análise do vídeo
+                if (scanningInterval) clearInterval(scanningInterval);
+                
                 scanningInterval = setInterval(() => {
                     if (video.readyState === video.HAVE_ENOUGH_DATA) {
                         canvas.height = video.videoHeight;
@@ -1105,7 +1162,9 @@ Texto 3
                     }
                 }, 250); // Verifica a cada 250ms
             } catch (err) {
-                showToast('Não foi possível acessar a câmera: ' + err, 'error');
+                console.error("Erro no startScanner:", err);
+                showToast('Erro ao iniciar câmera: ' + err.name + ' - Verifique as permissões.', 'error');
+                stopScanner();
             }
         }
 
@@ -1125,7 +1184,11 @@ Texto 3
 
             // Reseta estado da lanterna
             torchState = false;
-            document.getElementById('torchButton').classList.remove('active');
+            const torchButton = document.getElementById('torchButton');
+            if(torchButton) {
+                torchButton.classList.remove('active');
+                torchButton.disabled = true;
+            }
         }
 
         async function toggleTorch() {
@@ -1148,8 +1211,10 @@ Texto 3
                     showToast('Lanterna desativada', 'success');
                 }
             } catch (err) {
+                console.error(err);
                 showToast('Erro ao controlar lanterna: ' + err.message, 'error');
                 torchState = false; // Reverter estado se falhar
+                document.getElementById('torchButton').classList.remove('active');
             }
         }
 
@@ -1165,8 +1230,6 @@ Texto 3
             resultDiv.innerHTML = `<strong>Último resultado:</strong><br>${data}`;
             
             // Adicionar ao input principal (se estiver na aba texto)
-            // Opcional: não trocar de aba automaticamente se o usuário estiver em outra
-            // Mas vamos preencher o campo texto
             document.getElementById('qrText').value = data;
             generateQRCode();
 
@@ -1194,7 +1257,7 @@ Texto 3
             // Adiciona no início do array
             scanHistory.unshift(entry);
             
-            // Limita histórico a 50 itens para não estourar memória/localstorage
+            // Limita histórico a 50 itens
             if (scanHistory.length > 50) scanHistory.pop();
             
             saveHistory();
@@ -1221,7 +1284,6 @@ Texto 3
                 const date = new Date(item.timestamp);
                 const dateStr = date.toLocaleDateString() + ' ' + date.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
                 
-                // Trunca o texto se for muito longo
                 let displayContent = item.content;
                 if (displayContent.length > 40) {
                     displayContent = displayContent.substring(0, 37) + '...';
@@ -1238,13 +1300,10 @@ Texto 3
             });
         }
 
-        // Função global para ser chamada pelo onclick do HTML
         window.useHistoryItem = function(content) {
             document.getElementById('qrText').value = content;
             generateQRCode();
             showToast('Conteúdo carregado para edição', 'success');
-            // Opcional: fechar modal
-            // closeScannerModal(); 
         };
 
         function clearHistory() {
@@ -1263,11 +1322,10 @@ Texto 3
             }
 
             let csvContent = "data:text/csv;charset=utf-8,";
-            csvContent += "Data/Hora,Conteudo\n"; // Cabeçalho
+            csvContent += "Data/Hora,Conteudo\n";
 
             scanHistory.forEach(item => {
                 const date = new Date(item.timestamp).toLocaleString();
-                // Escapar vírgulas e aspas no conteúdo
                 const safeContent = `"${item.content.replace(/"/g, '""')}"`;
                 csvContent += `${date},${safeContent}\n`;
             });
@@ -1316,7 +1374,6 @@ Texto 3
         
         // Funções para gerar QR Code
         function generateQRCode() {
-            // Obter dados do QR Code com base na aba ativa
             const activeTab = document.querySelector('.tab.active').getAttribute('data-tab');
             let qrData = '';
             
@@ -1364,7 +1421,6 @@ END:VCARD`;
                     break;
             }
             
-            // Se não houver dados, usar um texto padrão
             if (!qrData) {
                 qrData = "QRCodeMaker - Exemplo de QR Code";
                 document.getElementById('qrText').value = qrData;
@@ -1372,7 +1428,6 @@ END:VCARD`;
             
             currentQRData = qrData;
             
-            // Obter opções de personalização
             const size = parseInt(document.getElementById('qrSize').value);
             const margin = parseInt(document.getElementById('qrMargin').value);
             const errorCorrection = document.getElementById('errorCorrection').value;
@@ -1380,15 +1435,12 @@ END:VCARD`;
             const backgroundColor = document.getElementById('qrBackgroundColor').value;
             const invertColors = document.getElementById('invertColors').checked;
             
-            // Inverter cores se necessário
             const finalForegroundColor = invertColors ? backgroundColor : foregroundColor;
             const finalBackgroundColor = invertColors ? foregroundColor : backgroundColor;
             
-            // Limpar QR Code anterior
             const qrcodeContainer = document.getElementById('qrcode');
             qrcodeContainer.innerHTML = '';
             
-            // Gerar QR Code usando a biblioteca qrcode.js
             qrcode = new QRCode(qrcodeContainer, {
                 text: qrData,
                 width: size,
@@ -1398,83 +1450,61 @@ END:VCARD`;
                 correctLevel: QRCode.CorrectLevel[errorCorrection]
             });
             
-            // Adicionar logo se houver
             if (logoImageData) {
                 setTimeout(() => {
                     addLogoToQRCode();
                 }, 100);
             }
             
-            // Atualizar informações técnicas
             updateQRInfo(qrData, size, errorCorrection);
-            
-            // Mostrar notificação de sucesso
             showToast('QR Code gerado com sucesso!', 'success');
         }
         
-        // Adicionar logo ao QR Code
         function addLogoToQRCode() {
             const logoSize = parseInt(document.getElementById('logoSize').value);
             const logoPadding = document.getElementById('logoPadding').checked;
             
-            // Obter imagem do QR Code
             const qrImage = document.querySelector('#qrcode img');
             if (!qrImage) return;
             
-            // Criar canvas para manipulação
             const canvas = document.createElement('canvas');
             const ctx = canvas.getContext('2d');
             
-            // Definir tamanho do canvas
             canvas.width = qrImage.width;
             canvas.height = qrImage.height;
             
-            // Desenhar QR Code no canvas
             ctx.drawImage(qrImage, 0, 0);
             
-            // Calcular tamanho e posição do logo
             const logoWidth = Math.floor(canvas.width * logoSize / 100);
             const logoHeight = Math.floor(canvas.height * logoSize / 100);
             const logoX = (canvas.width - logoWidth) / 2;
             const logoY = (canvas.height - logoHeight) / 2;
             
-            // Adicionar padding se necessário
             if (logoPadding) {
                 const paddingSize = Math.floor(logoWidth * 0.1);
                 ctx.fillStyle = '#FFFFFF';
                 ctx.fillRect(logoX - paddingSize, logoY - paddingSize, logoWidth + 2 * paddingSize, logoHeight + 2 * paddingSize);
             }
             
-            // Carregar e desenhar logo
             const img = new Image();
             img.onload = function() {
                 ctx.drawImage(img, logoX, logoY, logoWidth, logoHeight);
-                
-                // Substituir imagem do QR Code pela imagem com logo
                 qrImage.src = canvas.toDataURL('image/png');
             };
             img.src = logoImageData;
         }
         
-        // Atualizar informações do QR Code
         function updateQRInfo(data, size, errorCorrection) {
-            // Calcular versão aproximada (simplificado)
             const version = Math.ceil(Math.sqrt(data.length) / 5);
-            
-            // Calcular capacidade aproximada (simplificado)
             const capacity = data.length;
-            
-            // Calcular nível de máscara (simplificado)
             const mask = Math.floor(Math.random() * 8);
             
-            // Atualizar informações na interface
             document.getElementById('qrVersion').textContent = `v${version}`;
             document.getElementById('qrCapacity').textContent = `${capacity} bytes`;
             document.getElementById('qrMask').textContent = mask;
             document.getElementById('qrFinalSize').textContent = `${size}x${size} pixels`;
         }
         
-        // Funções de utilidade
         function updateQRSize() {
             const size = document.getElementById('qrSize').value;
             document.getElementById('qrSizeValue').textContent = size;
@@ -1529,7 +1559,6 @@ END:VCARD`;
             }
         }
         
-        // Funções de entrada de dados
         function pasteFromClipboard() {
             navigator.clipboard.readText()
                 .then(text => {
@@ -1553,7 +1582,6 @@ END:VCARD`;
             generateQRCode();
         }
         
-        // Funções de exportação
         function downloadQRCode() {
             const qrImage = document.querySelector('#qrcode img');
             if (!qrImage) {
@@ -1561,7 +1589,6 @@ END:VCARD`;
                 return;
             }
             
-            // Criar link para download
             const link = document.createElement('a');
             link.download = 'qrcode.png';
             link.href = qrImage.src;
@@ -1614,7 +1641,6 @@ END:VCARD`;
                 });
         }
         
-        // Funções dos Modais
         function openScannerModal() {
             document.getElementById('scannerModal').style.display = 'flex';
         }
@@ -1653,7 +1679,6 @@ END:VCARD`;
             }
         }
         
-        // Funções de geração em lote
         function openBatchModal() {
             document.getElementById('batchModal').style.display = 'flex';
         }
@@ -1671,7 +1696,6 @@ END:VCARD`;
                 return;
             }
             
-            // Dividir dados por linha
             const lines = data.split('\n').filter(line => line.trim());
             
             if (lines.length === 0) {
@@ -1679,7 +1703,6 @@ END:VCARD`;
                 return;
             }
             
-            // Obter opções de personalização atuais
             const size = parseInt(document.getElementById('qrSize').value);
             const margin = parseInt(document.getElementById('qrMargin').value);
             const errorCorrection = document.getElementById('errorCorrection').value;
@@ -1687,21 +1710,16 @@ END:VCARD`;
             const backgroundColor = document.getElementById('qrBackgroundColor').value;
             const invertColors = document.getElementById('invertColors').checked;
             
-            // Inverter cores se necessário
             const finalForegroundColor = invertColors ? backgroundColor : foregroundColor;
             const finalBackgroundColor = invertColors ? foregroundColor : backgroundColor;
             
-            // Criar um arquivo ZIP
             const zip = new JSZip();
             
-            // Gerar QR Codes para cada linha
             lines.forEach((line, index) => {
-                // Criar um container temporário para o QR Code
                 const tempContainer = document.createElement('div');
                 tempContainer.style.display = 'none';
                 document.body.appendChild(tempContainer);
                 
-                // Gerar QR Code
                 const tempQRCode = new QRCode(tempContainer, {
                     text: line,
                     width: size,
@@ -1711,23 +1729,17 @@ END:VCARD`;
                     correctLevel: QRCode.CorrectLevel[errorCorrection]
                 });
                 
-                // Gerar nome do arquivo
                 const filename = naming.replace('{index}', index + 1).replace('{data}', line.substring(0, 10).replace(/[^a-z0-9]/gi, '_'));
                 
-                // Aguardar a geração do QR Code e adicionar ao ZIP
                 setTimeout(() => {
                     const tempImage = tempContainer.querySelector('img');
                     if (tempImage) {
-                        // Converter imagem para base64
                         const base64 = tempImage.src.replace(/^data:image\/(png|jpg|jpeg);base64,/, '');
                         
-                        // Adicionar ao ZIP
                         zip.file(`${filename}.png`, base64, { base64: true });
                         
-                        // Remover container temporário
                         document.body.removeChild(tempContainer);
                         
-                        // Se for o último QR Code, baixar o ZIP
                         if (index === lines.length - 1) {
                             zip.generateAsync({ type: 'blob' }).then(function(content) {
                                 saveAs(content, 'qrcodes.zip');
@@ -1739,7 +1751,6 @@ END:VCARD`;
             });
         }
         
-        // Função de notificação (Toast)
         function showToast(message, type = 'success') {
             const toast = document.getElementById('toast');
             toast.textContent = message;
@@ -1755,7 +1766,7 @@ END:VCARD`;
             
             setTimeout(() => {
                 toast.classList.remove('show');
-            }, 3000);
+            }, 4000);
         }
     </script>
 </body>
