@@ -1,14 +1,14 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="UTF-8">
   <title>Petição Popular – Malacacheta/MG</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
   <!-- reCAPTCHA v3 -->
   <script src="https://www.google.com/recaptcha/api.js?render=6LeJo2QsAAAAAHZc7fAcMthnJdr5FMLM5H1luikW"></script>
 
-  <!-- Firebase -->
+  <!-- Firebase (compat) -->
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
@@ -17,61 +17,16 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
   <style>
-    body {
-      margin: 0;
-      font-family: Arial, sans-serif;
-      background: #f4f6f8;
-      color: #1c1c1c;
-    }
-    header {
-      background: #1f3a5f;
-      color: white;
-      padding: 2rem;
-      text-align: center;
-    }
-    main {
-      max-width: 900px;
-      margin: auto;
-      padding: 1rem;
-    }
-    .card {
-      background: white;
-      padding: 1.5rem;
-      margin-bottom: 1.5rem;
-      border-radius: 8px;
-    }
-    .counter {
-      font-size: 2rem;
-      font-weight: bold;
-      text-align: center;
-    }
-    label {
-      display: block;
-      margin-top: 1rem;
-    }
-    input {
-      width: 100%;
-      padding: 0.6rem;
-      margin-top: 0.3rem;
-    }
-    button {
-      margin-top: 1.5rem;
-      padding: 0.8rem 1.2rem;
-      border: none;
-      background: #1f3a5f;
-      color: white;
-      border-radius: 6px;
-      cursor: pointer;
-    }
-    .warning {
-      color: #b91c1c;
-      font-size: 0.85rem;
-    }
-    footer {
-      text-align: center;
-      font-size: 0.85rem;
-      margin: 2rem;
-    }
+    body { margin:0; font-family:Arial,sans-serif; background:#f4f6f8; color:#1c1c1c }
+    header { background:#1f3a5f; color:#fff; padding:2rem; text-align:center }
+    main { max-width:900px; margin:auto; padding:1rem }
+    .card { background:#fff; padding:1.5rem; margin-bottom:1.5rem; border-radius:8px }
+    .counter { font-size:2rem; font-weight:bold; text-align:center }
+    label { display:block; margin-top:1rem }
+    input { width:100%; padding:.6rem; margin-top:.3rem }
+    button { margin-top:1.2rem; padding:.8rem 1.2rem; background:#1f3a5f; color:#fff; border:0; border-radius:6px; cursor:pointer }
+    .warning { font-size:.85rem; color:#b91c1c }
+    footer { text-align:center; font-size:.85rem; margin:2rem }
   </style>
 </head>
 
@@ -85,24 +40,24 @@
 <main>
 
   <section class="card">
-    <div class="counter" id="counter">0<br><span style="font-size:0.9rem">assinaturas registradas</span></div>
+    <div class="counter" id="counter">0<br><span style="font-size:.9rem">assinaturas registradas</span></div>
   </section>
 
   <section class="card">
     <h2>Assine a petição</h2>
     <form id="petitionForm">
       <label>Nome completo *</label>
-      <input type="text" id="name" required />
+      <input type="text" id="name" required>
 
       <label>Título de eleitor (opcional)</label>
-      <input type="text" id="voter" />
+      <input type="text" id="voter">
       <div class="warning">Não informe CPF, RG ou CNH.</div>
 
       <label>E-mail ou telefone (opcional)</label>
-      <input type="text" id="contact" />
+      <input type="text" id="contact">
 
       <label>
-        <input type="checkbox" id="consent" required />
+        <input type="checkbox" id="consent" required>
         Declaro que li e concordo com os termos.
       </label>
 
@@ -118,12 +73,12 @@
 
   <section class="card" id="adminLogin">
     <h2>Acesso administrativo</h2>
-    <input type="email" id="adminEmail" placeholder="E-mail" />
-    <input type="password" id="adminPassword" placeholder="Senha" />
+    <input type="email" id="adminEmail" placeholder="E-mail">
+    <input type="password" id="adminPassword" placeholder="Senha">
     <button onclick="login()">Entrar</button>
   </section>
 
-  <section class="card" id="adminPanel" style="display:none;">
+  <section class="card" id="adminPanel" style="display:none">
     <h2>Área administrativa</h2>
     <button onclick="downloadPDF()">Baixar assinaturas em PDF</button>
     <button onclick="logout()">Sair</button>
@@ -136,6 +91,7 @@
 </footer>
 
 <script>
+  /* Firebase config */
   const firebaseConfig = {
     apiKey: "AIzaSyB8j3uUT1PYLGneOmc7BqdHm0lpJDzd4FU",
     authDomain: "peticao-malacacheta.firebaseapp.com",
@@ -146,20 +102,28 @@
   const db = firebase.firestore();
   const auth = firebase.auth();
 
+  /* DOM */
   const counterEl = document.getElementById('counter');
+  const form = document.getElementById('petitionForm');
   const submitBtn = document.getElementById('submitBtn');
-  const petitionForm = document.getElementById('petitionForm');
 
+  const nameInput = document.getElementById('name');
+  const voterInput = document.getElementById('voter');
+  const contactInput = document.getElementById('contact');
+
+  /* Counter */
   db.collection('signatures').onSnapshot(snap => {
     counterEl.firstChild.textContent = snap.size;
   });
 
+  /* Prevent multiple submissions */
   if (localStorage.getItem('signed_petition')) {
     submitBtn.disabled = true;
-    submitBtn.innerText = 'Assinatura já registrada';
+    submitBtn.textContent = 'Assinatura já registrada';
   }
 
-  petitionForm.addEventListener('submit', e => {
+  /* Submit */
+  form.addEventListener('submit', e => {
     e.preventDefault();
     if (localStorage.getItem('signed_petition')) return;
 
@@ -170,9 +134,9 @@
       );
 
       await db.collection('signatures').add({
-        name: name.value.trim(),
-        voter: voter.value.trim(),
-        contact: contact.value.trim(),
+        name: nameInput.value.trim(),
+        voter: voterInput.value.trim(),
+        contact: contactInput.value.trim(),
         createdAt: firebase.firestore.FieldValue.serverTimestamp(),
         recaptcha: token
       });
@@ -183,42 +147,48 @@
     });
   });
 
-  function share(platform) {
+  /* Share */
+  function share(p) {
     const url = encodeURIComponent(location.href);
     const text = encodeURIComponent('Assine a petição popular de Malacacheta/MG');
-    if (platform === 'whatsapp') {
+    if (p === 'whatsapp') {
       window.open(`https://wa.me/?text=${text}%20${url}`, '_blank');
     }
-    if (platform === 'instagram') {
-      alert('Copie o link da página e compartilhe no Instagram.');
+    if (p === 'instagram') {
+      alert('Copie o link e compartilhe no Instagram.');
     }
   }
 
+  /* Auth admin */
   auth.onAuthStateChanged(user => {
     adminPanel.style.display = user ? 'block' : 'none';
     adminLogin.style.display = user ? 'none' : 'block';
   });
 
   function login() {
-    auth.signInWithEmailAndPassword(adminEmail.value, adminPassword.value)
-      .catch(() => alert('Erro de login'));
+    auth.signInWithEmailAndPassword(
+      adminEmail.value,
+      adminPassword.value
+    ).catch(() => alert('Erro de login'));
   }
 
   function logout() {
     auth.signOut();
   }
 
+  /* PDF */
   async function downloadPDF() {
     const { jsPDF } = window.jspdf;
     const doc = new jsPDF();
     let y = 10;
-    doc.text('Assinaturas da Petição', 10, y);
+
+    doc.text('Assinaturas da Petição – Malacacheta/MG', 10, y);
     y += 10;
 
     const snap = await db.collection('signatures').orderBy('createdAt').get();
     snap.forEach((d, i) => {
       const s = d.data();
-      doc.text(`${i + 1}. ${s.name} | ${s.voter || '-'} | ${s.contact || '-'}`, 10, y);
+      doc.text(`${i+1}. ${s.name} | ${s.voter || '-'} | ${s.contact || '-'}`, 10, y);
       y += 8;
       if (y > 280) { doc.addPage(); y = 10; }
     });
