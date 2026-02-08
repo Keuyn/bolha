@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>QRCodeMaker PRO</title>
+
+<script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+
+<style>
+body {
+    background:#000;
+    color:#fff;
+    font-family:Arial, Helvetica, sans-serif;
+    padding:20px;
+}
+button, select, input, textarea {
+    padding:8px;
+    margin:4px 0;
+}
+.qr-preview {
+    background:#fff;
+    padding:20px;
+    text-align:center;
+}
+.modal {
+    display:none;
+    position:fixed;
+    inset:0;
+    background:rgba(0,0,0,.85);
+    justify-content:center;
+    align-items:center;
+}
+.modal-content {
+    background:#111;
+    padding:20px;
+    width:95%;
+    max-width:500px;
+}
+ul {
+    list-style:none;
+    padding:0;
+}
+li {
+    border-bottom:1px solid #333;
+    padding:5px;
+    cursor:pointer;
+}
+.switch {
+    display:inline-block;
+}
+.toast {
+    position:fixed;
+    bottom:20px;
+    right:20px;
+    background:#333;
+    padding:10px;
+    display:none;
+}
+</style>
+</head>
+
+<body>
+
+<h1>QRCodeMaker PRO 😎</h1>
+
+<textarea id="qrText">QRCodeMaker PRO</textarea>
+<button onclick="generateQRCode()">Gerar QR</button>
+<button onclick="openScanner()">Scanner</button>
+
+<div class="qr-preview">
+    <div id="qrcode"></div>
+</div>
+
+<!-- SCANNER MODAL -->
+<div class="modal" id="scannerModal">
+<div class="modal-content">
+
+<h3>Scanner PRO</h3>
+
+<select id="cameraSelect"></select>
+<button id="toggleTorchButton">Ativar Lanterna</button>
+
+<br><br>
+
+<label>
+Abrir URL automaticamente
+<input type="checkbox" id="autoOpenUrl">
+</label>
+
+<br><br>
+
+<video id="scannerVideo" autoplay playsinline style="width:100%"></video>
+<canvas id="scannerCanvas" hidden></canvas>
+
+<h4>Último QR:</h4>
+<div id="lastScan">-</div>
+
+<h4>Histórico:</h4>
+<ul id="scanHistoryList"></ul>
+
+<button onclick="exportCSV()">Exportar CSV</button>
+<button onclick="clearHistory()">Limpar Histórico</button>
+<button onclick="closeScanner()">Fechar</button>
+
+</div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+let qrcode;
+let scannerStream;
+let scanningInterval;
+let selectedCameraId = null;
+let torchEnabled = false;
+let lastScanned = null;
+let autoOpen = false;
+let history = JSON.parse(localStorage.getItem('qrHistory')) || [];
+
+function showToast(msg){
+    const t=document.getElementById('toast');
+    t.textContent=msg;
+    t.style.display='block';
+    setTimeout(()=>t.style.display='none',3000);
+}
+
+function generateQRCode(){
+    document.getElementById('qrcode').innerHTML='';
+    qrcode=new QRCode("qrcode",{text:qrText.value,width:300,height:300});
+}
+
+function openScanner(){
+    document.getElementById('scannerModal').style.display='flex';
+    loadCameras().then(startScanner);
+    renderHistory();
+}
+
+function closeScanner(){
+    stopScanner();
+    document.getElementById('scannerModal').style.display='none';
+}
+
+async function loadCameras(){
+    const devices=await navigator.mediaDevices.enumerateDevices();
+    const cams=devices.filter(d=>d.kind==="videoinput");
+    const sel=document.getElementById('cameraSelect');
+    sel.innerHTML='';
+    cams.forEach((c,i)=>{
+        const o=document.createElement('option');
+        o.value=c.deviceId;
+        o.text=c.label||`Câmera ${i+1}`;
+        sel.appendChild(o);
+    });
+    selectedCameraId=cams[0]?.deviceId;
+    sel.onchange=()=>{
+        selectedCameraId=sel.value;
+        stopScanner();
+        startScanner();
+    };
+}
+
+async function startScanner(){
+    scannerStream=await navigator.mediaDevices.getUserMedia({
+        video:{deviceId:selectedCameraId?{exact:selectedCameraId}:undefined}
+    });
+    scannerVideo.srcObject=scannerStream;
+    scanningInterval=setInterval(scanFrame,120);
+}
+
+function stopScanner(){
+    if(scannerStream){
+        scannerStream.getTracks().forEach(t=>t.stop());
+        scannerStream=null;
+    }
+    clearInterval(scanningInterval);
+}
+
+function scanFrame(){
+    const v=scannerVideo;
+    if(v.readyState!==v.HAVE_ENOUGH_DATA)return;
+    scannerCanvas.width=v.videoWidth;
+    scannerCanvas.height=v.videoHeight;
+    const ctx=scannerCanvas.getContext('2d');
+    ctx.drawImage(v,0,0);
+    const img=ctx.getImageData(0,0,scannerCanvas.width,scannerCanvas.height);
+    const code=jsQR(img.data,img.width,img.height);
+    if(code){
+        onScan(code.data);
+    }
+}
+
+function onScan(data){
+    lastScanned=data;
+    history.unshift({
+        data,
+        date:new Date().toLocaleString(),
+        type:/^https?:\/\//i.test(data)?'URL':'Texto'
+    });
+    history=history.slice(0,100);
+    localStorage.setItem('qrHistory',JSON.stringify(history));
+    lastScan.textContent=data;
+    renderHistory();
+    qrText.value=data;
+    generateQRCode();
+    showToast("QR detectado!");
+    if(autoOpen && /^https?:\/\//i.test(data)){
+        window.open(data,'_blank');
+    }
+}
+
+function renderHistory(){
+    scanHistoryList.innerHTML='';
+    history.forEach(h=>{
+        const li=document.createElement('li');
+        li.textContent=`[${h.type}] ${h.data} (${h.date})`;
+        li.onclick=()=>{
+            qrText.value=h.data;
+            generateQRCode();
+        };
+        scanHistoryList.appendChild(li);
+    });
+    lastScan.textContent=lastScanned||'-';
+}
+
+function clearHistory(){
+    history=[];
+    localStorage.removeItem('qrHistory');
+    renderHistory();
+    showToast("Histórico limpo");
+}
+
+function exportCSV(){
+    if(!history.length)return showToast("Histórico vazio");
+    const csv=[
+        "Tipo,Dado,Data",
+        ...history.map(h=>`"${h.type}","${h.data.replace(/"/g,'""')}","${h.date}"`)
+    ].join("\n");
+    saveAs(new Blob([csv],{type:"text/csv"}),"qr_history.csv");
+}
+
+toggleTorchButton.onclick=async()=>{
+    if(!scannerStream)return;
+    const track=scannerStream.getVideoTracks()[0];
+    const caps=track.getCapabilities();
+    if(!caps.torch)return showToast("Lanterna não suportada");
+    torchEnabled=!torchEnabled;
+    await track.applyConstraints({advanced:[{torch:torchEnabled}]});
+    toggleTorchButton.textContent=torchEnabled?"Desativar Lanterna":"Ativar Lanterna";
+};
+
+autoOpenUrl.onchange=e=>autoOpen=e.target.checked;
+
+generateQRCode();
+</script>
+
+</body>
+</html>
