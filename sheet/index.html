@@ -4,368 +4,228 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Petição Popular – Malacacheta/MG</title>
-  <meta name="description" content="Petição popular para coleta de assinaturas – exercício do direito constitucional de manifestação." />
+
   <!-- reCAPTCHA v3 -->
   <script src="https://www.google.com/recaptcha/api.js?render=6LeJo2QsAAAAAHZc7fAcMthnJdr5FMLM5H1luikW"></script>
 
-  <!-- Firebase SDKs -->
+  <!-- Firebase -->
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
 
-  <!-- jsPDF for PDF export (admin only) -->
+  <!-- jsPDF -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
   <style>
-    :root {
-      --bg: #f4f6f8;
-      --card: #ffffff;
-      --primary: #1f3a5f;
-      --secondary: #4a6fa5;
-      --text: #1c1c1c;
-      --muted: #6b7280;
-      --danger: #b91c1c;
-    }
-
-    * { box-sizing: border-box; }
-
     body {
       margin: 0;
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Helvetica Neue", Arial, sans-serif;
-      background: var(--bg);
-      color: var(--text);
-      line-height: 1.6;
+      font-family: Arial, sans-serif;
+      background: #f4f6f8;
+      color: #1c1c1c;
     }
-
     header {
-      background: var(--primary);
-      color: #fff;
-      padding: 2rem 1rem;
+      background: #1f3a5f;
+      color: white;
+      padding: 2rem;
       text-align: center;
     }
-
-    header h1 {
-      margin: 0 0 0.5rem;
-      font-size: 1.8rem;
-    }
-
-    header p {
-      margin: 0;
-      font-size: 1rem;
-      opacity: 0.95;
-    }
-
     main {
       max-width: 900px;
-      margin: 2rem auto;
-      padding: 0 1rem;
+      margin: auto;
+      padding: 1rem;
     }
-
     .card {
-      background: var(--card);
-      border-radius: 8px;
+      background: white;
       padding: 1.5rem;
       margin-bottom: 1.5rem;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+      border-radius: 8px;
     }
-
-    h2 {
-      margin-top: 0;
-      color: var(--primary);
-    }
-
     .counter {
-      text-align: center;
-      font-size: 2.2rem;
+      font-size: 2rem;
       font-weight: bold;
-      color: var(--secondary);
+      text-align: center;
     }
-
-    .counter span {
-      display: block;
-      font-size: 0.9rem;
-      font-weight: normal;
-      color: var(--muted);
-    }
-
-    form label {
+    label {
       display: block;
       margin-top: 1rem;
-      font-weight: 600;
     }
-
-    form input, form textarea {
+    input {
       width: 100%;
       padding: 0.6rem;
       margin-top: 0.3rem;
-      border-radius: 4px;
-      border: 1px solid #d1d5db;
-      font-size: 0.95rem;
     }
-
-    .hint {
-      font-size: 0.85rem;
-      color: var(--muted);
-    }
-
-    .warning {
-      font-size: 0.85rem;
-      color: var(--danger);
-      margin-top: 0.3rem;
-    }
-
-    .checkbox {
-      margin-top: 1rem;
-    }
-
     button {
       margin-top: 1.5rem;
-      background: var(--primary);
-      color: #fff;
-      border: none;
       padding: 0.8rem 1.2rem;
-      font-size: 1rem;
+      border: none;
+      background: #1f3a5f;
+      color: white;
       border-radius: 6px;
       cursor: pointer;
     }
-
-    button:disabled {
-      opacity: 0.6;
-      cursor: not-allowed;
+    .warning {
+      color: #b91c1c;
+      font-size: 0.85rem;
     }
-
     footer {
       text-align: center;
       font-size: 0.85rem;
-      color: var(--muted);
-      margin: 3rem 1rem 2rem;
-    }
-
-    .share a {
-      margin-right: 0.5rem;
-      text-decoration: none;
-      color: var(--secondary);
-      font-weight: 600;
-    }
-
-    details summary {
-      cursor: pointer;
-      font-weight: 600;
-      margin-top: 0.5rem;
+      margin: 2rem;
     }
   </style>
 </head>
+
 <body>
-  <header>
-    <h1>Petição Popular – Malacacheta/MG</h1>
-    <p>Pedido de impeachment do Prefeito Hermes Adalto Gomes da Cunha (Lei de Francino)</p>
-  </header>
 
-  <main>
-    <section class="card">
-      <h2>Assinaturas coletadas</h2>
-      <div class="counter" id="counter">0
-        <span>assinaturas registradas — dados armazenados de forma segura</span>
-      </div>
-    </section>
+<header>
+  <h1>Petição Popular – Malacacheta/MG</h1>
+  <p>Pedido de impeachment do Prefeito Hermes Adalto Gomes da Cunha</p>
+</header>
 
-    <section class="card">
-      <h2>Sobre esta petição</h2>
-      <p>
-        Esta petição é um instrumento de manifestação popular, fundamentado no direito constitucional
-        de participação cidadã, com o objetivo de solicitar à Câmara Municipal de Malacacheta/MG a
-        abertura de procedimento de impeachment do Prefeito <strong>Hermes Adalto Gomes da Cunha</strong>,
-        conhecido como <strong>Lei de Francino</strong>.
-      </p>
-      <p>
-        O pedido baseia-se em <strong>alegações públicas</strong> de que teria ocorrido a aquisição de um imóvel rural
-        (fazenda) de valor aproximado de <strong>R$ 4.000.000,00</strong>, supostamente com utilização de recursos públicos,
-        fato que, conforme alegado, teria impactado negativamente a situação financeira do Município,
-        inclusive com comprometimento dos cofres da Prefeitura.
-      </p>
-      <p>
-        Ressalta-se que tais fatos <strong>não constituem juízo definitivo</strong> nem afirmação de culpa, tratando-se
-        de questionamentos que motivam o presente pedido para que os órgãos competentes realizem a
-        <strong>devida apuração</strong>, com observância do contraditório, da ampla defesa e do devido processo legal.
-      </p>
-    </section>
+<main>
 
-    <section class="card">
-      <h2>Assine a petição</h2>
-      <form id="petitionForm">
-        <label>Nome completo *</label>
-        <input type="text" id="name" required />
+  <section class="card">
+    <div class="counter" id="counter">0<br><span style="font-size:0.9rem">assinaturas registradas</span></div>
+  </section>
 
-        <label>Título de eleitor (opcional)</label>
-        <input type="text" id="voter" />
-        <div class="warning">Não informe CPF, RG ou CNH.</div>
+  <section class="card">
+    <h2>Assine a petição</h2>
+    <form id="petitionForm">
+      <label>Nome completo *</label>
+      <input type="text" id="name" required />
 
-        <label>E-mail ou telefone (opcional)</label>
-        <input type="text" id="contact" />
+      <label>Título de eleitor (opcional)</label>
+      <input type="text" id="voter" />
+      <div class="warning">Não informe CPF, RG ou CNH.</div>
 
-        <div class="checkbox">
-          <input type="checkbox" id="consent" required />
-          <label for="consent">Declaro que li e concordo com o aviso legal, termos de uso e política de privacidade.</label>
-        </div>
+      <label>E-mail ou telefone (opcional)</label>
+      <input type="text" id="contact" />
 
-        <button type="submit" id="submitBtn">Registrar assinatura</button>
-      </form>
-    </section>
+      <label>
+        <input type="checkbox" id="consent" required />
+        Declaro que li e concordo com os termos.
+      </label>
 
-    <section class="card">
-      <h2>Perguntas frequentes</h2>
-      <details>
-        <summary>Esta petição tem validade jurídica?</summary>
-        <p>A petição é um instrumento de manifestação popular e poderá ser utilizada como subsídio político e jurídico conforme análise das autoridades competentes.</p>
-      </details>
-      <details>
-        <summary>Meus dados serão divulgados?</summary>
-        <p>Não. Os dados coletados não são exibidos publicamente e são utilizados exclusivamente para os fins desta petição.</p>
-      </details>
-      <details>
-        <summary>Sou obrigado a informar título ou contato?</summary>
-        <p>Não. Essas informações são opcionais, porém ajudam a demonstrar legitimidade do apoio.</p>
-      </details>
-    </section>
+      <button type="submit" id="submitBtn">Registrar assinatura</button>
+    </form>
+  </section>
 
-    <section class="card share">
-      <h2>Compartilhe</h2>
-      <a href="#" onclick="share('whatsapp')">WhatsApp</a>
-      <a href="#" onclick="share('instagram')">Instagram</a>
-    </section>
-  </main>
+  <section class="card">
+    <h2>Compartilhe</h2>
+    <button onclick="share('whatsapp')">WhatsApp</button>
+    <button onclick="share('instagram')">Instagram</button>
+  </section>
+
+  <section class="card" id="adminLogin">
+    <h2>Acesso administrativo</h2>
+    <input type="email" id="adminEmail" placeholder="E-mail" />
+    <input type="password" id="adminPassword" placeholder="Senha" />
+    <button onclick="login()">Entrar</button>
+  </section>
 
   <section class="card" id="adminPanel" style="display:none;">
-      <h2>Área administrativa</h2>
-      <p>Acesso restrito. Somente o responsável pela petição pode visualizar e exportar os dados.</p>
-      <button onclick="downloadPDF()">Baixar assinaturas em PDF</button>
-      <button onclick="logout()" style="margin-left:0.5rem;">Sair</button>
-    </section>
+    <h2>Área administrativa</h2>
+    <button onclick="downloadPDF()">Baixar assinaturas em PDF</button>
+    <button onclick="logout()">Sair</button>
+  </section>
 
-    <section class="card" id="adminLogin">
-      <h2>Acesso administrativo</h2>
-      <label>E-mail</label>
-      <input type="email" id="adminEmail" />
-      <label>Senha</label>
-      <input type="password" id="adminPassword" />
-      <button onclick="login()">Entrar</button>
-    </section>
-  </main>
+</main>
 
-  <footer>
-    <p>Movimento independente de cidadãos de Malacacheta/MG</p>
-  </footer>
+<footer>
+  Movimento independente de cidadãos de Malacacheta/MG
+</footer>
 
-  <script>
-    // Firebase config
-    const firebaseConfig = {
-      apiKey: "AIzaSyB8j3uUT1PYLGneOmc7BqdHm0lpJDzd4FU",
-      authDomain: "peticao-malacacheta.firebaseapp.com",
-      projectId: "peticao-malacacheta",
-    };
+<script>
+  const firebaseConfig = {
+    apiKey: "AIzaSyB8j3uUT1PYLGneOmc7BqdHm0lpJDzd4FU",
+    authDomain: "peticao-malacacheta.firebaseapp.com",
+    projectId: "peticao-malacacheta"
+  };
 
-    firebase.initializeApp(firebaseConfig);
-    const db = firebase.firestore();
+  firebase.initializeApp(firebaseConfig);
+  const db = firebase.firestore();
+  const auth = firebase.auth();
 
-    const counterEl = document.getElementById('counter');
+  const counterEl = document.getElementById('counter');
+  const submitBtn = document.getElementById('submitBtn');
+  const petitionForm = document.getElementById('petitionForm');
 
-    // Real-time counter
-    db.collection('signatures').onSnapshot(snapshot => {
-      counterEl.firstChild.textContent = snapshot.size;
-    });
+  db.collection('signatures').onSnapshot(snap => {
+    counterEl.firstChild.textContent = snap.size;
+  });
 
-    // Prevent multiple submissions per device
-    if (localStorage.getItem('signed_petition')) {
-      document.getElementById('submitBtn').disabled = true;
-      document.getElementById('submitBtn').innerText = 'Assinatura já registrada neste dispositivo';
-    }
+  if (localStorage.getItem('signed_petition')) {
+    submitBtn.disabled = true;
+    submitBtn.innerText = 'Assinatura já registrada';
+  }
 
-    document.getElementById('petitionForm').addEventListener('submit', async (e) => {
-      e.preventDefault();
+  petitionForm.addEventListener('submit', e => {
+    e.preventDefault();
+    if (localStorage.getItem('signed_petition')) return;
 
-      if (localStorage.getItem('signed_petition')) return;
+    grecaptcha.ready(async () => {
+      const token = await grecaptcha.execute(
+        '6LeJo2QsAAAAAHZc7fAcMthnJdr5FMLM5H1luikW',
+        { action: 'submit' }
+      );
 
-      grecaptcha.ready(async () => {
-        const token = await grecaptcha.execute('YOUR_RECAPTCHA_SITE_KEY', {action: 'submit'});
-
-        const data = {
-          name: document.getElementById('name').value.trim(),
-          voter: document.getElementById('voter').value.trim(),
-          contact: document.getElementById('contact').value.trim(),
-          createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-          recaptcha: token
-        };
-
-        await db.collection('signatures').add(data);
-        localStorage.setItem('signed_petition', 'true');
-        alert('Assinatura registrada com sucesso. Obrigado pela participação cidadã.');
-        e.target.reset();
-        document.getElementById('submitBtn').disabled = true;
-      });
-    });
-
-    function share(platform) {
-      const url = encodeURIComponent(window.location.href);
-      const text = encodeURIComponent('Assine a petição popular de Malacacheta/MG');
-      if (platform === 'whatsapp') {
-        window.open(`https://wa.me/?text=${text}%20${url}`, '_blank');
-      }
-      if (platform === 'instagram') {
-        alert('No Instagram, copie o link da página e compartilhe nos stories ou bio.');
-      }
-    }
-
-    // Firebase Auth (admin only)
-    const auth = firebase.auth();
-
-    auth.onAuthStateChanged(user => {
-      if (user) {
-        document.getElementById('adminPanel').style.display = 'block';
-        document.getElementById('adminLogin').style.display = 'none';
-      } else {
-        document.getElementById('adminPanel').style.display = 'none';
-        document.getElementById('adminLogin').style.display = 'block';
-      }
-    });
-
-    function login() {
-      const email = document.getElementById('adminEmail').value;
-      const password = document.getElementById('adminPassword').value;
-      auth.signInWithEmailAndPassword(email, password)
-        .catch(() => alert('Erro de login'));
-    }
-
-    function logout() {
-      auth.signOut();
-    }
-
-    async function downloadPDF() {
-      const { jsPDF } = window.jspdf;
-      const doc = new jsPDF();
-      let y = 10;
-
-      doc.text('Lista de Assinaturas – Petição Popular Malacacheta/MG', 10, y);
-      y += 10;
-
-      const snapshot = await db.collection('signatures').orderBy('createdAt').get();
-      snapshot.forEach((docSnap, index) => {
-        const d = docSnap.data();
-        const line = `${index + 1}. ${d.name} | ${d.voter || '—'} | ${d.contact || '—'}`;
-        doc.text(line, 10, y);
-        y += 8;
-        if (y > 280) {
-          doc.addPage();
-          y = 10;
-        }
+      await db.collection('signatures').add({
+        name: name.value.trim(),
+        voter: voter.value.trim(),
+        contact: contact.value.trim(),
+        createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+        recaptcha: token
       });
 
-      doc.save('assinaturas-peticao-malacacheta.pdf');
-    }%20${url}`, '_blank');
-      }
-      if (platform === 'instagram') {
-        alert('No Instagram, copie o link da página e compartilhe nos stories ou bio.');
-      }
+      localStorage.setItem('signed_petition', 'true');
+      alert('Assinatura registrada com sucesso.');
+      submitBtn.disabled = true;
+    });
+  });
+
+  function share(platform) {
+    const url = encodeURIComponent(location.href);
+    const text = encodeURIComponent('Assine a petição popular de Malacacheta/MG');
+    if (platform === 'whatsapp') {
+      window.open(`https://wa.me/?text=${text}%20${url}`, '_blank');
     }
-  </script>
+    if (platform === 'instagram') {
+      alert('Copie o link da página e compartilhe no Instagram.');
+    }
+  }
+
+  auth.onAuthStateChanged(user => {
+    adminPanel.style.display = user ? 'block' : 'none';
+    adminLogin.style.display = user ? 'none' : 'block';
+  });
+
+  function login() {
+    auth.signInWithEmailAndPassword(adminEmail.value, adminPassword.value)
+      .catch(() => alert('Erro de login'));
+  }
+
+  function logout() {
+    auth.signOut();
+  }
+
+  async function downloadPDF() {
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF();
+    let y = 10;
+    doc.text('Assinaturas da Petição', 10, y);
+    y += 10;
+
+    const snap = await db.collection('signatures').orderBy('createdAt').get();
+    snap.forEach((d, i) => {
+      const s = d.data();
+      doc.text(`${i + 1}. ${s.name} | ${s.voter || '-'} | ${s.contact || '-'}`, 10, y);
+      y += 8;
+      if (y > 280) { doc.addPage(); y = 10; }
+    });
+
+    doc.save('assinaturas-peticao.pdf');
+  }
+</script>
+
 </body>
 </html>
