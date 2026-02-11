@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LinkFlow | Encurtador Serverless</title>
+    <meta name="description" content="Encurtador de links universal sem servidor.">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>⚡</text></svg>">
+
+    <style>
+        /* =========================================
+           CSS ESTILO "CYBER / CLEAN" ATUALIZADO
+           ========================================= */
+        :root {
+            --primary: #6366f1; /* Indigo */
+            --primary-hover: #4f46e5;
+            --bg: #f8fafc;
+            --surface: #ffffff;
+            --text: #1e293b;
+            --text-light: #64748b;
+            --accent: #06b6d4;
+            --radius: 16px;
+            --shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+        }
+
+        body.dark-mode {
+            --primary: #818cf8;
+            --primary-hover: #6366f1;
+            --bg: #0f172a;
+            --surface: #1e293b;
+            --text: #f1f5f9;
+            --text-light: #94a3b8;
+            --shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.4);
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', system-ui, -apple-system, sans-serif; }
+
+        body {
+            background-color: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.3s, color 0.3s;
+            padding: 20px;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 550px;
+            background: var(--surface);
+            padding: 35px;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Elemento decorativo */
+        .container::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 6px;
+            background: linear-gradient(90deg, var(--primary), var(--accent));
+        }
+
+        h1 { margin-bottom: 8px; font-size: 2rem; background: linear-gradient(to right, var(--primary), var(--accent)); -webkit-background-clip: text; color: transparent; letter-spacing: -1px; }
+        p.subtitle { color: var(--text-light); margin-bottom: 25px; font-size: 0.95rem; }
+
+        /* Abas de Modo */
+        .mode-selector {
+            display: flex;
+            background: var(--bg);
+            padding: 5px;
+            border-radius: 12px;
+            margin-bottom: 25px;
+        }
+
+        .mode-btn {
+            flex: 1;
+            padding: 10px;
+            border: none;
+            background: transparent;
+            color: var(--text-light);
+            font-weight: 600;
+            cursor: pointer;
+            border-radius: 8px;
+            transition: all 0.2s;
+        }
+
+        .mode-btn.active {
+            background: var(--surface);
+            color: var(--primary);
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+
+        /* Inputs e Botões */
+        .input-group { position: relative; margin-bottom: 20px; text-align: left; }
+        
+        label { display: block; font-size: 0.85rem; color: var(--text-light); margin-bottom: 6px; font-weight: 600; }
+
+        input {
+            width: 100%;
+            padding: 16px 16px;
+            font-size: 1rem;
+            border: 2px solid transparent;
+            background: var(--bg);
+            color: var(--text);
+            border-radius: 12px;
+            outline: none;
+            transition: all 0.2s;
+        }
+
+        input:focus { background: var(--surface); border-color: var(--primary); box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1); }
+
+        .action-btn {
+            width: 100%;
+            padding: 16px;
+            background: linear-gradient(135deg, var(--primary), var(--primary-hover));
+            color: white;
+            font-weight: 700;
+            font-size: 1rem;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: transform 0.1s, opacity 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .action-btn:hover { opacity: 0.9; }
+        .action-btn:active { transform: scale(0.98); }
+
+        /* Área de Resultado */
+        .result-box {
+            margin-top: 25px;
+            padding: 20px;
+            background: var(--bg);
+            border: 2px dashed var(--primary);
+            border-radius: 12px;
+            display: none; /* Escondido */
+            animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .result-box.visible { display: block; }
+
+        .generated-link {
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+            word-break: break-all;
+            color: var(--primary);
+            margin-bottom: 15px;
+            display: block;
+            background: rgba(99, 102, 241, 0.1);
+            padding: 12px;
+            border-radius: 8px;
+            border: 1px solid rgba(99, 102, 241, 0.2);
+        }
+
+        .secondary-btn {
+            background: var(--text);
+            color: var(--surface);
+            width: auto;
+            padding: 10px 20px;
+            font-size: 0.9rem;
+            margin-top: 10px;
+        }
+        
+        .download-btn {
+            background: var(--accent);
+            color: white;
+            width: 100%;
+            margin-top: 0;
+        }
+
+        /* Toast Notification (Substituto do Alert) */
+        .toast {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%) translateY(100px);
+            background: #1e293b;
+            color: white;
+            padding: 12px 24px;
+            border-radius: 50px;
+            box-shadow: 0 10px 15px -3px rgba(0,0,0,0.2);
+            font-size: 0.9rem;
+            opacity: 0;
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            z-index: 100;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
+        .toast.error { background: #ef4444; }
+        .toast.success { background: #10b981; }
+
+        /* Info Cards */
+        .info-card {
+            margin-top: 20px;
+            font-size: 0.8rem;
+            color: var(--text-light);
+            background: rgba(0,0,0,0.03);
+            padding: 12px;
+            border-radius: 8px;
+            text-align: left;
+            line-height: 1.4;
+        }
+
+        /* Animations */
+        @keyframes slideUp { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* Responsividade */
+        @media (max-width: 500px) {
+            .container { padding: 25px 20px; }
+            h1 { font-size: 1.6rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>⚡ LinkFlow</h1>
+        <p class="subtitle">Encurtador Serverless Inteligente</p>
+
+        <!-- Tela de Redirecionamento (Se acessar via link gerado) -->
+        <div id="redirect-ui" style="display: none;">
+            <div style="font-size: 3rem; margin-bottom: 20px; animation: pulse 1s infinite;">🚀</div>
+            <h2>Redirecionando...</h2>
+            <p style="color: var(--text-light);">Lendo os dados e decodificando seu destino.</p>
+        </div>
+
+        <!-- Tela Principal -->
+        <div id="creator-ui">
+            
+            <!-- Seletor de Modo -->
+            <div class="mode-selector">
+                <button class="mode-btn active" id="btnModeLink" onclick="setMode('link')">🔗 Link Otimizado</button>
+                <button class="mode-btn" id="btnModeFile" onclick="setMode('file')">📄 Arquivo (.html)</button>
+            </div>
+
+            <div class="input-group">
+                <label for="urlInput">URL de Destino</label>
+                <input type="url" id="urlInput" placeholder="https://exemplo.com/link-muito-grande" autofocus>
+            </div>
+            
+            <button class="action-btn" id="mainActionBtn" onclick="processAction()">
+                <span>✨ Gerar Link Encurtado</span>
+            </button>
+
+            <!-- Área de Resultados -->
+            <div class="result-box" id="resultBox">
+                
+                <!-- Conteúdo do Modo Link -->
+                <div id="resultLinkMode">
+                    <label>Seu link universal:</label>
+                    <span class="generated-link" id="outputLink"></span>
+                    <button class="action-btn secondary-btn" onclick="copyLink()">📋 Copiar para Área de Transferência</button>
+                </div>
+
+                <!-- Conteúdo do Modo Arquivo -->
+                <div id="resultFileMode" style="display: none;">
+                    <label>Arquivo gerado:</label>
+                    <div style="margin-bottom: 15px; font-size: 0.9rem; color: var(--text-light);">
+                        Envie este arquivo pequeno para qualquer pessoa. Ao abrir, ela será redirecionada automaticamente.
+                    </div>
+                    <button class="action-btn download-btn" onclick="downloadFile()">⬇️ Baixar Arquivo HTML</button>
+                </div>
+
+            </div>
+
+            <!-- Explicação Dinâmica -->
+            <div class="info-card" id="infoText">
+                💡 <strong>Modo Link:</strong> O link ficará menor que o anterior, mas ainda é longo pois carrega o dado completo. Funciona em qualquer lugar.
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast de Notificação -->
+    <div id="toast" class="toast">
+        <span id="toastIcon">✅</span>
+        <span id="toastMessage">Mensagem aqui</span>
+    </div>
+
+    <script>
+        /* =========================================
+           LÓGICA SERVERLESS OTIMIZADA
+           ========================================= */
+
+        // Elementos DOM
+        const ui = {
+            creator: document.getElementById('creator-ui'),
+            redirect: document.getElementById('redirect-ui'),
+            input: document.getElementById('urlInput'),
+            output: document.getElementById('outputLink'),
+            resultBox: document.getElementById('resultBox'),
+            btnModeLink: document.getElementById('btnModeLink'),
+            btnModeFile: document.getElementById('btnModeFile'),
+            mainBtn: document.getElementById('mainActionBtn'),
+            resultLinkMode: document.getElementById('resultLinkMode'),
+            resultFileMode: document.getElementById('resultFileMode'),
+            infoText: document.getElementById('infoText')
+        };
+
+        let currentMode = 'link'; // 'link' ou 'file'
+        let generatedBlobUrl = null;
+
+        // 1. Inicialização
+        document.addEventListener('DOMContentLoaded', () => {
+            // Checa se há hash na URL (Modo Redirecionamento)
+            const hash = window.location.hash.substring(1);
+            
+            // Checa Dark Mode
+            if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+                document.body.classList.add('dark-mode');
+            }
+
+            if (hash) {
+                ui.creator.style.display = 'none';
+                ui.redirect.style.display = 'block';
+                processRedirect(hash);
+            }
+        });
+
+        // 2. Gerenciamento de Modos (UI)
+        function setMode(mode) {
+            currentMode = mode;
+            ui.resultBox.classList.remove('visible'); // Esconde resultados antigos
+
+            if (mode === 'link') {
+                ui.btnModeLink.classList.add('active');
+                ui.btnModeFile.classList.remove('active');
+                ui.mainBtn.innerHTML = '<span>✨ Gerar Link Otimizado</span>';
+                ui.infoText.innerHTML = '💡 <strong>Modo Link:</strong> O link ficará menor que o anterior, mas ainda é longo pois carrega o dado completo. Funciona em qualquer lugar.';
+            } else {
+                ui.btnModeLink.classList.remove('active');
+                ui.btnModeFile.classList.add('active');
+                ui.mainBtn.innerHTML = '<span>📦 Gerar Arquivo Mini</span>';
+                ui.infoText.innerHTML = '⚡ <strong>Modo Arquivo:</strong> Gera um arquivo HTML leve (<strong>1kb</strong>). Envie o arquivo em vez do link. É a solução mais curta possível sem servidor!';
+            }
+        }
+
+        // 3. Processamento Principal
+        function processAction() {
+            let originalUrl = ui.input.value.trim();
+
+            if (!originalUrl) {
+                showToast("Por favor, cole um URL primeiro.", "error");
+                ui.input.focus();
+                return;
+            }
+            
+            if (!/^https?:\/\//i.test(originalUrl)) {
+                originalUrl = 'http://' + originalUrl;
+            }
+
+            // Validação extra
+            try {
+                new URL(originalUrl);
+            } catch (_) {
+                showToast("URL inválida. Verifique o formato.", "error");
+                return;
+            }
+
+            if (currentMode === 'link') {
+                generateOptimizedLink(originalUrl);
+            } else {
+                prepareFileDownload(originalUrl);
+            }
+        }
+
+        // 4. Geração de Link Otimizado (Base64 com UTF-8 fix)
+        function generateOptimizedLink(url) {
+            // O truque aqui é usar encodeURIComponent + unescape antes do btoa.
+            // Isso garante suporte a UTF-8 (emojis, acentos) sem inflar o tamanho excessivamente.
+            // O código antigo usava btoa(encodeURIComponent(url)) que codificava os '%' em bytes extras.
+            
+            const encoded = btoa(unescape(encodeURIComponent(url)));
+            
+            // Monta o link
+            const universalLink = `${window.location.origin}${window.location.pathname}#${encoded}`;
+
+            ui.output.textContent = universalLink;
+            
+            // Alterna visualização
+            ui.resultLinkMode.style.display = 'block';
+            ui.resultFileMode.style.display = 'none';
+            ui.resultBox.classList.add('visible');
+            
+            showToast("Link otimizado gerado!", "success");
+        }
+
+        // 5. Preparação do Arquivo (A "Mágica" de ser curto)
+        function prepareFileDownload(url) {
+            // Cria um HTML minúsculo em memória
+            // Este arquivo, quando aberto, executa o redirecionamento.
+            const fileContent = `<!DOCTYPE html><meta charset="UTF-8"><meta http-equiv="refresh" content="0;url=${url}"><title>Redirecionando...</title><style>body{font-family:sans-serif;display:flex;justify-content:center;align-items:center;height:100vh;margin:0;color:#333}h1{font-size:1.2rem}</style><h1>⚡ Redirecionando...</h1>`;
+            
+            const blob = new Blob([fileContent], { type: 'text/html' });
+            
+            // Limpa URL antiga se existir para evitar vazamento de memória
+            if (generatedBlobUrl) URL.revokeObjectURL(generatedBlobUrl);
+            
+            generatedBlobUrl = URL.createObjectURL(blob);
+
+            // Alterna visualização
+            ui.resultLinkMode.style.display = 'none';
+            ui.resultFileMode.style.display = 'block';
+            ui.resultBox.classList.add('visible');
+            
+            showToast("Arquivo preparado!", "success");
+        }
+
+        function downloadFile() {
+            if (!generatedBlobUrl) return;
+            const a = document.createElement('a');
+            a.href = generatedBlobUrl;
+            a.download = 'linkflow-redirect.html'; // Nome curto e limpo
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            showToast("Download iniciado!", "success");
+        }
+
+        // 6. Função de Redirecionamento (Executada pelo Link)
+        function processRedirect(hash) {
+            try {
+                // Decodifica o Base64 otimizado
+                const targetUrl = decodeURIComponent(escape(atob(hash)));
+
+                if (targetUrl.startsWith('http://') || targetUrl.startsWith('https://')) {
+                    // Pequeno delay para a UI carregar
+                    setTimeout(() => {
+                        window.location.replace(targetUrl);
+                    }, 800);
+                } else {
+                    showToast("Link corrompido.", "error");
+                }
+            } catch (e) {
+                console.error(e);
+                showToast("Erro ao decodificar o link.", "error");
+            }
+        }
+
+        // 7. Utilitários de UI
+        function copyLink() {
+            const text = ui.output.textContent;
+            navigator.clipboard.writeText(text).then(() => {
+                showToast("Link copiado!", "success");
+            }).catch(() => {
+                showToast("Erro ao copiar.", "error");
+            });
+        }
+
+        function showToast(msg, type = 'success') {
+            const toast = document.getElementById('toast');
+            const toastMsg = document.getElementById('toastMessage');
+            const toastIcon = document.getElementById('toastIcon');
+
+            toastMsg.textContent = msg;
+            toast.className = `toast ${type} show`;
+            toastIcon.textContent = type === 'success' ? '✅' : '❌';
+
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 3000);
+        }
+    </script>
+</body>
+</html>
