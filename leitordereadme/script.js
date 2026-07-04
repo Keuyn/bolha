@@ -129,18 +129,43 @@ els.urlInput.addEventListener('keydown', e => {
   if (e.key === 'Enter') fetchUrl();
 });
 
-function fetchUrl() {
-  const url = els.urlInput.value.trim();
-  if (!url) return;
+const CORS_PROXY = 'https://corsproxy.io/?url=';
 
-  fetch(url)
-    .then(r => {
-      if (!r.ok) throw new Error(`Falha ao carregar (${r.status})`);
+function toRawUrl(url) {
+  const m = url.match(/github\.com\/([^/]+\/[^/]+)\/blob\/(.+)/);
+  if (m) return `https://raw.githubusercontent.com/${m[1]}/${m[2]}`;
+  return url;
+}
+
+function fetchUrl() {
+  const raw = els.urlInput.value.trim();
+  if (!raw) return;
+
+  const url = toRawUrl(raw);
+  const btn = els.btnFetchUrl;
+  const origText = btn.textContent;
+  btn.textContent = 'Carregando...';
+  btn.disabled = true;
+
+  function doFetch(u) {
+    return fetch(u).then(r => {
+      if (!r.ok) throw new Error(`HTTP ${r.status}`);
       return r.text();
-    })
+    });
+  }
+
+  doFetch(url)
     .then(render)
-    .catch(err => {
-      alert('Erro: ' + err.message);
+    .catch(() => {
+      return doFetch(CORS_PROXY + encodeURIComponent(url))
+        .then(render)
+        .catch(err => {
+          alert('Não foi possível carregar a URL. Verifique se o link é válido e tente novamente.\n\n' + err.message);
+        });
+    })
+    .finally(() => {
+      btn.textContent = origText;
+      btn.disabled = false;
     });
 }
 
