@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Markdown Reader</title>
+
+<link rel="stylesheet"
+  href="https://cdnjs.cloudflare.com/ajax/libs/github-markdown-css/5.8.1/github-markdown.min.css">
+<link rel="stylesheet"
+  href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/styles/github-dark.min.css"
+  id="highlight-css">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header>
+  <h1>README.md</h1>
+  <div class="header-actions">
+    <button data-mode="local" class="active">Local</button>
+    <button data-mode="upload">Upload</button>
+    <button data-mode="paste">Colar</button>
+    <button data-mode="url">URL</button>
+    <span class="divider"></span>
+    <button id="theme-toggle" class="icon-btn" title="Alternar tema">☀️</button>
+    <button id="btn-download" class="icon-btn" title="Download HTML">⬇️</button>
+    <button id="btn-copy" class="icon-btn" title="Copiar HTML">📋</button>
+  </div>
+</header>
+
+<section id="input-section">
+  <div id="mode-local" class="mode-section">
+    <p>Carregando README.md local...</p>
+  </div>
+
+  <div id="mode-upload" class="mode-section hidden">
+    <div id="drop-zone">
+      <p>Arraste um arquivo .md aqui ou clique para selecionar</p>
+      <input type="file" accept=".md" id="file-input">
+    </div>
+  </div>
+
+  <div id="mode-paste" class="mode-section hidden">
+    <textarea id="paste-area" placeholder="Cole seu Markdown aqui... (Ctrl+Enter para renderizar)"></textarea>
+    <button id="btn-render-paste" class="btn-primary">Renderizar</button>
+  </div>
+
+  <div id="mode-url" class="mode-section hidden">
+    <input type="url" id="url-input"
+      placeholder="https://raw.githubusercontent.com/usuario/repo/main/README.md">
+    <button id="btn-fetch-url" class="btn-primary">Carregar</button>
+  </div>
+</section>
+
+<main>
+  <div class="empty-state" id="empty-state">
+    Selecione um modo acima para começar
+  </div>
+
+  <div class="split-view" id="split-view">
+    <div class="raw-pane">
+      <div class="pane-header">Raw Markdown</div>
+      <pre id="raw-content"></pre>
+    </div>
+    <div class="rendered-pane">
+      <div class="pane-header">Preview</div>
+      <article id="content" class="markdown-body" data-color-mode="dark"></article>
+    </div>
+  </div>
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/highlight.min.js"></script>
+<script src="script.js"></script>
+</body>
+</html>
